@@ -1,4 +1,4 @@
-Lab 3 - Hello Triangle and Installing prerequisite software
+Body-Projection
 ========================================
 
 Lab machines
