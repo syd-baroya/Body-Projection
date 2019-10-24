@@ -18,6 +18,8 @@ using namespace std;
 using namespace glm;
 
 #define RECOVER_JOINT_POSITION_TIME 1.0
+#define BODY_LOST_TIME 0.1
+#define FORECASTFACT 1.7 //0.1
 #define CASCADE 5
 template<class Interface>
 inline void SafeRelease(Interface*& pInterfaceToRelease)
@@ -28,24 +30,17 @@ inline void SafeRelease(Interface*& pInterfaceToRelease)
 		pInterfaceToRelease = NULL;
 	}
 }
-class bodypack_
+class new_bodypack_
 {
 public:
-	IBody* ppBodies[BODY_COUNT];
+	k4abt_body_t* ppBodies[BODY_COUNT];
 	bool bTracked[BODY_COUNT];
-	bodypack_()
+	new_bodypack_()
 		{
 		for (int ii = 0; ii < BODY_COUNT; ii++)
 			{
 			bTracked[ii] = false;
 			ppBodies[ii] = NULL;
-			}
-		}
-	void saverelease()
-		{
-		for (int i = 0; i < _countof(ppBodies); ++i)
-			{
-			SafeRelease(ppBodies[i]);
 			}
 		}
 
@@ -162,12 +157,12 @@ class new_trackedbody_
 class new_body_
 	{
 	private:
+		bool ProcessBody(float frametime, uint64_t nTime, int nBodyCount, new_bodypack_* bodypack);
 		k4a_device_t device;
 		k4a_device_configuration_t deviceConfig;
 		k4a_calibration_t sensorCalibration;
 		k4abt_tracker_t tracker;
 		k4abt_tracker_configuration_t tracker_config;
-		k4abt_frame_t body_frame;
 		k4a_capture_t sensor_capture;
 
 
@@ -185,6 +180,5 @@ class new_body_
 			tracker = NULL;
 			tracker_config = K4ABT_TRACKER_CONFIG_DEFAULT;
 			tracker_config.cpu_only_mode = true;
-			body_frame = NULL;
 		}
 	};
