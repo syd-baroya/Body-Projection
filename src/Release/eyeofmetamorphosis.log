@@ -1,0 +1,15 @@
+﻿  glad.c
+  body.cpp
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\shared\minwindef.h(130,1): warning C4005: 'APIENTRY': macro redefinition
+C:\Users\Sydney\Documents\body projection v07\ext\glad\include\glad\glad.h(32): message : see previous definition of 'APIENTRY'
+  GLSL.cpp
+  main.cpp
+C:\Users\Sydney\Documents\body projection v07\src\body.h(9,10): fatal error C1083: Cannot open include file: 'glm/gtc/type_ptr.hpp': No such file or directory
+  MatrixStack.cpp
+C:\Users\Sydney\Documents\body projection v07\src\MatrixStack.h(9,10): fatal error C1083: Cannot open include file: 'glm/glm.hpp': No such file or directory
+  Program.cpp
+  Shape.cpp
+C:\Users\Sydney\Documents\body projection v07\src\MatrixStack.h(9,10): fatal error C1083: Cannot open include file: 'glm/glm.hpp': No such file or directory
+  WindowManager.cpp
+C:\Users\Sydney\Documents\body projection v07\src\Shape.cpp(65,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\Sydney\Documents\body projection v07\src\WindowManager.h(23,10): fatal error C1083: Cannot open include file: 'GLFW/glfw3.h': No such file or directory
