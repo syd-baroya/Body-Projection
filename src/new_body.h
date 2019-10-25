@@ -21,26 +21,18 @@ using namespace glm;
 #define BODY_LOST_TIME 0.1
 #define FORECASTFACT 1.7 //0.1
 #define CASCADE 5
-template<class Interface>
-inline void SafeRelease(Interface*& pInterfaceToRelease)
-{
-	if (pInterfaceToRelease != NULL)
-	{
-		pInterfaceToRelease->Release();
-		pInterfaceToRelease = NULL;
-	}
-}
+#define BODY_COUNT 6
+
 class new_bodypack_
 {
 public:
-	k4abt_body_t* ppBodies[BODY_COUNT];
+	k4abt_body_t ppBodies[BODY_COUNT] = {};
 	bool bTracked[BODY_COUNT];
 	new_bodypack_()
 		{
 		for (int ii = 0; ii < BODY_COUNT; ii++)
 			{
 			bTracked[ii] = false;
-			ppBodies[ii] = NULL;
 			}
 		}
 

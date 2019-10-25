@@ -55,9 +55,12 @@ int new_body_::Update(float frametime)
 					uint32_t id = k4abt_frame_get_body_id(body_frame, i);
 					if (id != K4ABT_INVALID_BODY_ID) {
 						bodypack.bTracked[i] = true;
-						bodypack.ppBodies[i] = {id, skeleton};
+						bodypack.ppBodies[i] = { id, skeleton };
 						trackedbodies++;
 						printf("%i bodies are detected!\n", i);
+					}
+					else {
+						bodypack.bTracked[i] = false;
 					}
 				}
 
@@ -109,15 +112,15 @@ bool new_body_::ProcessBody(float frametime, uint64_t nTime, int nBodyCount, new
 	float closest = -1;
 	for (int i = 0; i < nBodyCount; ++i) 
 	{
-		if (bodypack->ppBodies[i] && bodypack->bTracked[i])
+		if (bodypack->bTracked[i])
 		{
-			k4abt_body_t* pBody = bodypack->ppBodies[i];
+			k4abt_body_t pBody = bodypack->ppBodies[i];
 			k4abt_joint_t* joints;
-			joints = pBody->skeleton.joints;
+			joints = pBody.skeleton.joints;
 			if (closest<0 || closest>joints[0].position.xyz.z)
 			{
 				closest = joints[0].position.xyz.z;
-				p_closest_Body_to_track = pBody;
+				p_closest_Body_to_track = &pBody;
 			}
 		}
 	}
