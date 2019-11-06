@@ -21,7 +21,7 @@ CPE/CSC 471 Lab base code Wood/Dunn/Eckhardt
 
 
 #define RELEASEVERSION
-#define NOKINECT
+//#define NOKINECT
 bool fullscreen = true;
 
 using namespace std;
@@ -596,6 +596,7 @@ public:
 
 	bool Update_Kinect(float frametime)
 		{
+		
 		int trackedbodies = 0;
 #ifdef NOKINECT
 		get_record(body.trackedbody.joint_positions);
@@ -608,7 +609,7 @@ public:
 		vector<GLushort> indices;
 		generate_body_vertices(&body, &posb);
 		glBindBuffer(GL_ARRAY_BUFFER, VBbody);
-		//glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vec3) * posb.size(), posb.data());
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vec3) * posb.size(), posb.data());
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		return trackedbodies;
 		}
@@ -833,14 +834,14 @@ public:
 	}
 	void get_record(vec3 *dst)
 	{
-		//static vec3 pos[JointType_Count];
-		/*static bool first = true;
+		static vec3 pos[K4ABT_JOINT_COUNT];
+		static bool first = true;
 		if (first)
 		{
 			ifstream f("anim.txt");
 			if (f.is_open() == false)return;
 			first = false;
-			for (int ii = 0; ii < JointType_Count; ii++)
+			for (int ii = 0; ii < K4ABT_JOINT_COUNT; ii++)
 			{
 				f >> pos[ii].x;
 				f >> pos[ii].y;
@@ -849,8 +850,8 @@ public:
 			f.close();
 		}
 
-		for (int ii = 0; ii < JointType_Count; ii++)
-			dst[ii] = pos[ii];*/
+		for (int ii = 0; ii < K4ABT_JOINT_COUNT; ii++)
+			dst[ii] = pos[ii];
 
 	/*	static float w = 0.0;
 		static float wi = 0.01;
@@ -907,20 +908,20 @@ public:
 		glfwGetFramebufferSize(window, &width, &height);
 		glViewport(0, 0, width, height);
 	}
-	//GLuint generate_texture2D(GLushort colortype, int width, int height, GLushort colororder, GLushort datatype, BYTE* data, GLushort wrap, GLushort minfilter, GLushort magfilter)
-	//	{
-	//	GLuint textureID;
-	//	//RGBA8 2D texture, 24 bit depth texture, 256x256
-	//	glGenTextures(1, &textureID);
-	//	glBindTexture(GL_TEXTURE_2D, textureID);
-	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
-	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
-	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minfilter);
-	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magfilter);
-	//	glTexImage2D(GL_TEXTURE_2D, 0, colortype, width, height, 0, colororder, datatype, data);
-	//	glGenerateMipmap(GL_TEXTURE_2D);
-	//	return textureID;
-	//	}
+	GLuint generate_texture2D(GLushort colortype, int width, int height, GLushort colororder, GLushort datatype, unsigned char* data, GLushort wrap, GLushort minfilter, GLushort magfilter)
+		{
+		GLuint textureID;
+		//RGBA8 2D texture, 24 bit depth texture, 256x256
+		glGenTextures(1, &textureID);
+		glBindTexture(GL_TEXTURE_2D, textureID);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minfilter);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magfilter);
+		glTexImage2D(GL_TEXTURE_2D, 0, colortype, width, height, 0, colororder, datatype, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+		return textureID;
+		}
 	/*Note that any gl calls must always happen after a GL state is initialized */
 	void change(vec3& a, vec3& b)
 		{
@@ -938,9 +939,9 @@ public:
 		int width, height;
 		glfwGetFramebufferSize(windowManager->getHandle(), &width, &height);
 
-		/*FBOcolor = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, NULL, GL_CLAMP_TO_BORDER, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+		FBOcolor = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, NULL, GL_CLAMP_TO_BORDER, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
 		FBOmask = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, NULL, GL_CLAMP_TO_BORDER, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-*/
+
 		//Attach 2D texture to this FBO
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, FBOcolor, 0);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, FBOmask, 0);
@@ -962,7 +963,7 @@ public:
 
 		glfwGetFramebufferSize(windowManager->getHandle(), &width, &height);
 
-		//FBOcolorbut = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, NULL, GL_CLAMP_TO_BORDER, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+		FBOcolorbut = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, NULL, GL_CLAMP_TO_BORDER, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
 
 		//Attach 2D texture to this FBO
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, FBOcolorbut, 0);
@@ -1075,7 +1076,7 @@ public:
 		tex.push_back(vec2(1, 0.962063));
 		tex.push_back(vec2(0.913081, 0.986313));
 
-		//generate_body_vertices(&body, &posb);
+		generate_body_vertices(&body, &posb);
 
 
 		GLuint VB;
@@ -1115,64 +1116,64 @@ public:
 		char filepath[1000];
 
 		//texture 1
-		//string str = resourceDirectory + "/skeleton.jpg";
-		//strcpy(filepath, str.c_str());
-		//unsigned char* data = stbi_load(filepath, &width, &height, &channels, 4);		
-		//TextureSkeleton = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);	
+		string str = resourceDirectory + "/skeleton.jpg";
+		strcpy(filepath, str.c_str());
+		unsigned char* data = stbi_load(filepath, &width, &height, &channels, 4);		
+		TextureSkeleton = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);	
 
-		//str = resourceDirectory + "/shead.png";
-		//strcpy(filepath, str.c_str());
-		//data = stbi_load(filepath, &width, &height, &channels, 4);
-		//TextureSkeletonHead = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+		str = resourceDirectory + "/shead.png";
+		strcpy(filepath, str.c_str());
+		data = stbi_load(filepath, &width, &height, &channels, 4);
+		TextureSkeletonHead = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
 
-		//str = resourceDirectory + "/red.jpg";
-		//strcpy(filepath, str.c_str());
-		//data = stbi_load(filepath, &width, &height, &channels, 4);
-		//TexRed = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+		str = resourceDirectory + "/red.jpg";
+		strcpy(filepath, str.c_str());
+		data = stbi_load(filepath, &width, &height, &channels, 4);
+		TexRed = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
 
-		//str = resourceDirectory + "/skeleton.png";
-		//strcpy(filepath, str.c_str());
-		//data = stbi_load(filepath, &width, &height, &channels, 4);
-		//TextureSkeletonH = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-		//
-		//str = resourceDirectory + "/heart2.png";
-		//strcpy(filepath, str.c_str());
-		//data = stbi_load(filepath, &width, &height, &channels, 4);
-		//TexHeart = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-
-
-		//str = resourceDirectory + "/fur.jpg";		strcpy(filepath, str.c_str());		data = stbi_load(filepath, &width, &height, &channels, 4);
-		//TextureSkin[0] = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-		//str = resourceDirectory + "/snake.jpg";		strcpy(filepath, str.c_str());		data = stbi_load(filepath, &width, &height, &channels, 4);
-		//TextureSkin[1] = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-		//str = resourceDirectory + "/zebra.jpg";		strcpy(filepath, str.c_str());		data = stbi_load(filepath, &width, &height, &channels, 4);
-		//TextureSkin[2] = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-		//str = resourceDirectory + "/chameleon.jpg";		strcpy(filepath, str.c_str());		data = stbi_load(filepath, &width, &height, &channels, 4);
-		//TextureSkin[3] = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-		//str = resourceDirectory + "/chameleon2.jpg";		strcpy(filepath, str.c_str());		data = stbi_load(filepath, &width, &height, &channels, 4);
-		//TextureSkin[4] = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-		//str = resourceDirectory + "/chameleon3.jpg";		strcpy(filepath, str.c_str());		data = stbi_load(filepath, &width, &height, &channels, 4);
-		//TextureSkin[5] = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-		//str = resourceDirectory + "/gecko.jpg";		strcpy(filepath, str.c_str());		data = stbi_load(filepath, &width, &height, &channels, 4);
-		//TextureSkin[6] = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+		str = resourceDirectory + "/skeleton.png";
+		strcpy(filepath, str.c_str());
+		data = stbi_load(filepath, &width, &height, &channels, 4);
+		TextureSkeletonH = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+		
+		str = resourceDirectory + "/heart2.png";
+		strcpy(filepath, str.c_str());
+		data = stbi_load(filepath, &width, &height, &channels, 4);
+		TexHeart = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
 
 
-		//str = resourceDirectory + "/lines.jpg";
-		//strcpy(filepath, str.c_str());
-		//data = stbi_load(filepath, &width, &height, &channels, 4);
-		//TextureLines = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+		str = resourceDirectory + "/fur.jpg";		strcpy(filepath, str.c_str());		data = stbi_load(filepath, &width, &height, &channels, 4);
+		TextureSkin[0] = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+		str = resourceDirectory + "/snake.jpg";		strcpy(filepath, str.c_str());		data = stbi_load(filepath, &width, &height, &channels, 4);
+		TextureSkin[1] = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+		str = resourceDirectory + "/zebra.jpg";		strcpy(filepath, str.c_str());		data = stbi_load(filepath, &width, &height, &channels, 4);
+		TextureSkin[2] = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+		str = resourceDirectory + "/chameleon.jpg";		strcpy(filepath, str.c_str());		data = stbi_load(filepath, &width, &height, &channels, 4);
+		TextureSkin[3] = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+		str = resourceDirectory + "/chameleon2.jpg";		strcpy(filepath, str.c_str());		data = stbi_load(filepath, &width, &height, &channels, 4);
+		TextureSkin[4] = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+		str = resourceDirectory + "/chameleon3.jpg";		strcpy(filepath, str.c_str());		data = stbi_load(filepath, &width, &height, &channels, 4);
+		TextureSkin[5] = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+		str = resourceDirectory + "/gecko.jpg";		strcpy(filepath, str.c_str());		data = stbi_load(filepath, &width, &height, &channels, 4);
+		TextureSkin[6] = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
 
-		//
-		////texture 2
-		//str = resourceDirectory + "/butterfly.png";
-		//strcpy(filepath, str.c_str());
-		//data = stbi_load(filepath, &width, &height, &channels, 4);
-		//TextureButterfly = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-		////t3
-		//str = resourceDirectory + "/firering_a.jpg";
-		//strcpy(filepath, str.c_str());
-		//data = stbi_load(filepath, &width, &height, &channels, 4);
-		//TextureAlpha = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_CLAMP_TO_BORDER, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+
+		str = resourceDirectory + "/lines.jpg";
+		strcpy(filepath, str.c_str());
+		data = stbi_load(filepath, &width, &height, &channels, 4);
+		TextureLines = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+
+		
+		//texture 2
+		str = resourceDirectory + "/butterfly.png";
+		strcpy(filepath, str.c_str());
+		data = stbi_load(filepath, &width, &height, &channels, 4);
+		TextureButterfly = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+		//t3
+		str = resourceDirectory + "/firering_a.jpg";
+		strcpy(filepath, str.c_str());
+		data = stbi_load(filepath, &width, &height, &channels, 4);
+		TextureAlpha = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_CLAMP_TO_BORDER, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
 
 
 		//texture array	
@@ -1640,7 +1641,7 @@ public:
 					int tx = (int)tileprogress % 4;
 					int ty = (int)tileprogress / 4;
 					vec4 texoff = vec4(4, 4, tx, ty);
-					/*vec3 a= body.trackedbody.get_joint(FORECASTFACT, 1);
+					vec3 a= body.trackedbody.get_joint(FORECASTFACT, 1);
 					vec3 b = body.trackedbody.get_joint(FORECASTFACT, 4);
 					vec3 pos;
 					pos.x = a.x * 0.8 + b.x * 0.2;
@@ -1651,7 +1652,7 @@ public:
 
 					Mrect = translate(mat4(1), body.trackedbody.get_joint(FORECASTFACT, 3)*0.6f+ body.trackedbody.get_joint(FORECASTFACT, 2)*0.4f) * scale(mat4(1), vec3(0.61, 0.61, 0.61));
 					texoff = vec4(1, 1, 0, 0);
-					render_rect(P, V, TextureSkeletonHead, Mrect, texoff);*/
+					render_rect(P, V, TextureSkeletonHead, Mrect, texoff);
 					redtone = vec3(1, 0, 0);
 					greentone = vec3(0, 1, 0);
 					bluetone = vec3(0, 0, 1);
@@ -1747,7 +1748,7 @@ public:
 			progbody->unbind();
 
 #ifndef RELEASEVERSION
-			for (int ii = 0; ii < JointType_Count; ii++)
+			for (int ii = 0; ii < K4ABT_JOINT_COUNT; ii++)
 				{
 				mat4 Mrect = translate(mat4(1), body.trackedbody.get_joint(FORECASTFACT, ii)) * scale(mat4(1), vec3(0.05, 0.05, 0.05));
 				vec4 texoff = vec4(1, 1, 0, 0);
@@ -1773,7 +1774,7 @@ public:
 			glBindVertexArray(VAO_rect);
 			M = glm::translate(glm::mat4(1.0f), modelpos) * glm::scale(glm::mat4(1.0f), modelscale);
 
-			/*for (int ii = 0; ii < butterflyactual; ii++)
+			for (int ii = 0; ii < butterflyactual; ii++)
 				{
 				vec3 pos = mix(body.trackedbody.get_joint(forecastfact,butterfly[ii].iA), body.trackedbody.get_joint(forecastfact,butterfly[ii].iB), butterfly[ii].rationAB);
 				mat4 Sc = scale(mat4(1), vec3(butterfly[ii].scale));
@@ -1806,7 +1807,7 @@ public:
 				mat4 Mr = M * translate(mat4(1), pos) * Rz * Sc;
 				glUniformMatrix4fv(progbut->getUniform("M"), 1, GL_FALSE, &Mr[0][0]);
 				glDrawArrays(GL_TRIANGLES, 0, 6);
-				}*/
+				}
 			progbut->unbind();
 			}
 		
@@ -1914,8 +1915,8 @@ int main(int argc, char **argv)
 	double time_since_last_body_tracked = 0;
 	double countfps = 0;
 	int frame = 0;
-
-	windowManager->SetFullScreen(true);
+	fullscreen = false;
+	windowManager->SetFullScreen(fullscreen);
 
 	//app nicht 2 mal oder oefter ausfuehren
 	const char szUniqueNamedMutex[] = "eyeofmetamorphosis";

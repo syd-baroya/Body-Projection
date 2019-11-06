@@ -12,7 +12,6 @@ void new_body_::InitializeDefaultSensor()
 
 	VERIFY(k4abt_tracker_create(&sensorCalibration, tracker_config, &tracker), "Body tracker initialization failed!");
 
-
 }
 
 int new_body_::Update(float frametime)
