@@ -5,3 +5,7 @@ Debug/
 .DS_Store
 packages/
 src/dnn_model_2_0.onnx
+*.sln
+src/eyeofmetamorhposis.vcxproj
+src/eyeofmetamorhposis.vcxproj.filters
+src/eyeofmetamorhposis.vcxproj.user

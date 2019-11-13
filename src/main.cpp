@@ -20,7 +20,7 @@ CPE/CSC 471 Lab base code Wood/Dunn/Eckhardt
 #include <fstream>
 
 
-#define RELEASEVERSION
+//#define RELEASEVERSION
 //#define NOKINECT
 bool fullscreen = true;
 
@@ -28,7 +28,7 @@ using namespace std;
 using namespace glm;
 shared_ptr<Shape> shape;
 
-vec3 modelpos=vec3(0,0,0), modelscale = vec3(1);
+vec3 modelpos=vec3(0,0,0), modelscale = vec3(1.0);
 float camfov = 3.1415926 / 4.;
 
 long double angle_vec(vec3 v1, vec3 v2)
@@ -149,7 +149,7 @@ float sign(float f)
 void generate_body_vertices(new_body_ *body, vector<vec3> *pos)
 {
 
-//	cout << body->trackedbody.joint_speed[JointType_WristLeft].y << endl;
+	cout << body->trackedbody.joint_positions[K4ABT_JOINT_WRIST_LEFT].x << endl;
 
 	float forecastfact = FORECASTFACT;
 	float z_base = body->trackedbody.get_joint(forecastfact,0).z;
@@ -594,6 +594,11 @@ public:
 		butterflyactual = c;
 		}
 
+	void Close_Kinect()
+	{
+		body.CloseSensor();
+	}
+
 	bool Update_Kinect(float frametime)
 		{
 		
@@ -608,6 +613,11 @@ public:
 		vector<vec3> posb;
 		vector<GLushort> indices;
 		generate_body_vertices(&body, &posb);
+		/*for (int i = 0; i < K4ABT_JOINT_COUNT; i++) {
+			posb.push_back(body.trackedbody.joint_positions[i]);
+		}*/
+		/*if (trackedbodies > 0)
+			cout << "hey" << endl;*/
 		glBindBuffer(GL_ARRAY_BUFFER, VBbody);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vec3) * posb.size(), posb.data());
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -636,7 +646,7 @@ public:
 			int width, height, channels;
 			unsigned char *data = stbi_load(filepath, &width, &height, &channels, 4);
 			glDeleteTextures(1, &TextureSkeletonH);			
-			//TextureSkeletonH = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+			TextureSkeletonH = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
 			delete[] data;
 			}
 
@@ -717,7 +727,7 @@ public:
 			rectpos.push_back(vec3(1.0, -1.0, 0.0));
 			rectpos.push_back(vec3(1.0, 1.0, 0.0));
 			rectpos.push_back(vec3(-1.0, 1.0, 0.0));
-			//update_postproc_rect();
+			update_postproc_rect();
 			}
 		if (key == GLFW_KEY_END && action == GLFW_RELEASE)
 			{
@@ -901,7 +911,7 @@ public:
 		glDeleteRenderbuffers(1, &depth_rbbut);
 		glDeleteRenderbuffers(1, &depth_rb);
 
-		//generate_framebuffers();
+		generate_framebuffers();
 
 		//get the window size - may be different then pixels for retina
 		int width, height;
@@ -1077,7 +1087,9 @@ public:
 		tex.push_back(vec2(0.913081, 0.986313));
 
 		generate_body_vertices(&body, &posb);
-
+		/*for (int i = 0; i < K4ABT_JOINT_COUNT; i++) {
+			posb.push_back(body.trackedbody.joint_positions[i]);
+		}*/
 
 		GLuint VB;
 
@@ -1187,22 +1199,22 @@ public:
 		for (int ii = 0; ii < 25; ii++)
 			{
 			sprintf(txt, "../resources/firering_%.3d.png", ii + 1);
-			//data = stbi_load(txt, &width, &height, &channels, 4);
-			//if (data == NULL)
-			//	{
-			//	cout << "data is null" << endl;
-			//	return;
-			//	}
-			//int sizepic = width * height * 4;
-			//memcpy(&buffer[sizepicoffset], data, sizepic);
-			//sizepicoffset = sizepic;
-			//glTexSubImage3D(GL_TEXTURE_2D_ARRAY,
-			//				0,                     //Mipmap number
-			//				0, 0, ii,                 //xoffset, yoffset, zoffset
-			//				width, height, 1,                 //width, height, depth
-			//				GL_RGBA,                //format
-			//				GL_UNSIGNED_BYTE,      //type
-			//				data);
+			data = stbi_load(txt, &width, &height, &channels, 4);
+			if (data == NULL)
+				{
+				cout << "data is null" << endl;
+				return;
+				}
+			int sizepic = width * height * 4;
+			memcpy(&buffer[sizepicoffset], data, sizepic);
+			sizepicoffset = sizepic;
+			glTexSubImage3D(GL_TEXTURE_2D_ARRAY,
+							0,                     //Mipmap number
+							0, 0, ii,                 //xoffset, yoffset, zoffset
+							width, height, 1,                 //width, height, depth
+							GL_RGBA,                //format
+							GL_UNSIGNED_BYTE,      //type
+							data);
 			}
 		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -1476,7 +1488,8 @@ public:
 
 
 		screenproc->bind();
-		glActiveTexture(GL_TEXTURE0);		glBindTexture(GL_TEXTURE_2D, FBOcolorbut);
+		glActiveTexture(GL_TEXTURE0);		
+		glBindTexture(GL_TEXTURE_2D, FBOcolorbut);
 		glBindVertexArray(VAO_rect);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		screenproc->unbind();
@@ -1506,7 +1519,6 @@ public:
 		glUniformMatrix4fv(prog->getUniform("P"), 1, GL_FALSE, &P[0][0]);
 		glUniformMatrix4fv(prog->getUniform("V"), 1, GL_FALSE, &V[0][0]);
 		M = glm::translate(glm::mat4(1.0f), modelpos) * glm::scale(glm::mat4(1.0f), modelscale);
-
 		glUniformMatrix4fv(prog->getUniform("M"), 1, GL_FALSE, &M[0][0]);
 		
 	
@@ -1936,9 +1948,9 @@ int main(int argc, char **argv)
 		frame++;
 		if (frame >= 100)
 		{
-#ifndef RELEASEVERSION
-			cout << 1./(countfps / 100.) << endl;
-#endif
+//#ifndef RELEASEVERSION
+//			cout << 1./(countfps / 100.) << endl;
+//#endif
 			frame = 0;
 			countfps = 0;
 		}
@@ -1978,6 +1990,7 @@ int main(int argc, char **argv)
 		hz30 = !hz30;
 		if (bodytracked > 0)
 			{
+			//cout << application->body.trackedbody.joint_positions[K4ABT_JOINT_SPINE_CHEST].x << endl;
 			application->render_body_to_FBO(frametime, P, V);
 			application->render_render_fire_to_screen_FBO(frametime, P, V);
 			time_since_last_body_tracked = 0;
@@ -1991,7 +2004,6 @@ int main(int argc, char **argv)
 			totaltime = 0;
 			black = true;
 			}
-			
 		application->render_to_screen(black);
 		// Swap front and back buffers.
 		glfwSwapBuffers(windowManager->getHandle());
@@ -2002,5 +2014,6 @@ int main(int argc, char **argv)
 	// Quit program.
 	windowManager->shutdown();
 
+	application->Close_Kinect();
 	return 0;
 }

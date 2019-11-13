@@ -23,6 +23,8 @@ using namespace glm;
 #define CASCADE 5
 #define BODY_COUNT 6
 
+const float MillimeterToMeter = 0.001f;
+
 class new_bodypack_
 {
 public:
@@ -70,7 +72,7 @@ class new_trackedbody_
 			cout << "body resetted" << endl;
 			init_tracked = false;
 			time_till_last_tracked = -1;
-			for (int i = 0; i < K4ABT_JOINT_COUNT; ++i)
+			for (int i = 0; i < K4ABT_JOINT_COUNT; i++)
 				{
 				cascade_count[i] = 0;
 				jointTracked[i] = false;
@@ -152,10 +154,8 @@ class new_body_
 		bool ProcessBody(float frametime, uint64_t nTime, int nBodyCount, new_bodypack_* bodypack);
 		k4a_device_t device;
 		k4a_device_configuration_t deviceConfig;
-		k4a_calibration_t sensorCalibration;
 		k4abt_tracker_t tracker;
 		k4abt_tracker_configuration_t tracker_config;
-		k4a_capture_t sensor_capture;
 
 
 	public:
@@ -165,7 +165,7 @@ class new_body_
 		void CloseSensor();
 		new_body_()
 		{
-			device = NULL;
+			device = nullptr;
 			deviceConfig = K4A_DEVICE_CONFIG_INIT_DISABLE_ALL;
 			deviceConfig.depth_mode = K4A_DEPTH_MODE_NFOV_UNBINNED;
 			deviceConfig.color_resolution = K4A_COLOR_RESOLUTION_OFF;
