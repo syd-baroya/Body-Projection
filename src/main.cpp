@@ -243,22 +243,22 @@ void generate_body_vertices(new_body_ *body, vector<vec3> *pos)
 	vec3 slr = body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_NECK) + normalize(utr - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_NECK)) * torso_width_right * throat_width;
 	//vec3 mtc = (mtl + mtr) / (float)2.;
 	//construct torso:
-	pos->push_back(mlr);
 	pos->push_back(mll);
-	pos->push_back(mtr);
+	pos->push_back(mlr);
 	pos->push_back(mtl);
+	pos->push_back(mtr);
 
-	pos->push_back(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT));
-	pos->push_back(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_CLAVICLE_RIGHT));
-	pos->push_back(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_CLAVICLE_LEFT));
 	pos->push_back(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT));
+	pos->push_back(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_CLAVICLE_LEFT));
+	pos->push_back(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_CLAVICLE_RIGHT));
+	pos->push_back(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT));
 
-	pos->push_back(utr);
-	pos->push_back(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_NECK));
 	pos->push_back(utl);
+	pos->push_back(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_NECK));
+	pos->push_back(utr);
 
-	pos->push_back(slr);
 	pos->push_back(sll);
+	pos->push_back(slr);
 
 	
 	//arms:
@@ -1006,13 +1006,13 @@ public:
 		indices.push_back(0);	indices.push_back(3);	indices.push_back(1);
 		indices.push_back(2);	indices.push_back(4);	indices.push_back(5);
 		indices.push_back(2);	indices.push_back(5);	indices.push_back(3);
-		indices.push_back(5);	indices.push_back(6);	indices.push_back(3);
-		indices.push_back(4);	indices.push_back(7);	indices.push_back(10);
-		indices.push_back(4);	indices.push_back(10);	indices.push_back(5);
-		indices.push_back(10);	indices.push_back(8);	indices.push_back(5);
-		indices.push_back(8);	indices.push_back(11);	indices.push_back(5);
-		indices.push_back(5);	indices.push_back(11);	indices.push_back(6);
-		indices.push_back(6);	indices.push_back(11);	indices.push_back(9);
+		indices.push_back(6);	indices.push_back(7);	indices.push_back(3);
+		indices.push_back(4);	indices.push_back(8);	indices.push_back(11);
+		indices.push_back(4);	indices.push_back(11);	indices.push_back(5);
+		indices.push_back(11);	indices.push_back(9);	indices.push_back(5);
+		indices.push_back(9);	indices.push_back(12);	indices.push_back(6);
+		indices.push_back(6);	indices.push_back(12);	indices.push_back(7);
+		indices.push_back(7);	indices.push_back(12);	indices.push_back(10);
 		//indices.push_back(12);	indices.push_back(14);	indices.push_back(13);
 		//indices.push_back(14);	indices.push_back(15);	indices.push_back(13);
 		//indices.push_back(14);	indices.push_back(7);	indices.push_back(4);
