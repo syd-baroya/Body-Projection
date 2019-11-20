@@ -52,7 +52,7 @@ class new_trackedbody_
 		vec3 get_joint(float forecast_fact, int j)
 			{
 			static vec3 oldv = vec3(0);
-			vec3 sumv = joint_speed[0] + joint_speed[1] + joint_speed[20];
+			vec3 sumv = joint_speed[0] + joint_speed[1] + joint_speed[2];
 			sumv /= 3.;
 			oldv = oldv + (sumv - oldv)*0.03f;
 			//oldv = vec3(0);
