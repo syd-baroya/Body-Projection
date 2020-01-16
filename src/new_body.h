@@ -171,6 +171,6 @@ class new_body_
 			deviceConfig.color_resolution = K4A_COLOR_RESOLUTION_OFF;
 			tracker = NULL;
 			tracker_config = K4ABT_TRACKER_CONFIG_DEFAULT;
-			tracker_config.cpu_only_mode = true;
+			tracker_config.processing_mode = K4ABT_TRACKER_PROCESSING_MODE_CPU;
 		}
 	};

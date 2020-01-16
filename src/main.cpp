@@ -22,7 +22,7 @@ CPE/CSC 471 Lab base code Wood/Dunn/Eckhardt
 
 //#define RELEASEVERSION
 #define NOKINECT
-bool fullscreen = true;
+bool fullscreen = false;
 bool firstTime = true;
 
 using namespace std;
@@ -305,7 +305,7 @@ void generate_body_vertices(new_body_ *body, vector<vec3> *pos)
 
 	//legs
 	vec3 fut = body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_PELVIS) +
-		normalize(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_PELVIS) - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_SPINE_NAVAL)) *	torso_above_sholders;
+		normalize(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_PELVIS) - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_SPINE_NAVEL)) *	torso_above_sholders;
 
 	vec3 kll = normalize(
 		normalize(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_HIP_LEFT) - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_KNEE_LEFT)) +
@@ -2001,7 +2001,6 @@ int main(int argc, char **argv)
 	double time_since_last_body_tracked = 0;
 	double countfps = 0;
 	int frame = 0;
-	fullscreen = false;
 	windowManager->SetFullScreen(fullscreen);
 
 	//app nicht 2 mal oder oefter ausfuehren
