@@ -516,7 +516,7 @@ public:
 	GLuint VertexBufferID, VertexColorIDBox, IndexBufferIDBox;
 
 	//texture data
-	GLuint Texture, TextureSkeleton,TexRed, TextureSkeletonHead, TextureSkeletonH,TexHeart, TextureLines, TextureSkin[FURMAXTEX];
+	GLuint Texture, TextureSkeleton,TexRed, TexWaterColor, TextureSkeletonHead, TextureSkeletonH,TexHeart, TextureLines, TextureSkin[FURMAXTEX];
 	GLuint TextureButterfly, TextureArray, TextureAlpha;
 
 	GLuint VAO, vertexcount, VAOrect, VAObody, VBbody,body_size;
@@ -1210,7 +1210,13 @@ public:
 		strcpy(filepath, str.c_str());
 		data = stbi_load(filepath, &width, &height, &channels, 4);
 		TexRed = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-
+		
+		//texture to test painting effect
+		str = resourceDirectory + "/watercolor.png";
+		strcpy(filepath, str.c_str());
+		data = stbi_load(filepath, &width, &height, &channels, 4);
+		TexWaterColor = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+		
 		str = resourceDirectory + "/skeleton.png";
 		strcpy(filepath, str.c_str());
 		data = stbi_load(filepath, &width, &height, &channels, 4);
@@ -1643,6 +1649,10 @@ public:
 	will actually issue the commands to draw any geometry you have set up to
 	draw
 	********/
+
+	//global variables to create paintbrush effect
+		bool firstTime = true;
+		vector<mat4> prevBrush;
 	void render_rect(mat4 P, mat4 V,GLuint texture, mat4 Mrect, vec4 animation=vec4(1,1,0,0))
 		{
 		//head-----------------------------------------------------------------------------------------------
@@ -1744,6 +1754,7 @@ public:
 				break;
 				}
 
+			
 			progbody->bind();
 			M = glm::translate(glm::mat4(1.0f), modelpos) * glm::scale(glm::mat4(1.0f), modelscale);
 			glUniform1f(progbody->getUniform("totaltime"), phaseprogresstotaltime);
@@ -1839,7 +1850,35 @@ public:
 				vec4 texoff = vec4(1, 1, 0, 0);
 				render_rect(P, V, TexRed, Mrect, texoff);
 				}
-#endif
+
+			//code to create paintbrush effect
+
+			//to fill the paintbrush vector with the first position
+			if (firstTime) {
+				for (int i = 0; i < 1000; i++) {
+					prevBrush.push_back(translate(mat4(1), body.trackedbody.get_joint(FORECASTFACT, 7))* scale(mat4(1), vec3(0.15, 0.15, 0.15)));
+				}
+				firstTime = false;	
+			}
+			//to shift positions in paintbrush vector (just over 1 for now)
+			else {
+				for (int s = prevBrush.size() - 1; s > 0; s--) {
+					prevBrush[s] = prevBrush[s-1];
+				}
+				//calculate new position by just adding to the previous position (for now)
+				mat4 tempM = translate(mat4(1.0f), glm::vec3(-0.2f, 0.0f, 0.0f));
+				prevBrush[0] = prevBrush[0] *tempM;
+				//use this when you get connect to work
+					//prevBrush[0] = translate(mat4(1), body.trackedbody.get_joint(FORECASTFACT, 7)) * scale(mat4(1), vec3(0.15, 0.15, 0.15));		
+			}
+
+			//render each rectangle
+			for (int i = 0; i < prevBrush.size(); i++) {
+				vec4 texoff = vec4(1, 1, 0, 0);
+				//drawing point at left wrist
+				render_rect(P, V, TexWaterColor, prevBrush[i], texoff);
+			}
+#endif	
 			}
 		else
 			{
