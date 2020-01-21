@@ -472,16 +472,25 @@ void generate_body_vertices(new_body_ *body, vector<vec3> *pos)
 
 #endif
 #define BUTTERFLYCOUNT 50
-	class butterfly_
-		{
-		public: 
-			float rotz;
-			float scale;
-			int iA, iB;
-			float rationAB;
-			float startanim;
-			vec3 red, green, blue;
-		};
+class butterfly_
+	{
+	public: 
+		float rotz;
+		float scale;
+		int iA, iB;
+		float rationAB;
+		float startanim;
+		vec3 red, green, blue;
+	};
+
+
+#define ssbo_size 2048
+
+class ssbo_data
+{
+public:
+	ivec4 positions_list[ssbo_size];
+};
 
 class Application : public EventCallbacks
 {
@@ -507,7 +516,7 @@ public:
 
 	bool animation = false;
 	// Our shader program
-	std::shared_ptr<Program> prog, postprog, progbut, screenproc, progbody;
+	std::shared_ptr<Program> prog, postprog, progbut, screenproc, progbody, computeprog;
 
 	// Contains vertex information for OpenGL
 	GLuint VertexArrayID;
@@ -520,6 +529,82 @@ public:
 	GLuint TextureButterfly, TextureArray, TextureAlpha;
 
 	GLuint VAO, vertexcount, VAOrect, VAObody, VBbody,body_size;
+
+	ssbo_data ssbo_CPUMEM;
+	GLuint ssbo_GPU_id;
+	GLuint computeProgram;
+	GLuint atomicsBuffer;
+
+	/*Note that any gl calls must always happen after a GL state is initialized */
+	void init_atomic()
+	{
+		glGenBuffers(1, &atomicsBuffer);
+		// bind the buffer and define its initial storage capacity
+		glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomicsBuffer);
+		glBufferData(GL_ATOMIC_COUNTER_BUFFER, sizeof(GLuint) * 1, NULL, GL_DYNAMIC_DRAW);
+		// unbind the buffer 
+		glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
+	}
+	void reset_atomic()
+	{
+		GLuint* userCounters;
+		glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomicsBuffer);
+		// map the buffer, userCounters will point to the buffers data
+		userCounters = (GLuint*)glMapBufferRange(GL_ATOMIC_COUNTER_BUFFER,
+			0,
+			sizeof(GLuint),
+			GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT
+		);
+		// set the memory to zeros, resetting the values in the buffer
+		memset(userCounters, 0, sizeof(GLuint));
+		// unmap the buffer
+		glUnmapBuffer(GL_ATOMIC_COUNTER_BUFFER);
+	}
+	void read_atomic()
+	{
+		GLuint* userCounters;
+		glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomicsBuffer);
+		// again we map the buffer to userCounters, but this time for read-only access
+		userCounters = (GLuint*)glMapBufferRange(GL_ATOMIC_COUNTER_BUFFER,
+			0,
+			sizeof(GLuint),
+			GL_MAP_READ_BIT
+		);
+		// copy the values to other variables because...
+		cout << endl << *userCounters << endl;
+		// ... as soon as we unmap the buffer
+		// the pointer userCounters becomes invalid.
+		glUnmapBuffer(GL_ATOMIC_COUNTER_BUFFER);
+	}
+
+	void create_SSBO() {
+		cout << endl << endl << "BUFFER BEFORE COMPUTE SHADER" << endl << endl;
+
+		for (int i = 0; i < ssbo_size; i++) {
+			ssbo_CPUMEM.positions_list[i] = ivec4(i, 0, 0, 0);
+			cout << ssbo_CPUMEM.positions_list[i].x << ", " << ssbo_CPUMEM.positions_list[i].y << ", " << ssbo_CPUMEM.positions_list[i].z << ", " << ssbo_CPUMEM.positions_list[i].w << endl;
+		}
+
+		glGenBuffers(1, &ssbo_GPU_id);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_GPU_id);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(ssbo_data), &ssbo_CPUMEM, GL_DYNAMIC_DRAW);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo_GPU_id);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
+	}
+
+	void get_SSBO_back() {
+		// Get SSBO back
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_GPU_id);
+		GLvoid* p = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
+		int siz = sizeof(ssbo_data);
+		memcpy(&ssbo_CPUMEM, p, siz);
+		glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+
+		cout << endl << endl << "BUFFER AFTER COMPUTE SHADER" << endl << endl;
+		for (int i = 0; i < ssbo_size; i++) {
+			cout << ssbo_CPUMEM.positions_list[i].x << " " << ssbo_CPUMEM.positions_list[i].y << " " << ssbo_CPUMEM.positions_list[i].z << " " << ssbo_CPUMEM.positions_list[i].w << endl;
+		}
+	}
 
 	
 	void roll_dice()
@@ -1387,6 +1472,9 @@ public:
 		glEnableVertexAttribArray(1);
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
 		glBindVertexArray(0);
+
+		//make an SSBO
+		create_SSBO();
 	}
 
 	void update_postproc_rect()
@@ -1509,7 +1597,50 @@ public:
 		screenproc->addAttribute("vertPos");
 		screenproc->addAttribute("vertTex");
 		
+		//load the compute shader
+		std::string ShaderString = readFileAsString(resourceDirectory + "/compute.glsl");
+		const char* shader = ShaderString.c_str();
+		GLuint computeShader = glCreateShader(GL_COMPUTE_SHADER);
+		glShaderSource(computeShader, 1, &shader, nullptr);
+
+		GLint rc;
+		CHECKED_GL_CALL(glCompileShader(computeShader));
+		CHECKED_GL_CALL(glGetShaderiv(computeShader, GL_COMPILE_STATUS, &rc));
+		if (!rc)	//error compiling the shader file
+		{
+			GLSL::printShaderInfoLog(computeShader);
+			std::cout << "Error compiling fragment shader " << std::endl;
+			exit(1);
+		}
+
+		computeProgram = glCreateProgram();
+		glAttachShader(computeProgram, computeShader);
+		glLinkProgram(computeProgram);
+		glUseProgram(computeProgram);
+
+		GLuint block_index = 0;
+		block_index = glGetProgramResourceIndex(computeProgram, GL_SHADER_STORAGE_BLOCK, "shader_data");
+		GLuint ssbo_binding_point_index = 2;
+		glShaderStorageBlockBinding(computeProgram, block_index, ssbo_binding_point_index);
+
 		
+	}
+
+	void compute()
+	{
+		GLuint block_index = 0;
+		block_index = glGetProgramResourceIndex(computeProgram, GL_SHADER_STORAGE_BLOCK, "shader_data");
+		GLuint ssbo_binding_point_index = 0;
+		glShaderStorageBlockBinding(computeProgram, block_index, ssbo_binding_point_index);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo_GPU_id);
+		glUseProgram(computeProgram);
+		//activate atomic counter
+		glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomicsBuffer);
+		glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, atomicsBuffer);
+
+		glDispatchCompute((GLuint)2, (GLuint)1, 1);				//start compute shader
+		//glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, 0);
 	}
 	//***************************************************************************
 	int render_render_fire_to_screen_FBO(double frametime, mat4 P, mat4 V)
@@ -2028,6 +2159,7 @@ int main(int argc, char **argv)
 	// Initialize scene.
 	application->init(resourceDir);
 	application->initGeom();
+	application->init_atomic();
 
 	// Loop until the user closes the window.
 	mat4 V, P;
@@ -2105,6 +2237,7 @@ int main(int argc, char **argv)
 			//cout << application->body.trackedbody.joint_positions[K4ABT_JOINT_SPINE_CHEST].x << endl;
 			application->render_body_to_FBO(frametime, P, V);
 			application->render_render_fire_to_screen_FBO(frametime, P, V);
+			application->compute();
 			time_since_last_body_tracked = 0;
 			//if (firstTime == true) 
 			//	{
@@ -2122,6 +2255,9 @@ int main(int argc, char **argv)
 			black = true;
 			}
 		application->render_to_screen(black);
+		application->get_SSBO_back();
+		application->read_atomic();
+		system("pause");
 		// Swap front and back buffers.
 		glfwSwapBuffers(windowManager->getHandle());
 		// Poll for and process events.
