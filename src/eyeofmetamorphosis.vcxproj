@@ -44,6 +44,7 @@
   <ItemGroup>
     <None Include="..\resources\but_fragment.glsl" />
     <None Include="..\resources\but_vertex.glsl" />
+    <None Include="..\resources\compute.glsl" />
     <None Include="..\resources\frag.glsl" />
     <None Include="..\resources\fragscreen.glsl" />
     <None Include="..\resources\shader_body.glsl" />
@@ -106,7 +107,7 @@
     <IncludePath>C:\Users\sydba\Documents\GitHub\Body-Projection\src\helper_includes;C:\Users\sydba\Documents\GitHub\Body-Projection\ext\glad\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LibraryPath>C:\Users\sydba\Documents\GitHub\Body-Projection\packages\Microsoft.Azure.Kinect.Sensor.1.3.0\lib\native\amd64\release;C:\Users\sydba\Documents\GitHub\Body-Projection\packages\Microsoft.Azure.Kinect.BodyTracking.0.9.4\lib\native\amd64\release;C:\Users\sydba\Documents\OpenGL\glfw-3.3.bin.WIN64\lib-vc2019;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Users\sydba\Documents\GitHub\Body-Projection\packages\Microsoft.Azure.Kinect.Sensor.1.3.0\lib\native\amd64\release;C:\Users\sydba\Documents\GitHub\Body-Projection\packages\Microsoft.Azure.Kinect.BodyTracking.0.9.5\lib\native\amd64\release;C:\Users\sydba\Documents\OpenGL\glfw-3.3.bin.WIN64\lib-vc2019;$(LibraryPath)</LibraryPath>
     <ExecutablePath>$(VCInstallDir)\bin\x86_amd64;$(VCInstallDir)\bin;C:\Program Files\Microsoft SDKs\Kinect\v2.0_1409\bin;$(VC_ExecutablePath_x64);$(CommonExecutablePath);$(WindowsSDK_ExecutablePath);$(VS_ExecutablePath);$(MSBuild_ExecutablePath);$(SystemRoot)\SysWow64;$(FxCopDir);$(PATH)</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -125,11 +126,11 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\sydba\Documents\OpenGL\glm;C:\Users\sydba\Documents\OpenGL\glfw-3.3\include;C:\Users\sydba\Documents\GitHub\Body-Projection\packages\Microsoft.Azure.Kinect.Sensor.1.3.0\build\native\include;C:\Users\sydba\Documents\GitHub\Body-Projection\packages\Microsoft.Azure.Kinect.BodyTracking.0.9.4\build\native\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\sydba\Documents\OpenGL\glm;C:\Users\sydba\Documents\OpenGL\glfw-3.3\include;C:\Users\sydba\Documents\GitHub\Body-Projection\packages\Microsoft.Azure.Kinect.Sensor.1.3.0\build\native\include;C:\Users\sydba\Documents\GitHub\Body-Projection\packages\Microsoft.Azure.Kinect.BodyTracking.0.9.5\build\native\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalDependencies>glfw3.lib;k4a.lib;k4abt.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\sydba\Documents\OpenGL\glfw-3.3.bin.WIN64\lib-vc2019;C:\Users\sydba\Documents\GitHub\Body-Projection\packages\Microsoft.Azure.Kinect.Sensor.1.3.0\lib\native\amd64\release;C:\Users\sydba\Documents\GitHub\Body-Projection\packages\Microsoft.Azure.Kinect.BodyTracking.0.9.4\lib\native\amd64\release;C:\Users\sydba\Documents\GitHub\Body-Projection\packages\Microsoft.Azure.Kinect.BodyTracking.Dependencies.cuDNN.0.9.0\lib\native\amd64\release;C:\Users\sydba\Documents\GitHub\Body-Projection\packages\Microsoft.Azure.Kinect.BodyTracking.Dependencies.0.9.0\lib\native\amd64\release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\sydba\Documents\OpenGL\glfw-3.3.bin.WIN64\lib-vc2019;C:\Users\sydba\Documents\GitHub\Body-Projection\packages\Microsoft.Azure.Kinect.Sensor.1.3.0\lib\native\amd64\release;C:\Users\sydba\Documents\GitHub\Body-Projection\packages\Microsoft.Azure.Kinect.BodyTracking.0.9.5\lib\native\amd64\release;C:\Users\sydba\Documents\GitHub\Body-Projection\packages\Microsoft.Azure.Kinect.BodyTracking.Dependencies.cuDNN.0.9.1\lib\native\amd64\release;C:\Users\sydba\Documents\GitHub\Body-Projection\packages\Microsoft.Azure.Kinect.BodyTracking.Dependencies.0.9.1\lib\native\amd64\release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -177,17 +178,17 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\packages\Microsoft.Azure.Kinect.Sensor.1.3.0\build\native\Microsoft.Azure.Kinect.Sensor.targets" Condition="Exists('..\packages\Microsoft.Azure.Kinect.Sensor.1.3.0\build\native\Microsoft.Azure.Kinect.Sensor.targets')" />
-    <Import Project="..\packages\Microsoft.Azure.Kinect.BodyTracking.Dependencies.0.9.0\build\native\Microsoft.Azure.Kinect.BodyTracking.Dependencies.targets" Condition="Exists('..\packages\Microsoft.Azure.Kinect.BodyTracking.Dependencies.0.9.0\build\native\Microsoft.Azure.Kinect.BodyTracking.Dependencies.targets')" />
-    <Import Project="..\packages\Microsoft.Azure.Kinect.BodyTracking.Dependencies.cuDNN.0.9.0\build\native\Microsoft.Azure.Kinect.BodyTracking.Dependencies.cuDNN.targets" Condition="Exists('..\packages\Microsoft.Azure.Kinect.BodyTracking.Dependencies.cuDNN.0.9.0\build\native\Microsoft.Azure.Kinect.BodyTracking.Dependencies.cuDNN.targets')" />
-    <Import Project="..\packages\Microsoft.Azure.Kinect.BodyTracking.0.9.4\build\native\Microsoft.Azure.Kinect.BodyTracking.targets" Condition="Exists('..\packages\Microsoft.Azure.Kinect.BodyTracking.0.9.4\build\native\Microsoft.Azure.Kinect.BodyTracking.targets')" />
+    <Import Project="..\packages\Microsoft.Azure.Kinect.BodyTracking.Dependencies.0.9.1\build\native\Microsoft.Azure.Kinect.BodyTracking.Dependencies.targets" Condition="Exists('..\packages\Microsoft.Azure.Kinect.BodyTracking.Dependencies.0.9.1\build\native\Microsoft.Azure.Kinect.BodyTracking.Dependencies.targets')" />
+    <Import Project="..\packages\Microsoft.Azure.Kinect.BodyTracking.Dependencies.cuDNN.0.9.1\build\native\Microsoft.Azure.Kinect.BodyTracking.Dependencies.cuDNN.targets" Condition="Exists('..\packages\Microsoft.Azure.Kinect.BodyTracking.Dependencies.cuDNN.0.9.1\build\native\Microsoft.Azure.Kinect.BodyTracking.Dependencies.cuDNN.targets')" />
+    <Import Project="..\packages\Microsoft.Azure.Kinect.BodyTracking.0.9.5\build\native\Microsoft.Azure.Kinect.BodyTracking.targets" Condition="Exists('..\packages\Microsoft.Azure.Kinect.BodyTracking.0.9.5\build\native\Microsoft.Azure.Kinect.BodyTracking.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Microsoft.Azure.Kinect.Sensor.1.3.0\build\native\Microsoft.Azure.Kinect.Sensor.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Azure.Kinect.Sensor.1.3.0\build\native\Microsoft.Azure.Kinect.Sensor.targets'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.Azure.Kinect.BodyTracking.Dependencies.0.9.0\build\native\Microsoft.Azure.Kinect.BodyTracking.Dependencies.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Azure.Kinect.BodyTracking.Dependencies.0.9.0\build\native\Microsoft.Azure.Kinect.BodyTracking.Dependencies.targets'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.Azure.Kinect.BodyTracking.Dependencies.cuDNN.0.9.0\build\native\Microsoft.Azure.Kinect.BodyTracking.Dependencies.cuDNN.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Azure.Kinect.BodyTracking.Dependencies.cuDNN.0.9.0\build\native\Microsoft.Azure.Kinect.BodyTracking.Dependencies.cuDNN.targets'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.Azure.Kinect.BodyTracking.0.9.4\build\native\Microsoft.Azure.Kinect.BodyTracking.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Azure.Kinect.BodyTracking.0.9.4\build\native\Microsoft.Azure.Kinect.BodyTracking.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.Azure.Kinect.BodyTracking.Dependencies.0.9.1\build\native\Microsoft.Azure.Kinect.BodyTracking.Dependencies.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Azure.Kinect.BodyTracking.Dependencies.0.9.1\build\native\Microsoft.Azure.Kinect.BodyTracking.Dependencies.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.Azure.Kinect.BodyTracking.Dependencies.cuDNN.0.9.1\build\native\Microsoft.Azure.Kinect.BodyTracking.Dependencies.cuDNN.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Azure.Kinect.BodyTracking.Dependencies.cuDNN.0.9.1\build\native\Microsoft.Azure.Kinect.BodyTracking.Dependencies.cuDNN.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.Azure.Kinect.BodyTracking.0.9.5\build\native\Microsoft.Azure.Kinect.BodyTracking.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Azure.Kinect.BodyTracking.0.9.5\build\native\Microsoft.Azure.Kinect.BodyTracking.targets'))" />
   </Target>
 </Project>
