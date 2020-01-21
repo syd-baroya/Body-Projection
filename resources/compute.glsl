@@ -12,7 +12,7 @@ layout(rgba8, binding = 0) uniform image2D img;		//input/output image
 //local group of shaders
 layout (std430, binding=0) volatile buffer shader_data
 { 
-  ivec4 positions_list[1024];
+  ivec4 positions_list[2048];
 };
 uniform int sizeofbuffer;
 void main() 

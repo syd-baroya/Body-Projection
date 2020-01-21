@@ -2120,6 +2120,7 @@ int main(int argc, char **argv)
 	// Initialize scene.
 	application->init(resourceDir);
 	application->initGeom();
+	application->init_atomic();
 
 	// Loop until the user closes the window.
 	mat4 V, P;
@@ -2197,6 +2198,7 @@ int main(int argc, char **argv)
 			//cout << application->body.trackedbody.joint_positions[K4ABT_JOINT_SPINE_CHEST].x << endl;
 			application->render_body_to_FBO(frametime, P, V);
 			application->render_render_fire_to_screen_FBO(frametime, P, V);
+			application->compute();
 			time_since_last_body_tracked = 0;
 			//if (firstTime == true) 
 			//	{
@@ -2214,6 +2216,8 @@ int main(int argc, char **argv)
 			black = true;
 			}
 		application->render_to_screen(black);
+		application->get_SSBO_back();
+		application->read_atomic();
 		// Swap front and back buffers.
 		glfwSwapBuffers(windowManager->getHandle());
 		// Poll for and process events.
