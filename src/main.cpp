@@ -21,7 +21,7 @@ CPE/CSC 471 Lab base code Wood/Dunn/Eckhardt
 
 
 //#define RELEASEVERSION
-#define NOKINECT
+//#define NOKINECT
 bool fullscreen = false;
 bool firstTime = true;
 
@@ -1855,21 +1855,42 @@ public:
 
 			//to fill the paintbrush vector with the first position
 			if (firstTime) {
-				for (int i = 0; i < 1000; i++) {
+				for (int i = 0; i < 300; i++) {
 					prevBrush.push_back(translate(mat4(1), body.trackedbody.get_joint(FORECASTFACT, 7))* scale(mat4(1), vec3(0.15, 0.15, 0.15)));
 				}
 				firstTime = false;	
 			}
+			
 			//to shift positions in paintbrush vector (just over 1 for now)
 			else {
-				for (int s = prevBrush.size() - 1; s > 0; s--) {
-					prevBrush[s] = prevBrush[s-1];
+				//calculate the number of rectangles to draw inbetween the positions to make a solid line
+				mat4 currentM = translate(mat4(1), body.trackedbody.get_joint(FORECASTFACT, 7)) * scale(mat4(1), vec3(0.15, 0.15, 0.15));
+				mat4 prevM = prevBrush[0];
+				float dist = sqrt(pow(currentM[3].x - prevM[3].x, 2) + pow(currentM[3].y - prevM[3].y, 2));
+				int extraPoints = int(dist * 50.0);
+
+				//case for if the number of points is greater than the size of the prevBrush array
+				if ((prevBrush.size() - 1) < extraPoints) {
+					extraPoints = prevBrush.size() - 1;
 				}
-				//calculate new position by just adding to the previous position (for now)
-				mat4 tempM = translate(mat4(1.0f), glm::vec3(-0.2f, 0.0f, 0.0f));
-				prevBrush[0] = prevBrush[0] *tempM;
-				//use this when you get connect to work
-					//prevBrush[0] = translate(mat4(1), body.trackedbody.get_joint(FORECASTFACT, 7)) * scale(mat4(1), vec3(0.15, 0.15, 0.15));		
+
+				//shift the array
+				for (int s = prevBrush.size() - 1; s > extraPoints; s--) {
+					prevBrush[s] = prevBrush[s - 1];
+				}
+				prevBrush[0] = currentM;
+
+				//add extra points and new point into array of points you want drawn
+				mat4 tempM = currentM;
+				for (int e = 1; e <= extraPoints; e++) {
+					//create Matrix out of the distance between the points
+					for (int i = 0; i < 4; i++) {
+						for (int j = 0; j < 4; j++) {
+							tempM += (currentM[i][j] + prevM[i][j]) / (float)extraPoints;
+						}
+					}
+					prevBrush[e] = tempM;
+				}
 			}
 
 			//render each rectangle
