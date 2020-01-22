@@ -484,7 +484,7 @@ class butterfly_
 	};
 
 
-#define ssbo_size 2048
+#define ssbo_size 1024
 
 class ssbo_data
 {
@@ -2266,7 +2266,8 @@ int main(int argc, char **argv)
 
 	// Quit program.
 	windowManager->shutdown();
-
+#ifndef NOKINECT
 	application->Close_Kinect();
+#endif
 	return 0;
 }
