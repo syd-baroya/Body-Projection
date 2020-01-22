@@ -152,11 +152,11 @@ class new_body_
 	{
 	private:
 		bool ProcessBody(float frametime, uint64_t nTime, int nBodyCount, new_bodypack_* bodypack);
-		k4a_device_t device;
+		vector<k4a_device_t> devices;
 		k4a_device_configuration_t deviceConfig;
-		k4abt_tracker_t tracker;
+		vector<k4abt_tracker_t> trackers;
 		k4abt_tracker_configuration_t tracker_config;
-
+		uint32_t device_count;
 
 	public:
 		new_trackedbody_ trackedbody;
@@ -165,11 +165,10 @@ class new_body_
 		void CloseSensor();
 		new_body_()
 		{
-			device = nullptr;
+			device_count = 0;
 			deviceConfig = K4A_DEVICE_CONFIG_INIT_DISABLE_ALL;
 			deviceConfig.depth_mode = K4A_DEPTH_MODE_NFOV_UNBINNED;
 			deviceConfig.color_resolution = K4A_COLOR_RESOLUTION_OFF;
-			tracker = NULL;
 			tracker_config = K4ABT_TRACKER_CONFIG_DEFAULT;
 			tracker_config.processing_mode = K4ABT_TRACKER_PROCESSING_MODE_CPU;
 		}

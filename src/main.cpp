@@ -21,7 +21,7 @@ CPE/CSC 471 Lab base code Wood/Dunn/Eckhardt
 
 
 //#define RELEASEVERSION
-//#define NOKINECT
+#define NOKINECT
 bool fullscreen = true;
 bool firstTime = true;
 
@@ -484,7 +484,7 @@ class butterfly_
 	};
 
 
-#define ssbo_size 2048
+#define ssbo_size 1024
 
 class ssbo_data
 {
@@ -2228,7 +2228,8 @@ int main(int argc, char **argv)
 
 	// Quit program.
 	windowManager->shutdown();
-
+#ifndef NOKINECT
 	application->Close_Kinect();
+#endif
 	return 0;
 }
