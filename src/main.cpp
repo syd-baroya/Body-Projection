@@ -525,7 +525,7 @@ public:
 	GLuint VertexBufferID, VertexColorIDBox, IndexBufferIDBox;
 
 	//texture data
-	GLuint Texture, TextureSkeleton,TexRed, TexWaterColor, TextureSkeletonHead, TextureSkeletonH,TexHeart, TextureLines, TextureSkin[FURMAXTEX];
+	GLuint Texture, TextureSkeleton,TexRed, TextureSkeletonHead, TextureSkeletonH,TexHeart, TextureLines, TextureSkin[FURMAXTEX];
 	GLuint TextureButterfly, TextureArray, TextureAlpha;
 
 	GLuint VAO, vertexcount, VAOrect, VAObody, VBbody,body_size;
@@ -1295,13 +1295,7 @@ public:
 		strcpy(filepath, str.c_str());
 		data = stbi_load(filepath, &width, &height, &channels, 4);
 		TexRed = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-		
-		//texture to test painting effect
-		str = resourceDirectory + "/watercolor.png";
-		strcpy(filepath, str.c_str());
-		data = stbi_load(filepath, &width, &height, &channels, 4);
-		TexWaterColor = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-		
+
 		str = resourceDirectory + "/skeleton.png";
 		strcpy(filepath, str.c_str());
 		data = stbi_load(filepath, &width, &height, &channels, 4);
@@ -1780,10 +1774,6 @@ public:
 	will actually issue the commands to draw any geometry you have set up to
 	draw
 	********/
-
-	//global variables to create paintbrush effect
-		bool firstTime = true;
-		vector<mat4> prevBrush;
 	void render_rect(mat4 P, mat4 V,GLuint texture, mat4 Mrect, vec4 animation=vec4(1,1,0,0))
 		{
 		//head-----------------------------------------------------------------------------------------------
@@ -1885,7 +1875,6 @@ public:
 				break;
 				}
 
-			
 			progbody->bind();
 			M = glm::translate(glm::mat4(1.0f), modelpos) * glm::scale(glm::mat4(1.0f), modelscale);
 			glUniform1f(progbody->getUniform("totaltime"), phaseprogresstotaltime);
@@ -1981,56 +1970,7 @@ public:
 				vec4 texoff = vec4(1, 1, 0, 0);
 				render_rect(P, V, TexRed, Mrect, texoff);
 				}
-
-			//code to create paintbrush effect
-
-			//to fill the paintbrush vector with the first position
-			if (firstTime) {
-				for (int i = 0; i < 300; i++) {
-					prevBrush.push_back(translate(mat4(1), body.trackedbody.get_joint(FORECASTFACT, 7))* scale(mat4(1), vec3(0.15, 0.15, 0.15)));
-				}
-				firstTime = false;	
-			}
-			
-			//to shift positions in paintbrush vector (just over 1 for now)
-			else {
-				//calculate the number of rectangles to draw inbetween the positions to make a solid line
-				mat4 currentM = translate(mat4(1), body.trackedbody.get_joint(FORECASTFACT, 7)) * scale(mat4(1), vec3(0.15, 0.15, 0.15));
-				mat4 prevM = prevBrush[0];
-				float dist = sqrt(pow(currentM[3].x - prevM[3].x, 2) + pow(currentM[3].y - prevM[3].y, 2));
-				int extraPoints = int(dist * 50.0);
-
-				//case for if the number of points is greater than the size of the prevBrush array
-				if ((prevBrush.size() - 1) < extraPoints) {
-					extraPoints = prevBrush.size() - 1;
-				}
-
-				//shift the array
-				for (int s = prevBrush.size() - 1; s > extraPoints; s--) {
-					prevBrush[s] = prevBrush[s - 1];
-				}
-				prevBrush[0] = currentM;
-
-				//add extra points and new point into array of points you want drawn
-				mat4 tempM = currentM;
-				for (int e = 1; e <= extraPoints; e++) {
-					//create Matrix out of the distance between the points
-					for (int i = 0; i < 4; i++) {
-						for (int j = 0; j < 4; j++) {
-							tempM += (currentM[i][j] + prevM[i][j]) / (float)extraPoints;
-						}
-					}
-					prevBrush[e] = tempM;
-				}
-			}
-
-			//render each rectangle
-			for (int i = 0; i < prevBrush.size(); i++) {
-				vec4 texoff = vec4(1, 1, 0, 0);
-				//drawing point at left wrist
-				render_rect(P, V, TexWaterColor, prevBrush[i], texoff);
-			}
-#endif	
+#endif
 			}
 		else
 			{
@@ -2180,7 +2120,6 @@ int main(int argc, char **argv)
 	// Initialize scene.
 	application->init(resourceDir);
 	application->initGeom();
-	application->init_atomic();
 
 	// Loop until the user closes the window.
 	mat4 V, P;
@@ -2258,7 +2197,6 @@ int main(int argc, char **argv)
 			//cout << application->body.trackedbody.joint_positions[K4ABT_JOINT_SPINE_CHEST].x << endl;
 			application->render_body_to_FBO(frametime, P, V);
 			application->render_render_fire_to_screen_FBO(frametime, P, V);
-			application->compute();
 			time_since_last_body_tracked = 0;
 			//if (firstTime == true) 
 			//	{
@@ -2276,9 +2214,6 @@ int main(int argc, char **argv)
 			black = true;
 			}
 		application->render_to_screen(black);
-		application->get_SSBO_back();
-		application->read_atomic();
-		system("pause");
 		// Swap front and back buffers.
 		glfwSwapBuffers(windowManager->getHandle());
 		// Poll for and process events.
