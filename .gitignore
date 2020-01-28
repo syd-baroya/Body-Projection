@@ -1,11 +1,13 @@
 build/
 .vs/
 Debug/
+Release/
+x64/
 .travis.yml
 .DS_Store
 packages/
 dnn_model_2_0.onnx
 *.sln
-eyeofmetamorhposis.vcxproj
-eyeofmetamorhposis.vcxproj.filters
-eyeofmetamorhposis.vcxproj.user
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
