@@ -20,7 +20,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\ext\glad\src\glad.c" />
-    <ClCompile Include="body.cpp" />
     <ClCompile Include="GLSL.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MatrixStack.cpp" />
@@ -31,7 +30,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GLSL.h" />
-    <ClInclude Include="body.h" />
     <ClInclude Include="MatrixStack.h" />
     <ClInclude Include="new_body.h" />
     <ClInclude Include="Program.h" />

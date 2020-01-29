@@ -10,7 +10,6 @@
     <ClCompile Include="WindowManager.cpp" />
     <ClCompile Include="MatrixStack.cpp" />
     <ClCompile Include="Shape.cpp" />
-    <ClCompile Include="body.cpp" />
     <ClCompile Include="new_body.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -22,7 +21,6 @@
     <ClInclude Include="tiny_obj_loader.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="stb_image_write.h" />
-    <ClInclude Include="body.h" />
     <ClInclude Include="new_body.h" />
   </ItemGroup>
   <ItemGroup>
@@ -69,6 +67,7 @@
     <None Include="..\resources\compute.glsl">
       <Filter>shader</Filter>
     </None>
+    <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Text.txt" />
