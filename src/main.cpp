@@ -158,10 +158,6 @@ void generate_body_vertices(new_body_ *body, vector<vec3> *pos)
 	for (int ii = 1; ii < K4ABT_JOINT_COUNT; ii++)
 		body->trackedbody.at(0).joint_positions[ii].z = z_base;
 
-	
-	vec3 center = body->trackedbody.at(0).get_joint(forecastfact,0);
-	//cout << center.x << endl;
-	center.z = 0;
 
 	float throat_width = 0.3;
 	float torso_width_left = 0;
@@ -324,14 +320,16 @@ void generate_body_vertices(new_body_ *body, vector<vec3> *pos)
 		//torso
 		utl += oldutl + body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT);
 		utr += oldutr + body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT);
-		mtl += vec3(oldmtl.x + body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT).x, oldmtl.y + (body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT).y) * 0.85, (oldmtl.z + body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT).z));
-		mtr += vec3(oldmtr.x + body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT).x, oldmtr.y + (body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT).y) * 0.85, (oldmtr.z + body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT).z));
+		mtl += oldmtl + body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT);
+		mtr += oldmtr + body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT);
 
 	}
 	utl /= deviceCount;
 	utr /= deviceCount;
 	mtl /= deviceCount;
 	mtr /= deviceCount;
+	mtl.y *= 0.85;
+	mtr.y *= 0.85;
 
 	vec3 a, b;
 	a = normalize(left_should_to_elbow);
@@ -1051,10 +1049,13 @@ public:
 	{
 		ofstream f;
 		f.open("anim.txt");
+		
 		for (int ii = 0; ii < K4ABT_JOINT_COUNT; ii++)
 		{
-			vec3 t = body.trackedbody.at(0).get_joint(FORECASTFACT,ii);
-			f << t.x << t.y << t.z;
+			for (int i = 0; i < body.getDeviceCount(); i++) {
+				vec3 t = body.trackedbody.at(i).get_joint(FORECASTFACT, ii);
+				f << t.x << t.y << t.z;
+			}
 		}
 		f.close();
 	}
@@ -2259,7 +2260,6 @@ int main(int argc, char **argv)
 	double time_since_last_body_tracked = 0;
 	double countfps = 0;
 	int frame = 0;
-	fullscreen = false;
 	windowManager->SetFullScreen(fullscreen);
 
 	//app nicht 2 mal oder oefter ausfuehren
