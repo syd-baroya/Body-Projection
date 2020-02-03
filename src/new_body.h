@@ -165,6 +165,7 @@ class new_body_
 		void InitializeDefaultSensor();
 		void CloseSensor();
 		uint32_t getDeviceCount();
+		void setDeviceCount(uint32_t device_count);
 		new_body_()
 		{
 			device_count = 0;

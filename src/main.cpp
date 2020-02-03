@@ -557,9 +557,9 @@ void generate_body_vertices(new_body_ *body, vector<vec3> *pos)
 
 	for (uint32 deviceIndex = 0; deviceIndex < deviceCount; deviceIndex++) {
 		//head
-		chin += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_HEAD) + nose_to_head * chinstart;
-		sidechincenter += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_HEAD) + nose_to_head * sidechinstart;
-		tophead += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_NOSE) + nose_to_head * chinstart;
+		chin += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_HEAD);
+		sidechincenter += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_HEAD);
+		tophead += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_NOSE);
 
 		//hands
 		tlr += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_HANDTIP_LEFT) - oldtll;
@@ -569,8 +569,11 @@ void generate_body_vertices(new_body_ *body, vector<vec3> *pos)
 
 	}
 	chin /= deviceCount;
+	chin += nose_to_head * chinstart;
 	sidechincenter /= deviceCount;
+	sidechincenter += nose_to_head * sidechinstart;
 	tophead /= deviceCount;
+	tophead += nose_to_head * chinstart;
 	tlr /= deviceCount;
 	tll /= deviceCount;
 	trl /= deviceCount;
@@ -821,8 +824,8 @@ public:
 		
 		int trackedbodies = 0;
 #ifdef NOKINECT
-		get_record(body.trackedbody[0].joint_positions);
-		trackedbodies = 1;
+		get_record(&body, &body.trackedbody);
+		trackedbodies = body.trackedbody.size();
 #endif
 #ifndef NOKINECT
 		trackedbodies = body.Update(frametime);
@@ -1048,7 +1051,7 @@ public:
 	{
 		ofstream f;
 		f.open("anim.txt");
-		
+		f << body.getDeviceCount()<<'\n';
 		for (int ii = 0; ii < K4ABT_JOINT_COUNT; ii++)
 		{
 			for (int i = 0; i < body.getDeviceCount(); i++) {
@@ -1058,26 +1061,40 @@ public:
 		}
 		f.close();
 	}
-	void get_record(vec3 *dst)
+	void get_record(new_body_ *body, vector<new_trackedbody_> *tracked_body)
 	{
-		static vec3 pos[K4ABT_JOINT_COUNT];
+		static vector<vec3> pos;
+		static uint32_t deviceCount;
 		static bool first = true;
 		if (first)
 		{
 			ifstream f("anim.txt");
 			if (f.is_open() == false)return;
 			first = false;
-			for (int ii = 0; ii < K4ABT_JOINT_COUNT; ii++)
+			f >> deviceCount;
+			body->setDeviceCount(deviceCount);
+			for (uint32_t tracked_count = 0; tracked_count < deviceCount; tracked_count++) {
+				tracked_body->push_back(new_trackedbody_());
+			}
+			for (uint32_t ii = 0; ii < K4ABT_JOINT_COUNT*deviceCount; ii++)
 			{
-				f >> pos[ii].x;
-				f >> pos[ii].y;
-				f >> pos[ii].z;
+				vec3 file_vec;
+				f >> file_vec.x;
+				f >> file_vec.y;
+				f >> file_vec.z;
+				pos.push_back(file_vec);
 			}
 			f.close();
 		}
 
-		for (int ii = 0; ii < K4ABT_JOINT_COUNT; ii++)
-			dst[ii] = pos[ii];
+		for (uint32_t ii = 0; ii < K4ABT_JOINT_COUNT; ii++)
+		{
+			for (uint32_t i = 0; i < deviceCount; i++)
+			{
+				int pos_index = (2 * ii) + i;
+				tracked_body->at(i).joint_positions[ii] = pos.at(pos_index);
+			}
+		}
 
 	/*	static float w = 0.0;
 		static float wi = 0.01;
@@ -2233,6 +2250,10 @@ int main(int argc, char **argv)
 	}
 	srand(time(0));
 	Application *application = new Application();
+#ifdef NOKINECT
+	application->get_record(&application->body, &application->body.trackedbody);
+#endif // NOKINECT
+
 
 	/* your main will always include a similar set up to establish your window
 		and GL context, etc. */
@@ -2326,6 +2347,7 @@ int main(int argc, char **argv)
 			application->render_render_fire_to_screen_FBO(frametime, P, V);
 			application->compute();
 			time_since_last_body_tracked = 0;
+
 			//if (firstTime == true) 
 			//	{
 			//		application->record();

@@ -256,4 +256,8 @@ uint32_t new_body_::getDeviceCount()
 	return this->device_count;
 }
 
+void new_body_::setDeviceCount(uint32_t device_count)
+{
+	this->device_count = device_count;
+}
 	
