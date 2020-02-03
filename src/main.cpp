@@ -359,29 +359,39 @@ void generate_body_vertices(new_body_ *body, vector<vec3> *pos)
 
 	for (uint32 deviceIndex = 0; deviceIndex < deviceCount; deviceIndex++) {
 		//torso
-		utl_to_neck += utl - body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_NECK);
-		utr_to_neck += utr - body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_NECK);
+		utl_to_neck += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_NECK);
+		utr_to_neck += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_NECK);
 
 		//arms:
-		hll += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_WRIST_LEFT) + oldell;
-		hlr += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_WRIST_LEFT) - oldell;
-		elr += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_ELBOW_LEFT) - oldell;
-		ell += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_ELBOW_LEFT) + oldell;
-		hrr += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_WRIST_RIGHT) + olderr;
-		hrl += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_WRIST_RIGHT) - olderr;
-		erl += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_ELBOW_RIGHT) - olderr;
-		err += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_ELBOW_RIGHT) + olderr;
+		hll += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_WRIST_LEFT);
+		hlr += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_WRIST_LEFT);
+		elr += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_ELBOW_LEFT);
+		ell += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_ELBOW_LEFT);
+		hrr += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_WRIST_RIGHT);
+		hrl += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_WRIST_RIGHT);
+		erl += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_ELBOW_RIGHT);
+		err += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_ELBOW_RIGHT);
 	}
 	utl_to_neck /= deviceCount;
+	utl_to_neck = utl - utl_to_neck;
 	utr_to_neck /= deviceCount;
+	utr_to_neck = utr - utr_to_neck;
 	hll /= deviceCount;
+	hll += oldell;
 	hlr /= deviceCount;
+	hlr -= oldell;
 	elr /= deviceCount;
+	elr -= oldell;
 	ell /= deviceCount;
+	ell += oldell;
 	hrr /= deviceCount;
+	hrr += olderr;
 	hrl /= deviceCount;
+	hrl -= olderr;
 	erl /= deviceCount;
+	erl -= olderr;
 	err /= deviceCount;
+	err += olderr;
 
 	vec3 mll = vec3(0);
 	vec3 mlr = vec3(0);
@@ -390,15 +400,19 @@ void generate_body_vertices(new_body_ *body, vector<vec3> *pos)
 
 	for (uint32 deviceIndex = 0; deviceIndex < deviceCount; deviceIndex++) {
 		//torso
-		mll += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_PELVIS) + normalize(left_hip_to_pelvis) * torso_width_left;
-		mlr += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_PELVIS) + normalize(right_hip_to_pelvis) * torso_width_right;
-		sll += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_NECK) + normalize(utl_to_neck) * torso_width_left * throat_width;
-		slr += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_NECK) + normalize(utr_to_neck) * torso_width_right * throat_width;
+		mll += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_PELVIS);
+		mlr += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_PELVIS);
+		sll += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_NECK);
+		slr += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_NECK);
 	}
 	mll /= deviceCount;
+	mll += normalize(left_hip_to_pelvis) * torso_width_left;
 	mlr /= deviceCount;
+	mlr += normalize(right_hip_to_pelvis) * torso_width_right;
 	sll /= deviceCount;
+	sll += normalize(utl_to_neck) * torso_width_left * throat_width;
 	slr /= deviceCount;
+	slr += normalize(utr_to_neck) * torso_width_right * throat_width;
 
 
 	//construct torso:
@@ -407,14 +421,28 @@ void generate_body_vertices(new_body_ *body, vector<vec3> *pos)
 	pos->push_back(mtl);
 	pos->push_back(mtr);
 
-	pos->push_back(body->trackedbody.at(0).get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT));
+	vec3 l_shoulder_est = vec3(0);
+	vec3 r_shoulder_est = vec3(0);
+	vec3 neck_est = vec3(0);
+
+	for (uint32 deviceIndex = 0; deviceIndex < deviceCount; deviceIndex++) {
+		l_shoulder_est += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT);
+		r_shoulder_est += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT);
+		neck_est += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_NECK);
+
+	}
+	l_shoulder_est /= deviceCount;
+	r_shoulder_est /= deviceCount;
+	neck_est /= deviceCount;
+
+	pos->push_back(l_shoulder_est);
 	/*pos->push_back(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_CLAVICLE_LEFT));
 	pos->push_back(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_CLAVICLE_RIGHT));*/
-	pos->push_back(body->trackedbody.at(0).get_joint(forecastfact, K4ABT_JOINT_NECK));
-	pos->push_back(body->trackedbody.at(0).get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT));
+	pos->push_back(neck_est);
+	pos->push_back(r_shoulder_est);
 
 	pos->push_back(utl);
-	pos->push_back(body->trackedbody.at(0).get_joint(forecastfact, K4ABT_JOINT_NECK));
+	pos->push_back(neck_est);
 	pos->push_back(utr);
 
 	pos->push_back(sll);
@@ -473,36 +501,47 @@ void generate_body_vertices(new_body_ *body, vector<vec3> *pos)
 	vec3 oldarr = arr;
 
 	for (uint32 deviceIndex = 0; deviceIndex < deviceCount; deviceIndex++) {
-		fut += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_PELVIS) +
-			normalize(pelvis_to_navel) * torso_above_sholders;
-		klr += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_KNEE_LEFT) - oldkll;
-		kll += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_KNEE_LEFT) + oldkll;
-		krl += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_KNEE_RIGHT) - oldkrr;
-		krr += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_KNEE_RIGHT) + oldkrr;
-		fll += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_FOOT_LEFT) + oldall;
-		flr += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_FOOT_LEFT) - oldall;
-		alr += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_ANKLE_LEFT) - oldall;
-		all += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_ANKLE_LEFT) + oldall;
-		frr += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_FOOT_RIGHT) + oldarr;
-		frl += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_FOOT_RIGHT) - oldarr;
-		arl += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_ANKLE_RIGHT) - oldarr;
-		arr += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_ANKLE_RIGHT) + oldarr;
+		fut += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_PELVIS);
+		klr += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_KNEE_LEFT);
+		kll += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_KNEE_LEFT);
+		krl += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_KNEE_RIGHT);
+		krr += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_KNEE_RIGHT);
+		fll += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_FOOT_LEFT);
+		flr += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_FOOT_LEFT);
+		alr += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_ANKLE_LEFT);
+		all += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_ANKLE_LEFT);
+		frr += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_FOOT_RIGHT);
+		frl += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_FOOT_RIGHT);
+		arl += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_ANKLE_RIGHT);
+		arr += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_ANKLE_RIGHT);
 	}
 
 	fut /= deviceCount;
+	fut += normalize(pelvis_to_navel) * torso_above_sholders;
 	klr /= deviceCount;
+	klr -= oldkll;
 	kll /= deviceCount;
+	kll += oldkll;
 	krl /= deviceCount;
+	krl -= oldkrr;
 	krr /= deviceCount;
+	krr += oldkrr;
 	fll /= deviceCount;
+	fll += oldall;
 	flr /= deviceCount;
+	flr -= oldall;
 	alr /= deviceCount;
+	alr -= oldall;
 	all /= deviceCount;
+	all += oldall;
 	frr /= deviceCount;
+	frr += oldarr;
 	frl /= deviceCount;
+	frl -= oldarr;
 	arl /= deviceCount;
+	arl -= oldarr;
 	arr /= deviceCount;
-
+	arr += oldarr;
 
 
 
@@ -562,10 +601,10 @@ void generate_body_vertices(new_body_ *body, vector<vec3> *pos)
 		tophead += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_NOSE);
 
 		//hands
-		tlr += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_HANDTIP_LEFT) - oldtll;
-		tll += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_HANDTIP_LEFT) + oldtll;
-		trl += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_HANDTIP_RIGHT) - oldtrr;
-		trr += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_HANDTIP_RIGHT) + oldtrr;
+		tlr += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_HANDTIP_LEFT);
+		tll += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_HANDTIP_LEFT);
+		trl += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_HANDTIP_RIGHT);
+		trr += body->trackedbody.at(deviceIndex).get_joint(forecastfact, K4ABT_JOINT_HANDTIP_RIGHT);
 
 	}
 	chin /= deviceCount;
@@ -575,9 +614,13 @@ void generate_body_vertices(new_body_ *body, vector<vec3> *pos)
 	tophead /= deviceCount;
 	tophead += nose_to_head * chinstart;
 	tlr /= deviceCount;
+	tlr -= oldtll;
 	tll /= deviceCount;
+	tll += oldtll;
 	trl /= deviceCount;
+	trl -= oldtrr;
 	trr /= deviceCount;
+	trr += oldtrr;
 
 
 	vec3 hl = tophead + gl;
