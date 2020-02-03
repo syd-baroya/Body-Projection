@@ -305,7 +305,7 @@ void generate_body_vertices(new_body_ *body, vector<vec3> *pos)
 
 	//legs
 	vec3 fut = body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_PELVIS) +
-		normalize(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_PELVIS) - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_SPINE_NAVAL)) *	torso_above_sholders;
+		normalize(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_PELVIS) - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_SPINE_NAVEL)) *	torso_above_sholders;
 
 	vec3 kll = normalize(
 		normalize(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_HIP_LEFT) - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_KNEE_LEFT)) +
