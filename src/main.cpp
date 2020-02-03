@@ -21,7 +21,7 @@ CPE/CSC 471 Lab base code Wood/Dunn/Eckhardt
 
 
 //#define RELEASEVERSION
-//#define NOKINECT
+#define NOKINECT
 bool fullscreen = true;
 bool firstTime = true;
 
@@ -821,8 +821,7 @@ public:
 		
 		int trackedbodies = 0;
 #ifdef NOKINECT
-		get_record(body.
-			.joint_positions);
+		get_record(body.trackedbody[0].joint_positions);
 		trackedbodies = 1;
 #endif
 #ifndef NOKINECT
