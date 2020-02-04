@@ -65,10 +65,10 @@
     <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />
     <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />
     <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />
-    <None Include="dnn_model_2_0.onnx" />
     <None Include="..\resources\compute.glsl">
       <Filter>shader</Filter>
     </None>
+    <None Include="dnn_model_2_0.onnx" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Text.txt" />
