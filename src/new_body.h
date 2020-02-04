@@ -63,6 +63,7 @@ class new_trackedbody_
 		float time_till_last_tracked;
 		bool jointTracked[K4ABT_JOINT_COUNT];
 		vec3 joint_positions[K4ABT_JOINT_COUNT];
+		double joint_angles[K4ABT_JOINT_COUNT];
 		float time_till_last_joint_tracked[K4ABT_JOINT_COUNT];
 		new_trackedbody_() { reset(); }
 		void OnLostTrack()
@@ -173,6 +174,6 @@ class new_body_
 			deviceConfig.depth_mode = K4A_DEPTH_MODE_NFOV_UNBINNED;
 			deviceConfig.color_resolution = K4A_COLOR_RESOLUTION_OFF;
 			tracker_config = K4ABT_TRACKER_CONFIG_DEFAULT;
-			tracker_config.processing_mode = K4ABT_TRACKER_PROCESSING_MODE_CPU;
+			tracker_config.processing_mode = K4ABT_TRACKER_PROCESSING_MODE_GPU;
 		}
 	};

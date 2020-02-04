@@ -90,7 +90,7 @@ int new_body_::Update(float frametime)
 	for (uint32_t deviceIndex = 0; deviceIndex < this->device_count; deviceIndex++) {
 		trackedbodies = 0;
 		k4a_capture_t sensor_capture = nullptr;
-		k4a_wait_result_t get_capture_result = k4a_device_get_capture(this->devices.at(deviceIndex), &sensor_capture, 0);
+		k4a_wait_result_t get_capture_result = k4a_device_get_capture(this->devices.at(deviceIndex), &sensor_capture, K4A_WAIT_INFINITE);
 		if (get_capture_result == K4A_WAIT_RESULT_SUCCEEDED)
 		{
 			k4a_wait_result_t queue_capture_result = k4abt_tracker_enqueue_capture(this->trackers.at(deviceIndex), sensor_capture, K4A_WAIT_INFINITE);
