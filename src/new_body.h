@@ -63,7 +63,7 @@ class new_trackedbody_
 		float time_till_last_tracked;
 		bool jointTracked[K4ABT_JOINT_COUNT];
 		vec3 joint_positions[K4ABT_JOINT_COUNT];
-		double joint_angles[K4ABT_JOINT_COUNT];
+		std::unordered_map<k4abt_joint_id_t, long double> jointAngleMap;
 		float time_till_last_joint_tracked[K4ABT_JOINT_COUNT];
 		new_trackedbody_() { reset(); }
 		void OnLostTrack()

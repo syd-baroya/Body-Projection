@@ -154,13 +154,20 @@ float sign(float f)
 	else return 1;
 }
 
-void calculate_joint_angles(vec3 a, vec3 b, vec3 c, vector<double> *body_angles) 
+long double calculate_joint_angles(vec3 a, vec3 b, vec3 c)
 {
 	vec3 vec_ab = points_to_vector(a, b);
 	vec3 vec_bc = points_to_vector(b, c);
 
-	body_angles->push_back(calc_angle(vec_ab, vec_bc));
+	return calc_angle(vec_ab, vec_bc);
 
+}
+
+void generate_joint_angles(std::unordered_map<k4abt_joint_id_t, long double> *jointAngles, new_trackedbody_ trackedbody,uint32_t deviceIndex)
+{
+	float forecastfact = FORECASTFACT;
+
+	jointAngles->insert(make_pair(K4ABT_JOINT_ELBOW_RIGHT, calculate_joint_angles(trackedbody.get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT), trackedbody.get_joint(forecastfact, K4ABT_JOINT_ELBOW_RIGHT), trackedbody.get_joint(forecastfact, K4ABT_JOINT_WRIST_RIGHT))));
 }
 
 void generate_body_vertices(new_body_* body, vector<vec3>* pos, uint32_t deviceIndex)

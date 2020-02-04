@@ -30,6 +30,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GLSL.h" />
+    <ClInclude Include="helper_includes\BodyTrackingHelpers.h" />
+    <ClInclude Include="helper_includes\Utilities.h" />
     <ClInclude Include="MatrixStack.h" />
     <ClInclude Include="new_body.h" />
     <ClInclude Include="Program.h" />
