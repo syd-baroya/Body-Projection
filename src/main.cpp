@@ -171,9 +171,9 @@ long double calculate_joint_angles(vec3 a, vec3 b, vec3 c)
 
 }
 
-std::unordered_map<k4abt_joint_id_t, long double> average_all_joint_angles(vector<new_trackedbody_> trackedbody)
+std::map<k4abt_joint_id_t, long double> average_all_joint_angles(vector<new_trackedbody_> trackedbody)
 {
-	std::unordered_map<k4abt_joint_id_t, long double> angleAverages;
+	std::map<k4abt_joint_id_t, long double> angleAverages;
 	for (int i = 0; i < trackedbody.size(); i++) 
 	{
 		for (pair<k4abt_joint_id_t, long double> element : trackedbody.at(i).jointAngleMap)
@@ -188,20 +188,20 @@ std::unordered_map<k4abt_joint_id_t, long double> average_all_joint_angles(vecto
 	return angleAverages;
 }
 
-void generate_joint_angles(std::unordered_map<k4abt_joint_id_t, long double> *jointAngles, new_trackedbody_ trackedbody)
+void generate_joint_angles(std::map<k4abt_joint_id_t, long double> *jointAngles, new_trackedbody_ trackedbody)
 {
 	float forecastfact = FORECASTFACT;
 
-	jointAngles->insert(make_pair(K4ABT_JOINT_WRIST_RIGHT, calculate_joint_angles(trackedbody.get_joint(forecastfact, K4ABT_JOINT_ELBOW_RIGHT), trackedbody.get_joint(forecastfact, K4ABT_JOINT_WRIST_RIGHT), trackedbody.get_joint(forecastfact, K4ABT_JOINT_HANDTIP_RIGHT))));
-	jointAngles->insert(make_pair(K4ABT_JOINT_ELBOW_RIGHT, calculate_joint_angles(trackedbody.get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT), trackedbody.get_joint(forecastfact, K4ABT_JOINT_ELBOW_RIGHT), trackedbody.get_joint(forecastfact, K4ABT_JOINT_WRIST_RIGHT))));
 	jointAngles->insert(make_pair(K4ABT_JOINT_SHOULDER_RIGHT, calculate_joint_angles(trackedbody.get_joint(forecastfact, K4ABT_JOINT_SPINE_CHEST), trackedbody.get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT), trackedbody.get_joint(forecastfact, K4ABT_JOINT_ELBOW_RIGHT))));
+	jointAngles->insert(make_pair(K4ABT_JOINT_ELBOW_RIGHT, calculate_joint_angles(trackedbody.get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT), trackedbody.get_joint(forecastfact, K4ABT_JOINT_ELBOW_RIGHT), trackedbody.get_joint(forecastfact, K4ABT_JOINT_WRIST_RIGHT))));
+	jointAngles->insert(make_pair(K4ABT_JOINT_WRIST_RIGHT, calculate_joint_angles(trackedbody.get_joint(forecastfact, K4ABT_JOINT_ELBOW_RIGHT), trackedbody.get_joint(forecastfact, K4ABT_JOINT_WRIST_RIGHT), trackedbody.get_joint(forecastfact, K4ABT_JOINT_HANDTIP_RIGHT))));
 	jointAngles->insert(make_pair(K4ABT_JOINT_HIP_RIGHT, calculate_joint_angles(trackedbody.get_joint(forecastfact, K4ABT_JOINT_PELVIS), trackedbody.get_joint(forecastfact, K4ABT_JOINT_HIP_RIGHT), trackedbody.get_joint(forecastfact, K4ABT_JOINT_KNEE_RIGHT))));
 	jointAngles->insert(make_pair(K4ABT_JOINT_KNEE_RIGHT, calculate_joint_angles(trackedbody.get_joint(forecastfact, K4ABT_JOINT_HIP_RIGHT), trackedbody.get_joint(forecastfact, K4ABT_JOINT_KNEE_RIGHT), trackedbody.get_joint(forecastfact, K4ABT_JOINT_ANKLE_RIGHT))));
 	jointAngles->insert(make_pair(K4ABT_JOINT_ANKLE_RIGHT, calculate_joint_angles(trackedbody.get_joint(forecastfact, K4ABT_JOINT_KNEE_RIGHT), trackedbody.get_joint(forecastfact, K4ABT_JOINT_ANKLE_RIGHT), trackedbody.get_joint(forecastfact, K4ABT_JOINT_FOOT_RIGHT))));
 
-	jointAngles->insert(make_pair(K4ABT_JOINT_WRIST_LEFT, calculate_joint_angles(trackedbody.get_joint(forecastfact, K4ABT_JOINT_ELBOW_LEFT), trackedbody.get_joint(forecastfact, K4ABT_JOINT_WRIST_LEFT), trackedbody.get_joint(forecastfact, K4ABT_JOINT_HANDTIP_LEFT))));
-	jointAngles->insert(make_pair(K4ABT_JOINT_ELBOW_LEFT, calculate_joint_angles(trackedbody.get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT), trackedbody.get_joint(forecastfact, K4ABT_JOINT_ELBOW_LEFT), trackedbody.get_joint(forecastfact, K4ABT_JOINT_WRIST_LEFT))));
 	jointAngles->insert(make_pair(K4ABT_JOINT_SHOULDER_LEFT, calculate_joint_angles(trackedbody.get_joint(forecastfact, K4ABT_JOINT_SPINE_CHEST), trackedbody.get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT), trackedbody.get_joint(forecastfact, K4ABT_JOINT_ELBOW_LEFT))));
+	jointAngles->insert(make_pair(K4ABT_JOINT_ELBOW_LEFT, calculate_joint_angles(trackedbody.get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT), trackedbody.get_joint(forecastfact, K4ABT_JOINT_ELBOW_LEFT), trackedbody.get_joint(forecastfact, K4ABT_JOINT_WRIST_LEFT))));
+	jointAngles->insert(make_pair(K4ABT_JOINT_WRIST_LEFT, calculate_joint_angles(trackedbody.get_joint(forecastfact, K4ABT_JOINT_ELBOW_LEFT), trackedbody.get_joint(forecastfact, K4ABT_JOINT_WRIST_LEFT), trackedbody.get_joint(forecastfact, K4ABT_JOINT_HANDTIP_LEFT))));
 	jointAngles->insert(make_pair(K4ABT_JOINT_HIP_LEFT, calculate_joint_angles(trackedbody.get_joint(forecastfact, K4ABT_JOINT_PELVIS), trackedbody.get_joint(forecastfact, K4ABT_JOINT_HIP_LEFT), trackedbody.get_joint(forecastfact, K4ABT_JOINT_KNEE_LEFT))));
 	jointAngles->insert(make_pair(K4ABT_JOINT_KNEE_LEFT, calculate_joint_angles(trackedbody.get_joint(forecastfact, K4ABT_JOINT_HIP_LEFT), trackedbody.get_joint(forecastfact, K4ABT_JOINT_KNEE_LEFT), trackedbody.get_joint(forecastfact, K4ABT_JOINT_ANKLE_LEFT))));
 	jointAngles->insert(make_pair(K4ABT_JOINT_ANKLE_LEFT, calculate_joint_angles(trackedbody.get_joint(forecastfact, K4ABT_JOINT_KNEE_LEFT), trackedbody.get_joint(forecastfact, K4ABT_JOINT_ANKLE_LEFT), trackedbody.get_joint(forecastfact, K4ABT_JOINT_FOOT_LEFT))));
@@ -694,10 +694,10 @@ public:
 #endif
 		
 		for (int i = 0; i < body.getDeviceCount(); i++) {
-			new_trackedbody_ tb = body.trackedbody.at(i);
-			generate_joint_angles(&tb.jointAngleMap, tb);
+			new_trackedbody_ *tb = &body.trackedbody.at(i);
+			generate_joint_angles(&tb->jointAngleMap, *tb);
 		}
-		std::unordered_map<k4abt_joint_id_t, long double> avg_angles = average_all_joint_angles(body.trackedbody);
+		std::map<k4abt_joint_id_t, long double> avg_angles = average_all_joint_angles(body.trackedbody);
 		vec3 master_positions[K4ABT_JOINT_COUNT];
 		copy(begin(body.trackedbody.at(body.getDeviceCount() - 1).joint_positions), end(body.trackedbody.at(body.getDeviceCount() - 1).joint_positions), begin(master_positions));
 
@@ -708,6 +708,7 @@ public:
 				theta += 360.0;
 			master_positions[element.first] = vec3(coord_after_rotation(vec2(master_positions[element.first].x, master_positions[element.first].y), theta), master_positions[element.first].z);
 		}
+
 		vector<vec3> posb;
 
 		generate_body_vertices(&body.trackedbody.at(body.getDeviceCount()-1), &posb);
