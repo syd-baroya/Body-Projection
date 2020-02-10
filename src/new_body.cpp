@@ -77,9 +77,9 @@ void new_body_::InitializeDefaultSensor()
 		VERIFY(k4abt_tracker_create(&sensorCalibration, this->tracker_config, &master_tracker), "Body tracker initialization failed!");
 		k4abt_tracker_set_temporal_smoothing(master_tracker, 0.5f);
 
-		this->devices.push_back(master_device);
-		this->trackers.push_back(master_tracker);
-		this->trackedbody.push_back(new_trackedbody_());
+		this->devices.insert(this->devices.begin(), master_device);
+		this->trackers.insert(this->trackers.begin(), master_tracker);
+		this->trackedbody.insert(this->trackedbody.begin(), new_trackedbody_());
 
 	}
 }

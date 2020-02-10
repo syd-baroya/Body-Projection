@@ -22,7 +22,7 @@ CPE/CSC 471 Lab base code Wood/Dunn/Eckhardt
 
 
 //#define RELEASEVERSION
-//#define NOKINECT
+#define NOKINECT
 #define PI 3.14159265
 bool fullscreen = true;
 bool firstTime = true;
@@ -699,7 +699,7 @@ public:
 		}
 		std::map<k4abt_joint_id_t, long double> avg_angles = average_all_joint_angles(body.trackedbody);
 		vec3 master_positions[K4ABT_JOINT_COUNT];
-		copy(begin(body.trackedbody.at(body.getDeviceCount() - 1).joint_positions), end(body.trackedbody.at(body.getDeviceCount() - 1).joint_positions), begin(master_positions));
+		copy(begin(body.trackedbody.at(0).joint_positions), end(body.trackedbody.at(0).joint_positions), begin(master_positions));
 
 		for (pair<k4abt_joint_id_t, long double> element : avg_angles)
 		{
@@ -711,7 +711,7 @@ public:
 
 		vector<vec3> posb;
 
-		generate_body_vertices(&body.trackedbody.at(body.getDeviceCount()-1), &posb);
+		generate_body_vertices(&body.trackedbody.at(0), &posb);
 
 
 		glBindBuffer(GL_ARRAY_BUFFER, VBbody);
@@ -923,9 +923,31 @@ public:
 			record();
 		}
 		if (key == GLFW_KEY_L && action == GLFW_RELEASE)
-			{
+		{
 			animation = true;
+		}
+		if (key == GLFW_KEY_M && action == GLFW_RELEASE)
+		{
+			cout << "OLD DEVICE COUNT: " << body.getDeviceCount() << endl;
+
+			if (body.getDeviceCount() != 1)
+				body.setDeviceCount(1);
+			else
+			{
+#ifdef NOKINECT
+				ifstream f("anim.txt");
+				if (f.is_open() == false)return;
+				static uint32_t deviceCount;
+				f >> deviceCount;
+				body.setDeviceCount(deviceCount);
+				f.close();
+#endif
+#ifndef NOKINECT
+				body.setDeviceCount(k4a_device_get_installed_count());
+#endif
 			}
+			cout << "NEW DEVICE COUNT: " << body.getDeviceCount() << endl;
+		}
 	}
 	void record()
 	{
@@ -1262,7 +1284,7 @@ public:
 
 		
 		vector<vec3> posb;
-		generate_body_vertices(&body.trackedbody.at(body.getDeviceCount()-1), &posb);
+		generate_body_vertices(&body.trackedbody.at(0), &posb);
 		
 
 
@@ -1876,8 +1898,8 @@ public:
 					int tx = (int)tileprogress % 4;
 					int ty = (int)tileprogress / 4;
 					vec4 texoff = vec4(4, 4, tx, ty);
-					vec3 a= body.trackedbody.at(body.getDeviceCount()-1).get_joint(FORECASTFACT, K4ABT_JOINT_SHOULDER_LEFT);
-					vec3 b = body.trackedbody.at(body.getDeviceCount() - 1).get_joint(FORECASTFACT, K4ABT_JOINT_SPINE_CHEST);
+					vec3 a= body.trackedbody.at(0).get_joint(FORECASTFACT, K4ABT_JOINT_SHOULDER_LEFT);
+					vec3 b = body.trackedbody.at(0).get_joint(FORECASTFACT, K4ABT_JOINT_SPINE_CHEST);
 					vec3 pos;
 					pos.x = a.x * 0.2 + b.x * 0.8;
 					pos.y = a.y *0.7 + b.y * 0.3;
@@ -1887,7 +1909,7 @@ public:
 
 
 
-					mat4 MrectHead = translate(mat4(1), body.trackedbody.at(body.getDeviceCount() - 1).get_joint(FORECASTFACT, K4ABT_JOINT_NOSE)*0.6f+ body.trackedbody.at(body.getDeviceCount() - 1).get_joint(FORECASTFACT, K4ABT_JOINT_HEAD)*0.6f) * scale(mat4(1), vec3(0.61, 0.61, 0.61));
+					mat4 MrectHead = translate(mat4(1), body.trackedbody.at(0).get_joint(FORECASTFACT, K4ABT_JOINT_NOSE)*0.6f+ body.trackedbody.at(0).get_joint(FORECASTFACT, K4ABT_JOINT_HEAD)*0.6f) * scale(mat4(1), vec3(0.61, 0.61, 0.61));
 					texoff = vec4(1, 1, 0, 0);
 					render_rect(P, V, TextureSkeletonHead, MrectHead, texoff);
 					redtone = vec3(1, 0, 0);
@@ -1988,7 +2010,7 @@ public:
 #ifndef RELEASEVERSION
 			for (int ii = 0; ii < K4ABT_JOINT_COUNT; ii++)
 				{
-				mat4 Mrect = translate(mat4(1), body.trackedbody.at(body.getDeviceCount() - 1).get_joint(FORECASTFACT, ii)) * scale(mat4(1), vec3(0.05, 0.05, 0.05));
+				mat4 Mrect = translate(mat4(1), body.trackedbody.at(0).get_joint(FORECASTFACT, ii)) * scale(mat4(1), vec3(0.05, 0.05, 0.05));
 				vec4 texoff = vec4(1, 1, 0, 0);
 				render_rect(P, V, TexRed, Mrect, texoff);
 				}
@@ -2014,10 +2036,10 @@ public:
 
 			for (int ii = 0; ii < butterflyactual; ii++)
 				{
-				vec3 pos = mix(body.trackedbody.at(body.getDeviceCount() - 1).get_joint(forecastfact,butterfly[ii].iA), body.trackedbody.at(body.getDeviceCount() - 1).get_joint(forecastfact,butterfly[ii].iB), butterfly[ii].rationAB);
+				vec3 pos = mix(body.trackedbody.at(0).get_joint(forecastfact,butterfly[ii].iA), body.trackedbody.at(0).get_joint(forecastfact,butterfly[ii].iB), butterfly[ii].rationAB);
 				mat4 Sc = scale(mat4(1), vec3(butterfly[ii].scale));
 				mat4 Rz = rotate(mat4(1), butterfly[ii].rotz, vec3(0, 0, 1));
-				vec3 t = body.trackedbody.at(body.getDeviceCount() - 1).get_joint(forecastfact,ii);
+				vec3 t = body.trackedbody.at(0).get_joint(forecastfact,ii);
 				if (butterfly[ii].startanim >= (-1))
 					butterfly[ii].startanim -= frametime;
 				vec4 texoff = vec4(4, 4, 0, 0);
