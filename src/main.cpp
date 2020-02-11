@@ -22,6 +22,12 @@ CPE/CSC 471 Lab base code Wood/Dunn/Eckhardt
 
 //#define RELEASEVERSION
 #define NOKINECT
+//Emily's new variables
+bool firstTimeE = true;
+vector<vec3> particle_pos;
+vector<vec2> groups;
+
+
 bool fullscreen = true;
 bool firstTime = true;
 
@@ -1768,12 +1774,93 @@ public:
 		return 0;
 
 		}
+	//Function to create vector of particle positions
+	vector<vec3> createPart() {
+		//figure out exact pos to start particles at
+		vector<vec3> particle_pos;
+		float x = 0.0;
+		while (x <= 1.0) {
+			float y = 0.0;
+			while (y <= 1.0) {
+				particle_pos.push_back(vec3(x, y, -1.618940));
+				y += 0.5;
+			}
+			x += 0.5;
+		}
+		return particle_pos;
+	}
+	//Function to create all of the particle groups
+	//group 0 is in the bottom left corner
+	vector<vec2> createGroups(int numGroup) {
+		vector<vec2> groups;
+		float add = sqrt(numGroup);
+		float x = 0.0;
+		int nG = 0;
+		while (x <= 1.0) {
+			float y = 0.0;
+			while (y <= 1.0) {
+				groups.push_back(vec2(x, y));
+				nG += 1;
+				y += (1.0 / add);
+			}
+			x += (1.0 / add);
+		}
+		printf("There are %d groups\n", nG);
+		return groups;
+	}
+	//Function to tag each particle with a group
+	vector<vec4> findGroup(vector<vec3> particle_list, vector<vec2> groups,vector<int> &num_of_group) {
+		vector<vec4> particle_groups;
+		//array that represents the number of particles in each group at any given time
+		for (int i = 0; i < groups.size(); i++) {
+			num_of_group.push_back(0);
+		}
+		//loop to go through particle_list and create particle_groups[] and update groups[]
+		for (int i = 0; i < particle_list.size(); i++) {
+			printf("THe particle position: %f, %f\n", particle_list[i].x, particle_list[i].y);
+			//check which group particles are in
+			 //need to figure out how big the screen is
+			 //loop through all the groups to check, break if its in one of the groups
+			vec2 part_pos = vec2(particle_list[i].x, particle_list[i].y);
+			printf("GRpup size: %d", groups.size());
+			for (int g = 0; g < groups.size(); g++) {
+				vec2 group_pos = groups[g];
+				//if within bounding box, set flag, add to number in that group and break from loop
+				if (within_box(part_pos, group_pos, groups.size())) {
+					particle_groups.push_back(vec4(particle_list[i], g));
+					int new_val = num_of_group[g] + 1;
 
+					num_of_group[g] = new_val;
+					printf("Got Here\n");
+					break;
+				}
+			}
+		}
+		for (int i = 0; i < groups.size(); i++) {
+			printf("Inside func, number in each: %d \n", num_of_group[i]);
+		}
+		return particle_groups;
+	}
+	//Helper Function to determine if particle is inside of the box
+	bool within_box(vec2 a, vec2 b, float numG) {
+		float maxDist = 1.0 / (sqrt(numG));
+		float dist = sqrt(pow((a.x - b.x), 2) + pow((a.y - b.y),2));
+		printf("dist: %f and max distance: %f \n", dist, maxDist);
+			if (dist <= maxDist) {
+				return true;
+			}
+		return false;
+	}
 	/****DRAW
 	This is the most important function in your program - this is where you
 	will actually issue the commands to draw any geometry you have set up to
 	draw
 	********/
+
+	//boolean to see if its the first time running the render func
+
+
+	//call function to create vector
 	void render_rect(mat4 P, mat4 V,GLuint texture, mat4 Mrect, vec4 animation=vec4(1,1,0,0))
 		{
 		//head-----------------------------------------------------------------------------------------------
@@ -1969,7 +2056,69 @@ public:
 				mat4 Mrect = translate(mat4(1), body.trackedbody.get_joint(FORECASTFACT, ii)) * scale(mat4(1), vec3(0.05, 0.05, 0.05));
 				vec4 texoff = vec4(1, 1, 0, 0);
 				render_rect(P, V, TexRed, Mrect, texoff);
+				printf("Position x: %f, Position y: %f, Position z: %f\n", body.trackedbody.get_joint(FORECASTFACT, ii).x, body.trackedbody.get_joint(FORECASTFACT, ii).y, body.trackedbody.get_joint(FORECASTFACT, ii).z);
 				}
+			for (int i = 0; i < 10; i++) {
+				//6 represents left elbow
+				mat4 Mrect = translate(mat4(1), body.trackedbody.get_joint(FORECASTFACT, 6)) * scale(mat4(1), vec3(0.1, 0.1, 0.1));
+				vec4 texoff = vec4(1, 1, 0, 0);
+				mat4 Trans = glm::translate(mat4(1.0f), vec3(1.0f+float(i), 0.0f, 0.0f));
+				render_rect(P, V, TexRed, Mrect*Trans, texoff);
+			}
+			//draw all of the particles
+			//have a vector of vec3s vector<vec3> particle_pos;
+			//check if this is the first time running render
+
+			int num_Groups = 9;
+			if (firstTimeE) {
+				particle_pos = createPart();
+				groups = createGroups(9);
+				//print out positions on the grid we are looking at
+				//there will be one more than the size we asked for
+				/*for (int i = 0; i < groups.size(); i++) {
+					printf("x: %f, y: %f \n", groups[i].x, groups[i].y);
+				}*/ 
+				for (int i = 0; i < particle_pos.size(); i++) {
+					
+					mat4 Mrect = translate(mat4(1), particle_pos[i]) * scale(mat4(1), vec3(0.1, 0.1, 0.1));
+					vec4 texoff = vec4(1, 1, 0, 0);
+					render_rect(P, V, TexRed, Mrect, texoff);
+				}
+				firstTimeE = false;
+			}
+			else {
+				//call function to determine which groups each particle is in
+			//this should be a global variable
+				vector<int> num_in_each;
+				vector<vec4> particle_groups = findGroup(particle_pos, groups, num_in_each);
+				//print out the tags to make sure all particles got a group
+				
+				//Calculate the forces on all of the particles
+
+
+				for (int i = 0; i < particle_groups.size(); i++) {
+					vec2 total_force = vec2(0.0, 0.0);
+					for (int j = 0; j < groups.size(); j++) {
+						float dist = sqrt(pow((particle_groups[i].x - groups[j].x), 2) + pow((particle_groups[i].y - groups[j].y), 2));
+						//dist = dist * num_in_each[j];
+						if (dist != 0) {
+							float x_val = (particle_groups[i].x - groups[j].x) / dist;
+							float y_val = (particle_groups[i].y - groups[j].y) / dist;
+							total_force.x += (x_val * num_in_each[j]);
+							total_force.y += (y_val * num_in_each[j]);
+						}
+						
+					}
+					particle_pos[i].x += (total_force.x*.01);
+					particle_pos[i].y += (total_force.y*.01);
+					mat4 Mrect = translate(mat4(1), particle_pos[i]) * scale(mat4(1), vec3(0.1, 0.1, 0.1));
+					vec4 texoff = vec4(1, 1, 0, 0);
+					render_rect(P, V, TexRed, Mrect, texoff);
+				}
+			}
+			
+			
+
 #endif
 			}
 		else
