@@ -69,6 +69,7 @@
       <Filter>shader</Filter>
     </None>
     <None Include="dnn_model_2_0.onnx" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Text.txt" />
