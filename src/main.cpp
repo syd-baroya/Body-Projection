@@ -22,7 +22,7 @@ CPE/CSC 471 Lab base code Wood/Dunn/Eckhardt
 
 
 //#define RELEASEVERSION
-#define NOKINECT
+//#define NOKINECT
 #define PI 3.14159265
 bool fullscreen = true;
 bool firstTime = true;
@@ -31,7 +31,7 @@ using namespace std;
 using namespace glm;
 shared_ptr<Shape> shape;
 
-vec3 modelpos=vec3(0,0,0), modelscale = vec3(2.0);
+vec3 modelpos=vec3(0.0500000007,-2.49999881,0), modelscale = vec3(7.60000801,7.60000801,2.0);
 float camfov = 3.1415926 / 4.;
 
 vec3 points_to_vector(vec3 v1, vec3 v2) {
@@ -752,12 +752,12 @@ public:
 
 
 
-		if (key == GLFW_KEY_5 && action == GLFW_RELEASE)
+		if (key == GLFW_KEY_5 && action == GLFW_PRESS)
 		{
 			val = 0.006;
 			mul = 1.05;
 		}
-		if (key == GLFW_KEY_4 && action == GLFW_RELEASE)
+		if (key == GLFW_KEY_4 && action == GLFW_PRESS)
 		{
 			val = 0.05;
 			mul = 1.2;
