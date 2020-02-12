@@ -35,6 +35,7 @@
     <ClInclude Include="MatrixStack.h" />
     <ClInclude Include="new_body.h" />
     <ClInclude Include="Program.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="Shape.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="stb_image_write.h" />
@@ -47,6 +48,8 @@
     <None Include="..\resources\compute.glsl" />
     <None Include="..\resources\frag.glsl" />
     <None Include="..\resources\fragscreen.glsl" />
+    <None Include="..\resources\part_fragment.glsl" />
+    <None Include="..\resources\part_vertex.glsl" />
     <None Include="..\resources\shader_body.glsl" />
     <None Include="..\resources\shader_fragment.glsl" />
     <None Include="..\resources\shader_vertex.glsl" />
@@ -56,6 +59,9 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="Text.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="eyeofmetamorphosis.rc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

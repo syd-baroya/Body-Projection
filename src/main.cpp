@@ -522,7 +522,7 @@ public:
 
 	bool animation = false;
 	// Our shader program
-	std::shared_ptr<Program> prog, postprog, progbut, screenproc, progbody, computeprog;
+	std::shared_ptr<Program> prog, postprog, progbut, screenproc, progbody, computeprog, progpart;
 
 	// Contains vertex information for OpenGL
 	GLuint VertexArrayID;
@@ -1553,6 +1553,25 @@ public:
 		progbut->addAttribute("vertPos");
 		progbut->addAttribute("vertTex");
 
+		progpart = std::make_shared<Program>();
+		progpart->setVerbose(true);
+		progpart->setShaderNames(resourceDirectory + "/part_vertex.glsl", resourceDirectory + "/part_fragment.glsl");
+		if (!progpart->init())
+		{
+			std::cerr << "One or more shaders failed to compile... exiting!" << std::endl;
+			exit(1);
+		}
+		progpart->addUniform("P");
+		progpart->addUniform("V");
+		progpart->addUniform("M");
+		progpart->addUniform("texsplit");
+		progpart->addUniform("totaltime");
+		progpart->addUniform("redmul");
+		progpart->addUniform("greenmul");
+		progpart->addUniform("bluemul");
+		progpart->addAttribute("vertPos");
+		progpart->addAttribute("vertTex");
+
 
 		progbody = std::make_shared<Program>();
 		progbody->setVerbose(true);
@@ -1857,10 +1876,33 @@ public:
 	draw
 	********/
 
-	//boolean to see if its the first time running the render func
+	void render_part(mat4 P, mat4 V, GLuint texture, mat4 Mrect, vec4 animation = vec4(1, 1, 0, 0))
+	{
+		//head-----------------------------------------------------------------------------------------------
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		progpart->bind();
+		glUniform1f(progpart->getUniform("totaltime"), phaseprogresstotaltime);
+		glUniformMatrix4fv(progpart->getUniform("P"), 1, GL_FALSE, &P[0][0]);
+		glUniformMatrix4fv(progpart->getUniform("V"), 1, GL_FALSE, &V[0][0]);
+		glActiveTexture(GL_TEXTURE0);		glBindTexture(GL_TEXTURE_2D, texture);
+		glBindVertexArray(VAO_rect);
+		mat4 M = glm::translate(glm::mat4(1.0f), modelpos) * glm::scale(glm::mat4(1.0f), modelscale);
 
-
-	//call function to create vector
+		mat4 Sc = scale(mat4(1), vec3(0.2, 0.2, 0.2));
+		//	mat4 Rz = rotate(mat4(1), butterfly[ii].rotz, vec3(0, 0, 1));
+		vec4 texoff = animation;
+		vec3 coloroff_red = vec3(1, 0, 0);
+		vec3 coloroff_green = vec3(0, 1, 0);
+		vec3 coloroff_blue = vec3(0, 0, 1);
+		glUniform4fv(progpart->getUniform("texsplit"), 1, &texoff.x);
+		glUniform3fv(progpart->getUniform("redmul"), 1, &coloroff_red.x);
+		glUniform3fv(progpart->getUniform("bluemul"), 1, &coloroff_green.x);
+		glUniform3fv(progpart->getUniform("greenmul"), 1, &coloroff_blue.x);
+		mat4 Mr = M * Mrect * Sc;
+		glUniformMatrix4fv(progpart->getUniform("M"), 1, GL_FALSE, &Mr[0][0]);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		progpart->unbind();
+	}
 	void render_rect(mat4 P, mat4 V,GLuint texture, mat4 Mrect, vec4 animation=vec4(1,1,0,0))
 		{
 		//head-----------------------------------------------------------------------------------------------
@@ -2063,7 +2105,7 @@ public:
 				mat4 Mrect = translate(mat4(1), body.trackedbody.get_joint(FORECASTFACT, 6)) * scale(mat4(1), vec3(0.1, 0.1, 0.1));
 				vec4 texoff = vec4(1, 1, 0, 0);
 				mat4 Trans = glm::translate(mat4(1.0f), vec3(1.0f+float(i), 0.0f, 0.0f));
-				render_rect(P, V, TexRed, Mrect*Trans, texoff);
+				render_part(P, V, TexRed, Mrect*Trans, texoff);
 			}
 			//draw all of the particles
 			//have a vector of vec3s vector<vec3> particle_pos;
@@ -2082,7 +2124,7 @@ public:
 					
 					mat4 Mrect = translate(mat4(1), particle_pos[i]) * scale(mat4(1), vec3(0.1, 0.1, 0.1));
 					vec4 texoff = vec4(1, 1, 0, 0);
-					render_rect(P, V, TexRed, Mrect, texoff);
+					render_part(P, V, TexRed, Mrect, texoff);
 				}
 				firstTimeE = false;
 			}
@@ -2113,7 +2155,7 @@ public:
 					particle_pos[i].y += (total_force.y*.01);
 					mat4 Mrect = translate(mat4(1), particle_pos[i]) * scale(mat4(1), vec3(0.1, 0.1, 0.1));
 					vec4 texoff = vec4(1, 1, 0, 0);
-					render_rect(P, V, TexRed, Mrect, texoff);
+					render_part(P, V, TexRed, Mrect, texoff);
 				}
 			}
 			

@@ -24,6 +24,7 @@
     <ClInclude Include="stb_image_write.h" />
     <ClInclude Include="body.h" />
     <ClInclude Include="new_body.h" />
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ext">
@@ -70,8 +71,18 @@
     </None>
     <None Include="dnn_model_2_0.onnx" />
     <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />
+    <None Include="..\resources\part_fragment.glsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="..\resources\part_vertex.glsl">
+      <Filter>shader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Text.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="eyeofmetamorphosis.rc" />
   </ItemGroup>
 </Project>
