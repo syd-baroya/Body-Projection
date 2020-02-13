@@ -14,6 +14,9 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <map>
+#include <GLFW/glfw3.h>
+
+
 
 using namespace std;
 using namespace glm;
@@ -60,6 +63,20 @@ class new_trackedbody_
 			return joint_positions[j] - oldv * forecast_fact;// -joint_speed[0] * forecast_fact;
 		
 			}
+
+		vec3 new_get_joint(float forecast_fact, int j)
+		{
+			float cur_time = glfwGetTime();
+			float future_time = glfwGetTime() + 0.000001;
+			static vec3 oldv = vec3(0);
+			vec3 sumv = joint_speed[0] + joint_speed[1] + joint_speed[2];
+			sumv /= 3.;
+			oldv = oldv + (sumv - oldv) * 0.03f;
+			vec3 delta_d = oldv * (future_time - cur_time);
+			joint_positions[j] = joint_positions[j] + delta_d;
+			return joint_positions[j] - oldv * forecast_fact;// -joint_speed[0] * forecast_fact;
+		}
+
 		bool init_tracked;
 		float time_till_last_tracked;
 		bool jointTracked[K4ABT_JOINT_COUNT];
