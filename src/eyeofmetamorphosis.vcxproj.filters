@@ -78,6 +78,7 @@
     <None Include="..\resources\part_vertex.glsl">
       <Filter>shader</Filter>
     </None>
+    <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Text.txt" />
