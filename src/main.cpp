@@ -208,10 +208,10 @@ void generate_joint_angles(std::map<k4abt_joint_id_t, long double> *jointAngles,
 
 }
 
-void generate_body_vertices(new_trackedbody_ *trackedbody, vector<vec3>* pos)
+void generate_body_vertices(new_trackedbody_ *trackedbody, vector<vec3>* pos, vector<vec3> app_pos)
 {
 
-	//cout << body->trackedbody.joint_positions[K4ABT_JOINT_WRIST_LEFT].x << endl;
+
 
 	float forecastfact = FORECASTFACT;
 	float z_base = trackedbody->new_get_joint(forecastfact, 0).z;
@@ -281,23 +281,23 @@ void generate_body_vertices(new_trackedbody_ *trackedbody, vector<vec3>* pos)
 	vec3 slr = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_NECK) + normalize(utr - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_NECK)) * torso_width_right * throat_width;
 	//vec3 mtc = (mtl + mtr) / (float)2.;
 	//construct torso:
-	pos->push_back(mll);
-	pos->push_back(mlr);
-	pos->push_back(mtl);
-	pos->push_back(mtr);
+	pos->push_back(mll); //0
+	pos->push_back(mlr); //1
+	pos->push_back(mtl); //2
+	pos->push_back(mtr); //3
 
-	pos->push_back(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT));
+	pos->push_back(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT)); //4
 	/*pos->push_back(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_CLAVICLE_LEFT));
 	pos->push_back(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_CLAVICLE_RIGHT));*/
-	pos->push_back(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_NECK));
-	pos->push_back(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT));
+	pos->push_back(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_NECK)); //5
+	pos->push_back(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT)); //6
 
-	pos->push_back(utl);
-	pos->push_back(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_NECK));
-	pos->push_back(utr);
+	pos->push_back(utl); //7
+	pos->push_back(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_NECK)); //8
+	pos->push_back(utr); //9
 
-	pos->push_back(sll);
-	pos->push_back(slr);
+	pos->push_back(sll); //10
+	pos->push_back(slr); //11
 
 	//return;
 
@@ -330,15 +330,15 @@ void generate_body_vertices(new_trackedbody_ *trackedbody, vector<vec3>* pos)
 
 
 	//construct arms:
-	pos->push_back(hll);
-	pos->push_back(hlr);
-	pos->push_back(ell);
-	pos->push_back(elr);
+	pos->push_back(hll); //12
+	pos->push_back(hlr); //13
+	pos->push_back(ell); //14
+	pos->push_back(elr); //15
 
-	pos->push_back(hrl);
-	pos->push_back(hrr);
-	pos->push_back(erl);
-	pos->push_back(err);
+	pos->push_back(hrl); //16
+	pos->push_back(hrr); //17
+	pos->push_back(erl); //18
+	pos->push_back(err); //19
 
 
 
@@ -388,21 +388,21 @@ void generate_body_vertices(new_trackedbody_ *trackedbody, vector<vec3>* pos)
 
 
 	//construct legs
-	pos->push_back(fll);
-	pos->push_back(flr);
-	pos->push_back(all);
-	pos->push_back(alr);
-	pos->push_back(kll);
-	pos->push_back(klr);
+	pos->push_back(fll); //20
+	pos->push_back(flr); //21
+	pos->push_back(all); //22
+	pos->push_back(alr); //23
+	pos->push_back(kll); //24
+	pos->push_back(klr); //25
 
-	pos->push_back(fut);
-
-	pos->push_back(frl);
-	pos->push_back(frr);
-	pos->push_back(arl);
-	pos->push_back(arr);
-	pos->push_back(krl);
-	pos->push_back(krr);
+	pos->push_back(fut); //26
+	 
+	pos->push_back(frl); //27
+	pos->push_back(frr); //28
+	pos->push_back(arl); //29
+	pos->push_back(arr); //30
+	pos->push_back(krl); //31
+	pos->push_back(krr); //32
 
 
 	//head/throat:
@@ -422,11 +422,11 @@ void generate_body_vertices(new_trackedbody_ *trackedbody, vector<vec3>* pos)
 	vec3 gr = sidechincenter - gl;
 	gl = sidechincenter + gl;
 	//contruct head
-	pos->push_back(chin);
-	pos->push_back(gl);
-	pos->push_back(gr);
-	pos->push_back(hl);
-	pos->push_back(hr);
+	pos->push_back(chin); //33
+	pos->push_back(gl); //34
+	pos->push_back(gr); //35
+	pos->push_back(hl); //36
+	pos->push_back(hr); //37
 
 
 
@@ -445,6 +445,12 @@ void generate_body_vertices(new_trackedbody_ *trackedbody, vector<vec3>* pos)
 	vec3 tlr = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_HANDTIP_LEFT) - tll;
 	tll = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_HANDTIP_LEFT) + tll;
 
+	if ((!trackedbody->jointTracked[K4ABT_JOINT_ELBOW_LEFT] || !trackedbody->jointTracked[K4ABT_JOINT_WRIST_LEFT] || !trackedbody->jointTracked[K4ABT_JOINT_HANDTIP_LEFT]) && !app_pos.empty()) 
+	{
+		tll = app_pos[38];
+		tlr = app_pos[39];
+	}
+
 	vec3 trr = normalize(
 		normalize(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_ELBOW_RIGHT) - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_WRIST_RIGHT)) +
 		normalize(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_HANDTIP_RIGHT) - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_WRIST_RIGHT))) *
@@ -453,12 +459,22 @@ void generate_body_vertices(new_trackedbody_ *trackedbody, vector<vec3>* pos)
 		posi[K4ABT_JOINT_HANDTIP_RIGHT] - posi[K4ABT_JOINT_WRIST_RIGHT]).z);
 	vec3 trl = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_HANDTIP_RIGHT) - trr;
 	trr = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_HANDTIP_RIGHT) + trr;
-	pos->push_back(tll);
-	pos->push_back(tlr);
-	pos->push_back(trl);
-	pos->push_back(trr);
 
+	if ((!trackedbody->jointTracked[K4ABT_JOINT_ELBOW_RIGHT] || !trackedbody->jointTracked[K4ABT_JOINT_WRIST_RIGHT] || !trackedbody->jointTracked[K4ABT_JOINT_HANDTIP_RIGHT]) && !app_pos.empty())
+	{
+		trl = app_pos[40];
+		trr = app_pos[41];
+	}
 
+	pos->push_back(tll); //38
+	pos->push_back(tlr); //39
+	pos->push_back(trl); //40
+	pos->push_back(trr); //41
+
+	cout << "TLL: " << tll.x << ", " << tll.y << ", " << tll.z << endl;
+	cout << "TLR: " << tlr.x << ", " << tlr.y << ", " << tlr.z << endl;
+	cout << "TRL: " << trl.x << ", " << trl.y << ", " << trl.z << endl;
+	cout << "TRR: " << trr.x << ", " << trr.y << ", " << trr.z << endl;
 
 }
 #define FURMAXTEX 7
@@ -533,6 +549,8 @@ public:
 	GLuint ssbo_GPU_id;
 	GLuint computeProgram;
 	GLuint atomicsBuffer;
+
+	vector<vec3> app_posb;
 
 	/*Note that any gl calls must always happen after a GL state is initialized */
 	void init_atomic()
@@ -693,29 +711,30 @@ public:
 		trackedbodies = body.Update(frametime);
 #endif
 		
-		for (int i = 0; i < body.getDeviceCount(); i++) {
-			new_trackedbody_ *tb = &body.trackedbody.at(i);
-			generate_joint_angles(&tb->jointAngleMap, *tb);
-		}
-		std::map<k4abt_joint_id_t, long double> avg_angles = average_all_joint_angles(body.trackedbody);
-		vec3 master_positions[K4ABT_JOINT_COUNT];
-		copy(begin(body.trackedbody.at(0).joint_positions), end(body.trackedbody.at(0).joint_positions), begin(master_positions));
+		//for (int i = 0; i < body.getDeviceCount(); i++) {
+		//	new_trackedbody_ *tb = &body.trackedbody.at(i);
+		//	generate_joint_angles(&tb->jointAngleMap, *tb);
+		//}
+		//std::map<k4abt_joint_id_t, long double> avg_angles = average_all_joint_angles(body.trackedbody);
+		//vec3 master_positions[K4ABT_JOINT_COUNT];
+		//copy(begin(body.trackedbody.at(0).joint_positions), end(body.trackedbody.at(0).joint_positions), begin(master_positions));
 
-		for (pair<k4abt_joint_id_t, long double> element : avg_angles)
-		{
-			double theta = avg_angles[element.first];
-			if (theta < 0)
-				theta += 360.0;
-			master_positions[element.first] = vec3(coord_after_rotation(vec2(master_positions[element.first].x, master_positions[element.first].y), theta), master_positions[element.first].z);
-		}
+		//for (pair<k4abt_joint_id_t, long double> element : avg_angles)
+		//{
+		//	double theta = avg_angles[element.first];
+		//	if (theta < 0)
+		//		theta += 360.0;
+		//	master_positions[element.first] = vec3(coord_after_rotation(vec2(master_positions[element.first].x, master_positions[element.first].y), theta), master_positions[element.first].z);
+		//}
 
-		vector<vec3> posb;
+		vector<vec3> temp_posb;
 
-		generate_body_vertices(&body.trackedbody.at(0), &posb);
+		generate_body_vertices(&body.trackedbody.at(0), &temp_posb, app_posb);
 
+		app_posb = temp_posb;
 
 		glBindBuffer(GL_ARRAY_BUFFER, VBbody);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vec3) * posb.size(), posb.data());
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vec3) * temp_posb.size(), temp_posb.data());
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		return trackedbodies;
 		}
@@ -1283,9 +1302,9 @@ public:
 		tex.push_back(vec2(0.913081, 0.986313));
 
 		
-		vector<vec3> posb;
-		generate_body_vertices(&body.trackedbody.at(0), &posb);
-		
+		vector<vec3> temp_posb;
+		generate_body_vertices(&body.trackedbody.at(0), &temp_posb, app_posb);
+		app_posb = temp_posb;
 
 
 		GLuint VB;
@@ -1295,8 +1314,8 @@ public:
 
 		glGenBuffers(1, &VBbody);
 		glBindBuffer(GL_ARRAY_BUFFER, VBbody);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * posb.size(), posb.data(), GL_DYNAMIC_DRAW);
-		vertexcount = posb.size();
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * temp_posb.size(), temp_posb.data(), GL_DYNAMIC_DRAW);
+		vertexcount = temp_posb.size();
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 		glGenBuffers(1, &VB);
