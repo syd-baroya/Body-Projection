@@ -178,14 +178,15 @@ class new_body_
 		vector<k4abt_tracker_t> trackers;
 		k4abt_tracker_configuration_t tracker_config;
 		uint32_t device_count;
-
+		size_t numBodies;
 	public:
-		vector<new_trackedbody_> trackedbody;
+		vector<vector<new_trackedbody_>> trackedbody;
 		int Update(float frametime);
 		void InitializeDefaultSensor();
 		void CloseSensor();
 		uint32_t getDeviceCount();
 		void setDeviceCount(uint32_t device_count);
+		size_t getNumBodies();
 		new_body_()
 		{
 			device_count = 0;

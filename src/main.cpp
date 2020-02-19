@@ -693,27 +693,31 @@ public:
 		trackedbodies = body.Update(frametime);
 #endif
 		
-		for (int i = 0; i < body.getDeviceCount(); i++) {
-			new_trackedbody_ *tb = &body.trackedbody.at(i);
-			generate_joint_angles(&tb->jointAngleMap, *tb);
-		}
-		std::map<k4abt_joint_id_t, long double> avg_angles = average_all_joint_angles(body.trackedbody);
-		vec3 master_positions[K4ABT_JOINT_COUNT];
-		copy(begin(body.trackedbody.at(0).joint_positions), end(body.trackedbody.at(0).joint_positions), begin(master_positions));
-
-		for (pair<k4abt_joint_id_t, long double> element : avg_angles)
+		for (int j = 0; j < body.getNumBodies(); j++)
 		{
-			double theta = avg_angles[element.first];
-			if (theta < 0)
-				theta += 360.0;
-			master_positions[element.first] = vec3(coord_after_rotation(vec2(master_positions[element.first].x, master_positions[element.first].y), theta), master_positions[element.first].z);
+			for (int i = 0; i < body.getDeviceCount(); i++)
+			{
+				new_trackedbody_* tb = &body.trackedbody.at(i).at(j);
+				generate_joint_angles(&tb->jointAngleMap, *tb);
+
+				std::map<k4abt_joint_id_t, long double> avg_angles = average_all_joint_angles(body.trackedbody.at(i));
+				vec3 master_positions[K4ABT_JOINT_COUNT];
+				copy(begin(body.trackedbody.at(0).at(j).joint_positions), end(body.trackedbody.at(0).at(j).joint_positions), begin(master_positions));
+
+				for (pair<k4abt_joint_id_t, long double> element : avg_angles)
+				{
+					double theta = avg_angles[element.first];
+					if (theta < 0)
+						theta += 360.0;
+					master_positions[element.first] = vec3(coord_after_rotation(vec2(master_positions[element.first].x, master_positions[element.first].y), theta), master_positions[element.first].z);
+				}
+
+				copy(begin(master_positions), end(master_positions), begin(body.trackedbody.at(0).at(j).joint_positions));
+				vector<vec3> posb;
+
+				generate_body_vertices(&body.trackedbody.at(0), &posb);
+			}
 		}
-
-		vector<vec3> posb;
-
-		generate_body_vertices(&body.trackedbody.at(0), &posb);
-
-
 		glBindBuffer(GL_ARRAY_BUFFER, VBbody);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vec3) * posb.size(), posb.data());
 		glBindBuffer(GL_ARRAY_BUFFER, 0);

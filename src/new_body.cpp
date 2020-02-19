@@ -63,7 +63,9 @@ void new_body_::InitializeDefaultSensor()
 
 			this->devices.push_back(new_device);
 			this->trackers.push_back(new_tracker);
-			this->trackedbody.push_back(new_trackedbody_());
+			vector<new_trackedbody_> body;
+			body.push_back(new_trackedbody_());
+			this->trackedbody.push_back(body);
 		}
 	}
 	if (add_master_at_end) {
@@ -79,7 +81,9 @@ void new_body_::InitializeDefaultSensor()
 
 		this->devices.insert(this->devices.begin(), master_device);
 		this->trackers.insert(this->trackers.begin(), master_tracker);
-		this->trackedbody.insert(this->trackedbody.begin(), new_trackedbody_());
+		vector<new_trackedbody_> body;
+		body.push_back(new_trackedbody_());
+		this->trackedbody.insert(this->trackedbody.begin(), body);
 
 	}
 }
@@ -130,6 +134,7 @@ int new_body_::Update(float frametime)
 
 
 			size_t num_bodies = k4abt_frame_get_num_bodies(body_frame);
+			this->numBodies = num_bodies;
 			//printf("%i bodies are detected!\n", num_bodies);
 
 
@@ -158,12 +163,18 @@ int new_body_::Update(float frametime)
 
 			}
 			else
-				trackedbody.at(deviceIndex).time_till_last_tracked += frametime;
+				for (size_t i = 0; i < num_bodies; i++)
+				{
+					trackedbody.at(deviceIndex).at(i).time_till_last_tracked += frametime;
+				}
 
 			k4abt_frame_release(body_frame); // Remember to release the body frame once you finish using it
 
-			if (trackedbody.at(deviceIndex).time_till_last_tracked > BODY_LOST_TIME)
-				trackedbody.at(deviceIndex).reset();
+			for (size_t i = 0; i < num_bodies; i++)
+			{
+				if (trackedbody.at(deviceIndex).at(i).time_till_last_tracked > BODY_LOST_TIME)
+					trackedbody.at(deviceIndex).at(i).reset();
+			}
 
 		}
 		else if (pop_frame_result == K4A_WAIT_RESULT_TIMEOUT)
@@ -182,61 +193,103 @@ int new_body_::Update(float frametime)
 	return trackedbodies;
 }
 
+//bool new_body_::ProcessBody(float frametime, uint64_t nTime, int nBodyCount, new_bodypack_* bodypack, uint32_t deviceIndex)
+//{
+//	k4abt_body_t* p_closest_Body_to_track = NULL;
+//	float closest = -1;
+//	for (int i = 0; i < nBodyCount; i++) 
+//	{
+//		if (bodypack->bTracked[i])
+//		{
+//			k4abt_body_t pBody = bodypack->ppBodies[i];
+//			k4abt_joint_t* joints;
+//			joints = pBody.skeleton.joints;
+//			if (closest<0 || closest>joints[0].position.xyz.z)
+//			{
+//				closest = joints[0].position.xyz.z;
+//				p_closest_Body_to_track = &pBody;
+//			}
+//		}
+//	}
+//
+//	if (!p_closest_Body_to_track)
+//	{
+//		trackedbody.at(deviceIndex).time_till_last_tracked += frametime;
+//		return false;
+//	}
+//	k4abt_joint_t* joints = NULL;
+//	joints = p_closest_Body_to_track->skeleton.joints;
+//	trackedbody.at(deviceIndex).init_tracked = true;
+//	trackedbody.at(deviceIndex).time_till_last_tracked = 0;
+//	if (joints != NULL) {
+//		for (int j = 0; j < static_cast<int>(K4ABT_JOINT_COUNT); j++)
+//		{
+//			if (joints[j].confidence_level == K4ABT_JOINT_CONFIDENCE_NONE)
+//			{
+//				trackedbody.at(deviceIndex).jointTracked[j] = false;
+//				trackedbody.at(deviceIndex).time_till_last_joint_tracked[j] += frametime;
+//				cout << "lost track on joint: " << j << ", on device: " << deviceIndex << endl;
+//			}
+//			else
+//			{
+//
+//				trackedbody.at(deviceIndex).jointTracked[j] = true;
+//				trackedbody.at(deviceIndex).time_till_last_joint_tracked[j] = 0;
+//				trackedbody.at(deviceIndex).joint_positions[j].x = -joints[j].position.xyz.x*MillimeterToMeter;
+//				trackedbody.at(deviceIndex).joint_positions[j].y = -joints[j].position.xyz.y*MillimeterToMeter;
+//				trackedbody.at(deviceIndex).joint_positions[j].z = -joints[j].position.xyz.z*MillimeterToMeter;
+//			}
+//		}
+//		trackedbody.at(deviceIndex).cascade();
+//	}
+//	else
+//		trackedbody.at(deviceIndex).time_till_last_tracked += frametime;
+//	return true;
+//
+//}
+
 bool new_body_::ProcessBody(float frametime, uint64_t nTime, int nBodyCount, new_bodypack_* bodypack, uint32_t deviceIndex)
 {
 	k4abt_body_t* p_closest_Body_to_track = NULL;
 	float closest = -1;
-	for (int i = 0; i < nBodyCount; i++) 
+	for (int i = 0; i < nBodyCount; i++)
 	{
 		if (bodypack->bTracked[i])
 		{
 			k4abt_body_t pBody = bodypack->ppBodies[i];
-			k4abt_joint_t* joints;
-			joints = pBody.skeleton.joints;
-			if (closest<0 || closest>joints[0].position.xyz.z)
-			{
-				closest = joints[0].position.xyz.z;
-				p_closest_Body_to_track = &pBody;
-			}
-		}
-	}
+			k4abt_joint_t* joints = pBody.skeleton.joints;
 
-	if (!p_closest_Body_to_track)
-	{
-		trackedbody.at(deviceIndex).time_till_last_tracked += frametime;
-		return false;
-	}
-	k4abt_joint_t* joints = NULL;
-	joints = p_closest_Body_to_track->skeleton.joints;
-	trackedbody.at(deviceIndex).init_tracked = true;
-	trackedbody.at(deviceIndex).time_till_last_tracked = 0;
-	if (joints != NULL) {
-		for (int j = 0; j < static_cast<int>(K4ABT_JOINT_COUNT); j++)
-		{
-			if (joints[j].confidence_level == K4ABT_JOINT_CONFIDENCE_NONE)
-			{
-				trackedbody.at(deviceIndex).jointTracked[j] = false;
-				trackedbody.at(deviceIndex).time_till_last_joint_tracked[j] += frametime;
-				cout << "lost track on joint: " << j << ", on device: " << deviceIndex << endl;
+			trackedbody.at(deviceIndex).at(i).init_tracked = true;
+			trackedbody.at(deviceIndex).at(i).time_till_last_tracked = 0;
+			if (joints != NULL) {
+				for (int j = 0; j < static_cast<int>(K4ABT_JOINT_COUNT); j++)
+				{
+					if (joints[j].confidence_level == K4ABT_JOINT_CONFIDENCE_NONE)
+					{
+						trackedbody.at(deviceIndex).at(i).jointTracked[j] = false;
+						trackedbody.at(deviceIndex).at(i).time_till_last_joint_tracked[j] += frametime;
+						cout << "lost track on joint: " << j << ", on device: " << deviceIndex << endl;
+					}
+					else
+					{
+
+						trackedbody.at(deviceIndex).at(i).jointTracked[j] = true;
+						trackedbody.at(deviceIndex).at(i).time_till_last_joint_tracked[j] = 0;
+						trackedbody.at(deviceIndex).at(i).joint_positions[j].x = -joints[j].position.xyz.x * MillimeterToMeter;
+						trackedbody.at(deviceIndex).at(i).joint_positions[j].y = -joints[j].position.xyz.y * MillimeterToMeter;
+						trackedbody.at(deviceIndex).at(i).joint_positions[j].z = -joints[j].position.xyz.z * MillimeterToMeter;
+					}
+				}
+				trackedbody.at(deviceIndex).at(i).cascade();
 			}
 			else
-			{
-
-				trackedbody.at(deviceIndex).jointTracked[j] = true;
-				trackedbody.at(deviceIndex).time_till_last_joint_tracked[j] = 0;
-				trackedbody.at(deviceIndex).joint_positions[j].x = -joints[j].position.xyz.x*MillimeterToMeter;
-				trackedbody.at(deviceIndex).joint_positions[j].y = -joints[j].position.xyz.y*MillimeterToMeter;
-				trackedbody.at(deviceIndex).joint_positions[j].z = -joints[j].position.xyz.z*MillimeterToMeter;
-			}
+				trackedbody.at(deviceIndex).at(i).time_till_last_tracked += frametime;
 		}
-		trackedbody.at(deviceIndex).cascade();
+		
 	}
-	else
-		trackedbody.at(deviceIndex).time_till_last_tracked += frametime;
 	return true;
 
 }
-
 
 void new_body_::CloseSensor()
 {
@@ -259,5 +312,9 @@ uint32_t new_body_::getDeviceCount()
 void new_body_::setDeviceCount(uint32_t device_count)
 {
 	this->device_count = device_count;
+}
+size_t new_body_::getNumBodies()
+{
+	return this->numBodies;
 }
 	
