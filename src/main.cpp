@@ -577,19 +577,19 @@ public:
 			GL_MAP_READ_BIT
 		);
 		// copy the values to other variables because...
-		cout << endl << *userCounters << endl;
+		//cout << endl << *userCounters << endl;
 		// ... as soon as we unmap the buffer
 		// the pointer userCounters becomes invalid.
 		glUnmapBuffer(GL_ATOMIC_COUNTER_BUFFER);
 	}
 
 	void create_SSBO() {
-		cout << endl << endl << "BUFFER BEFORE COMPUTE SHADER" << endl << endl;
+		/*cout << endl << endl << "BUFFER BEFORE COMPUTE SHADER" << endl << endl;
 
 		for (int i = 0; i < ssbo_size; i++) {
 			ssbo_CPUMEM.positions_list[i] = ivec4(i, 0, 0, 0);
 			cout << ssbo_CPUMEM.positions_list[i].x << ", " << ssbo_CPUMEM.positions_list[i].y << ", " << ssbo_CPUMEM.positions_list[i].z << ", " << ssbo_CPUMEM.positions_list[i].w << endl;
-		}
+		}*/
 
 		glGenBuffers(1, &ssbo_GPU_id);
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_GPU_id);
@@ -606,10 +606,10 @@ public:
 		memcpy(&ssbo_CPUMEM, p, siz);
 		glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 
-		cout << endl << endl << "BUFFER AFTER COMPUTE SHADER" << endl << endl;
-		for (int i = 0; i < ssbo_size; i++) {
-			cout << ssbo_CPUMEM.positions_list[i].x << " " << ssbo_CPUMEM.positions_list[i].y << " " << ssbo_CPUMEM.positions_list[i].z << " " << ssbo_CPUMEM.positions_list[i].w << endl;
-		}
+		//cout << endl << endl << "BUFFER AFTER COMPUTE SHADER" << endl << endl;
+		//for (int i = 0; i < ssbo_size; i++) {
+		//	cout << ssbo_CPUMEM.positions_list[i].x << " " << ssbo_CPUMEM.positions_list[i].y << " " << ssbo_CPUMEM.positions_list[i].z << " " << ssbo_CPUMEM.positions_list[i].w << endl;
+		//}
 	}
 
 	
@@ -2410,7 +2410,7 @@ int main(int argc, char **argv)
 		application->render_to_screen(black);
 		application->get_SSBO_back();
 		application->read_atomic();
-		system("pause");
+		//system("pause");
 		// Swap front and back buffers.
 		glfwSwapBuffers(windowManager->getHandle());
 		// Poll for and process events.
