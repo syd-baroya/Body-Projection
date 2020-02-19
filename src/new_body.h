@@ -67,7 +67,7 @@ class new_trackedbody_
 		vec3 new_get_joint(float forecast_fact, int j)
 		{
 			float cur_time = glfwGetTime();
-			float future_time = glfwGetTime() + 0.000001;
+			float future_time = glfwGetTime() + 0.000000001;
 			static vec3 oldv = vec3(0);
 			vec3 sumv = joint_speed[0] + joint_speed[1] + joint_speed[2];
 			sumv /= 3.;
