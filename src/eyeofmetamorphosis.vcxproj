@@ -111,14 +111,14 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup>
-    <IncludePath>C:\Users\emily\Body-Projection\src\helper_includes;C:\Users\emily\Body-Projection\ext\glad\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\eaoneal\Body-Projection\src\helper_includes;C:\Users\eaoneal\Body-Projection\ext\glad\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LibraryPath>C:\Users\emily\Body-Projection\packages\Microsoft.Azure.Kinect.Sensor.1.3.0\lib\native\amd64\release;C:\Users\emily\Body-Projection\packages\Microsoft.Azure.Kinect.BodyTracking.0.9.1\lib\native\amd64\release;C:\Users\emily\Body-Projection\packages\glfw-3.3.2bin.WIN64\lib-vc2019;C:\Users\emily\Body-Projection\packages\glfw-3.3.2\include\GLFW;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Users\eaoneal\Body-Projection\packages\Microsoft.Azure.Kinect.Sensor.1.3.0\lib\native\amd64\release;C:\Users\eaoneal\Body-Projection\packages\Microsoft.Azure.Kinect.BodyTracking.0.9.1\lib\native\amd64\release;C:\Users\eaoneal\Body-Projection\packages\glfw-3.3.1bin.WIN64\lib-vc2019;C:\Users\eaoneal\Body-Projection\packages\glfw-3.3.1\include\GLFW;$(LibraryPath)</LibraryPath>
     <ExecutablePath>$(VCInstallDir)\bin\x86_amd64;$(VCInstallDir)\bin;C:\Program Files\Microsoft SDKs\Kinect\v2.0_1409\bin;$(VC_ExecutablePath_x64);$(CommonExecutablePath);$(WindowsSDK_ExecutablePath);$(VS_ExecutablePath);$(MSBuild_ExecutablePath);$(SystemRoot)\SysWow64;$(FxCopDir);$(PATH)</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LibraryPath>C:\Users\sbaroya\Documents\body projection v07\packages\Kinect\v2.0_1409\Lib\x64;C:\Users\sbaroya\Documents\body projection v07\packages\Microsoft.Azure.Kinect.Sensor.1.3.0\lib\native\x86\release;C:\Users\sbaroya\Documents\body projection v07\packages\Microsoft.Azure.Kinect.BodyTracking.0.9.4\lib\native\amd64\release;C:\Users\sbaroya\Documents\packages\glfw-3.3.bin.WIN64\lib-vc2019;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Users\eaoneal\Body-Projection\packages\Kinect\v2.0_1409\Lib\x64;C:\Users\eaoneal\Body-Projection\packages\Microsoft.Azure.Kinect.Sensor.1.3.0\lib\native\x86\release;C:\Users\eaoneal\Body-Projection\packages\Microsoft.Azure.Kinect.BodyTracking.0.9.5\lib\native\amd64\release;C:\Users\eaoneal\Body-Projection\packages\glfw-3.3.1.bin.WIN64\lib-vc2019;$(LibraryPath)</LibraryPath>
     <ExecutablePath>$(VC_ExecutablePath_x86);$(CommonExecutablePath);$(WindowsSDK_ExecutablePath);$(VS_ExecutablePath);$(MSBuild_ExecutablePath);$(SystemRoot)\SysWow64;$(FxCopDir);$(PATH)</ExecutablePath>
     <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)$(Configuration)\$(MSBuildProjectName)\</IntDir>
@@ -133,11 +133,11 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\emily\Body-Projection\packages\glm;C:\Users\emily\Body-Projection\packages\glfw-3.3.2\include;C:\Users\emily\Body-Projection\packages\Microsoft.Azure.Kinect.Sensor.1.3.0\build\native\include;C:\Users\emily\Body-Projection\packages\Microsoft.Azure.Kinect.BodyTracking.0.9.1\build\native\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\eaoneal\Body-Projection\packages\glm;C:\Users\eaoneal\Body-Projection\packages\glfw-3.3.1\include;C:\Users\eaoneal\Body-Projection\packages\Microsoft.Azure.Kinect.Sensor.1.3.0\build\native\include;C:\Users\eaoneal\Body-Projection\packages\Microsoft.Azure.Kinect.BodyTracking.0.9.1\build\native\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalDependencies>glfw3.lib;k4a.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\emily\Body-Projection\packages\glfw-3.3.2.bin.WIN64\lib-vc2019;C:\Users\emily\Body-Projection\packages\Microsoft.Azure.Kinect.Sensor.1.3.0\lib\native\amd64\release;C:\Users\emily\Body-Projection\packages\Microsoft.Azure.Kinect.BodyTracking.Dependencies.cuDNN.0.9.1\lib\native\amd64\release;C:\Users\emily\Body-Projection\packages\Microsoft.Azure.Kinect.BodyTracking.Dependencies.0.9.1\lib\native\amd64\release;C:\Users\emily\Body-Projection\packages\glfw-3.3.2\include;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\eaoneal\Body-Projection\packages\glfw-3.3.1.bin.WIN64\lib-vc2019;C:\Users\eaoneal\Body-Projection\packages\Microsoft.Azure.Kinect.Sensor.1.3.0\lib\native\amd64\release;C:\Users\eaoneal\Body-Projection\packages\Microsoft.Azure.Kinect.BodyTracking.Dependencies.cuDNN.0.9.1\lib\native\amd64\release;C:\Users\eaoneal\Body-Projection\packages\Microsoft.Azure.Kinect.BodyTracking.Dependencies.0.9.1\lib\native\amd64\release;C:\Userseaoneal\Body-Projection\packages\glfw-3.3.1\include;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -146,11 +146,11 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\sbaroya\Documents\body projection v07\ext\glad\include;C:\Users\sbaroya\Documents\body projection v07\src\helper_includes;C:\Users\sbaroya\Documents\body projection v07\packages\Microsoft.Azure.Kinect.Sensor.1.3.0\build\native\include;C:\Users\sbaroya\Documents\body projection v07\packages\Microsoft.Azure.Kinect.BodyTracking.0.9.4\build\native\include;C:\Users\sbaroya\Documents\packages\glm;C:\Users\sbaroya\Documents\packages\glfw-3.3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\eaoneal\Body-Projection\ext\glad\include;C:\Users\eaoneal\Body-Projection\src\helper_includes;C:\Users\eaoneal\Body-Projection\packages\Microsoft.Azure.Kinect.Sensor.1.3.0\build\native\include;C:\Users\eaoneal\Body-Projection\packages\Microsoft.Azure.Kinect.BodyTracking.0.9.5\build\native\include;C:\Users\eaoneal\Body-Projection\packages\glm;C:\Users\eaoneal\Body-Projection\packages\glfw-3.3.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>Kinect20.lib;glfw3.lib;k4a.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\sbaroya\Documents\body projection v07\packages\Microsoft.Azure.Kinect.BodyTracking.0.9.4\lib\native\amd64\release;C:\Users\sbaroya\Documents\body projection v07\packages\Microsoft.Azure.Kinect.BodyTracking.Dependencies.0.9.0\lib\native\amd64\release;C:\Users\sbaroya\Documents\body projection v07\packages\Microsoft.Azure.Kinect.BodyTracking.Dependencies.cuDNN.0.9.0\lib\native\amd64\release;C:\Users\sbaroya\Documents\body projection v07\packages\Microsoft.Azure.Kinect.Sensor.1.3.0\lib\native\amd64\release;C:\Users\sbaroya\Documents\packages\glfw-3.3.bin.WIN64\lib-vc2019;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;k4a.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\eaoneal\Body-Projection\packages\Microsoft.Azure.Kinect.BodyTracking.0.9.5\lib\native\amd64\release;C:\Users\eaoneal\Body-Projection\packages\Microsoft.Azure.Kinect.BodyTracking.Dependencies.0.9.0\lib\native\amd64\release;C:\Users\eaoneal\Body-Projection\packages\Microsoft.Azure.Kinect.BodyTracking.Dependencies.cuDNN.0.9.0\lib\native\amd64\release;C:\Users\eaoneal\Body-Projection\packages\Microsoft.Azure.Kinect.Sensor.1.3.0\lib\native\amd64\release;C:\Users\eaoneal\Body-Projection\packages\glfw-3.3.1.bin.WIN64\lib-vc2019;C:\Users\eaoneal\Body-Projection\packages\glfw-3.3.1\include\GLFW;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
