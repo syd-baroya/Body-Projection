@@ -22,7 +22,7 @@ CPE/CSC 471 Lab base code Wood/Dunn/Eckhardt
 
 
 //#define RELEASEVERSION
-//#define NOKINECT
+#define NOKINECT
 #define PI 3.14159265
 bool fullscreen = true;
 bool firstTime = true;
@@ -33,6 +33,18 @@ shared_ptr<Shape> shape;
 
 vec3 modelpos=vec3(0.0500000007,-2.49999881,0), modelscale = vec3(7.60000801,7.60000801,2.0);
 float camfov = 3.1415926 / 4.;
+
+float throat_scale = 1.0f;
+
+float torso_width_scale = 1.2;
+float torso_height_scale = 0.5;
+float arm_thickness_scale = 1.2;
+float leg_thickness_scale = 0.4;
+float foot_thickness_scale = 0.5;
+float head_thickness_scale = 2.0;
+
+float chinstart = 0.5;
+float sidechinstart = 0.75;
 
 vec3 points_to_vector(vec3 v1, vec3 v2) {
 	return vec3(v2.x - v1.x, v2.y - v1.y, v2.z - v1.z);
@@ -153,7 +165,7 @@ enum runmode_ { RUN_NOFIRE,RUN_DEBUGFIRE,RUNFIRE};
 
 camera mycam;
 
-enum correctmode_ {CORR_SHIFT,CORR_SCALE,CORR_SCEWSCALEUP,CORR_SCEWSCALEDOWN};
+enum correctmode_ {CORR_SHIFT,CORR_SCALE,CORR_SCEWSCALEUP,CORR_SCEWSCALEDOWN, SCALE_TORSO_WIDTH, SCALE_TORSO_HEIGHT, SCALE_ARM, SCALE_LEG, SCALE_FOOT, SCALE_HEAD, SHIFT_CHIN, SHIFT_SIDE_CHIN};
 
 float sign(float f)
 {
@@ -226,15 +238,15 @@ void generate_body_vertices(new_trackedbody_ *trackedbody, vector<vec3>* pos, ve
 		posi[ii].z = 0;
 
 	}
-	float throat_width = 0.3;
+	float throat_width = 0.3 * throat_scale;
 
-	float torso_width_left = 1.2 * length(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT).x - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_CLAVICLE_LEFT).x);
-	float torso_width_right = 1.2 * length(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT).x - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_CLAVICLE_RIGHT).x);
-	float torso_above_sholders = 0.5 * length(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT).y - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_NECK).y);
-	float arm_thickness = torso_above_sholders * 1.2;
-	float leg_thickness = std::max(torso_width_left, torso_width_right) * 0.4;
-	float foot_thickness = leg_thickness * 0.5;
-	float head_thickness = torso_above_sholders * 2.5;
+	float torso_width_left = torso_width_scale * length(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT).x - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_CLAVICLE_LEFT).x);
+	float torso_width_right = torso_width_scale * length(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT).x - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_CLAVICLE_RIGHT).x);
+	float torso_above_sholders = torso_height_scale * length(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT).y - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_NECK).y);
+	float arm_thickness = torso_above_sholders * arm_thickness_scale;
+	float leg_thickness = std::max(torso_width_left, torso_width_right) * leg_thickness_scale;
+	float foot_thickness = leg_thickness * foot_thickness_scale;
+	float head_thickness = torso_above_sholders * head_thickness_scale;
 
 	float chinstart = 0.5;
 	float sidechinstart = 0.75;
@@ -470,11 +482,6 @@ void generate_body_vertices(new_trackedbody_ *trackedbody, vector<vec3>* pos, ve
 	pos->push_back(tlr); //39
 	pos->push_back(trl); //40
 	pos->push_back(trr); //41
-
-	cout << "TLL: " << tll.x << ", " << tll.y << ", " << tll.z << endl;
-	cout << "TLR: " << tlr.x << ", " << tlr.y << ", " << tlr.z << endl;
-	cout << "TRL: " << trl.x << ", " << trl.y << ", " << trl.z << endl;
-	cout << "TRR: " << trr.x << ", " << trr.y << ", " << trr.z << endl;
 
 }
 #define FURMAXTEX 7
@@ -797,13 +804,58 @@ public:
 			{
 			correctmode = CORR_SCEWSCALEDOWN;
 			}*/
+
+
+		if (key == GLFW_KEY_Z && action == GLFW_PRESS)
+		{
+			correctmode = SCALE_TORSO_WIDTH;
+		}
+		if (key == GLFW_KEY_X && action == GLFW_PRESS)
+		{
+			correctmode = SCALE_TORSO_HEIGHT;
+		}
+		
+		if (key == GLFW_KEY_C && action == GLFW_RELEASE)
+		{
+			correctmode = SCALE_ARM;
+		}
+		if (key == GLFW_KEY_V && action == GLFW_RELEASE)
+		{
+			correctmode = SCALE_LEG;
+		}
+		if (key == GLFW_KEY_B && action == GLFW_RELEASE)
+		{
+			correctmode = SCALE_FOOT;
+		}
+		if (key == GLFW_KEY_N && action == GLFW_PRESS)
+		{
+			correctmode = SCALE_HEAD;
+		}
+		if (key == GLFW_KEY_H && action == GLFW_PRESS)
+		{
+			correctmode = SHIFT_CHIN;
+		}
+		if (key == GLFW_KEY_J && action == GLFW_RELEASE)
+		{
+			correctmode = SHIFT_SIDE_CHIN;
+		}
+
+
 		if (key == GLFW_KEY_UP && action == GLFW_PRESS)
 			{
 			switch (correctmode)
 			{
 			default:
-			case CORR_SHIFT:	modelpos.y += val;	break;
-			case CORR_SCALE:	modelscale.y += val; break;
+			case CORR_SHIFT:			modelpos.y += val;	break;
+			case CORR_SCALE:			modelscale.y += val; break;
+			case SCALE_TORSO_WIDTH:		torso_width_scale += val;	break;
+			case SCALE_TORSO_HEIGHT:	torso_height_scale += val; break;
+			case SCALE_ARM:				arm_thickness_scale += val;	break;
+			case SCALE_LEG:				leg_thickness_scale += val; break;
+			case SCALE_FOOT:			foot_thickness_scale += val;	break;
+			case SCALE_HEAD:			head_thickness_scale += val; break;
+			case SHIFT_CHIN:			chinstart+= val;	break;
+			case SHIFT_SIDE_CHIN:		sidechinstart += val; break;
 			}
 			}
 		if (key == GLFW_KEY_DOWN && action == GLFW_PRESS)
@@ -811,8 +863,16 @@ public:
 			switch (correctmode)
 			{
 			default:
-			case CORR_SHIFT:	modelpos.y -= val;	break;
-			case CORR_SCALE:	modelscale.y -= val; break;
+			case CORR_SHIFT:			modelpos.y -= val;	break;
+			case CORR_SCALE:			modelscale.y -= val; break;
+			case SCALE_TORSO_WIDTH:		torso_width_scale -= val;	break;
+			case SCALE_TORSO_HEIGHT:	torso_height_scale -= val; break;
+			case SCALE_ARM:				arm_thickness_scale -= val;	break;
+			case SCALE_LEG:				leg_thickness_scale -= val; break;
+			case SCALE_FOOT:			foot_thickness_scale -= val;	break;
+			case SCALE_HEAD:			head_thickness_scale -= val; break;
+			case SHIFT_CHIN:			chinstart -= val;	break;
+			case SHIFT_SIDE_CHIN:		sidechinstart -= val; break;
 			}
 			}
 		if (key == GLFW_KEY_LEFT && action == GLFW_PRESS)
