@@ -44,7 +44,7 @@ float foot_thickness_scale = 0.5;
 float head_thickness_scale = 2.0;
 
 float chinstart = 0.5;
-float sidechinstart = 0.75;
+float sidechinstart = 1.35;
 
 vec3 points_to_vector(vec3 v1, vec3 v2) {
 	return vec3(v2.x - v1.x, v2.y - v1.y, v2.z - v1.z);
@@ -248,8 +248,6 @@ void generate_body_vertices(new_trackedbody_ *trackedbody, vector<vec3>* pos, ve
 	float foot_thickness = leg_thickness * foot_thickness_scale;
 	float head_thickness = torso_above_sholders * head_thickness_scale;
 
-	float chinstart = 0.5;
-	float sidechinstart = 0.75;
 	//torso
 	vec3 utl = normalize(
 		normalize((trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_CLAVICLE_LEFT)) - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT)) +
