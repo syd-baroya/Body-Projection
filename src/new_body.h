@@ -74,7 +74,7 @@ class new_trackedbody_
 			oldv = oldv + (sumv - oldv) * 0.03f;
 			vec3 delta_d = oldv * (future_time - cur_time);
 			joint_positions[j] = joint_positions[j] + delta_d;
-			return joint_positions[j] -oldv * forecast_fact;// -joint_speed[0] * forecast_fact;
+			return joint_positions[j];// -oldv * forecast_fact;// -joint_speed[0] * forecast_fact;
 		}
 
 		bool init_tracked;
