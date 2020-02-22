@@ -27,7 +27,7 @@ void new_body_::InitializeDefaultSensor()
 				if (this->device_count != 1) {
 					deviceConfig.wired_sync_mode = K4A_WIRED_SYNC_MODE_MASTER;
 					deviceConfig.color_resolution = K4A_COLOR_RESOLUTION_720P;
-					if (deviceIndex < (this->device_count - 1)) {
+					if (deviceIndex != 0) {
 						add_master_at_end = true;
 						master_index = deviceIndex;
 						master_device = new_device;
@@ -129,11 +129,11 @@ int new_body_::Update(float frametime)
 			new_bodypack_ bodypack;
 
 
-			size_t num_bodies = k4abt_frame_get_num_bodies(body_frame);
+			this->num_bodies = k4abt_frame_get_num_bodies(body_frame);
 			//printf("%i bodies are detected!\n", num_bodies);
 
 
-			for (size_t i = 0; i < num_bodies; i++)
+			for (size_t i = 0; i < this->num_bodies; i++)
 			{
 				k4abt_body_t body;
 				VERIFY(k4abt_frame_get_body_skeleton(body_frame, i, &body.skeleton), "Get skeleton from body frame failed!");
@@ -154,7 +154,7 @@ int new_body_::Update(float frametime)
 
 			if (trackedbodies > 0) {
 
-				ProcessBody(frametime, nTime, num_bodies, &bodypack, deviceIndex);
+				ProcessBody(frametime, nTime, this->num_bodies, &bodypack, deviceIndex);
 
 			}
 			else
@@ -243,7 +243,7 @@ void new_body_::CloseSensor()
 
 	printf("Finished body tracking processing!\n");
 
-	for (uint8_t deviceIndex = 0; deviceIndex < this->device_count; deviceIndex++) {
+	for (int deviceIndex = this->device_count - 1; deviceIndex >= 0 ; deviceIndex--) {
 		k4abt_tracker_shutdown(this->trackers.at(deviceIndex));
 		k4abt_tracker_destroy(this->trackers.at(deviceIndex));
 		k4a_device_stop_cameras(this->devices.at(deviceIndex));
@@ -259,5 +259,10 @@ uint32_t new_body_::getDeviceCount()
 void new_body_::setDeviceCount(uint32_t device_count)
 {
 	this->device_count = device_count;
+}
+
+size_t new_body_::getNumBodies()
+{
+	return this->num_bodies;
 }
 	

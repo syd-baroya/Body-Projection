@@ -67,7 +67,7 @@ class new_trackedbody_
 		vec3 new_get_joint(float forecast_fact, int j)
 		{
 			float cur_time = glfwGetTime();
-			float future_time = glfwGetTime() + 0.0001f;
+			float future_time = glfwGetTime() + +0.000000001f;
 			static vec3 oldv = vec3(0);
 			vec3 sumv = joint_speed[0] + joint_speed[1] + joint_speed[2];
 			sumv /= 3.;
@@ -178,6 +178,7 @@ class new_body_
 		vector<k4abt_tracker_t> trackers;
 		k4abt_tracker_configuration_t tracker_config;
 		uint32_t device_count;
+		size_t num_bodies;
 
 	public:
 		vector<new_trackedbody_> trackedbody;
@@ -186,8 +187,10 @@ class new_body_
 		void CloseSensor();
 		uint32_t getDeviceCount();
 		void setDeviceCount(uint32_t device_count);
+		size_t getNumBodies();
 		new_body_()
 		{
+			num_bodies = 0;
 			device_count = 0;
 			deviceConfig = K4A_DEVICE_CONFIG_INIT_DISABLE_ALL;
 			deviceConfig.depth_mode = K4A_DEPTH_MODE_NFOV_UNBINNED;
