@@ -610,7 +610,7 @@ public:
 	void roll_dice()
 		{
 
-		int scenerand = rand() % 3;
+		int scenerand = 0;//rand() % 3;
 		if (scenerand == 0)scenemode = SCENE_BUTTERFLY;
 		if (scenerand == 1)scenemode = SCENE_SCELETONHEART;
 		if (scenerand == 2)scenemode = SCENE_FUR;
@@ -1301,7 +1301,8 @@ public:
 		data = stbi_load(filepath, &width, &height, &channels, 4);
 		TextureSkeletonH = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
 		
-		str = resourceDirectory + "/heart2.png";
+		//str = resourceDirectory + "/heart2.png";
+		str = resourceDirectory + "/shatter.png";
 		strcpy(filepath, str.c_str());
 		data = stbi_load(filepath, &width, &height, &channels, 4);
 		TexHeart = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
@@ -1330,7 +1331,8 @@ public:
 
 		
 		//texture 2
-		str = resourceDirectory + "/butterfly.png";
+		//str = resourceDirectory + "/butterfly.png";
+		str = resourceDirectory + "/shatter.png";
 		strcpy(filepath, str.c_str());
 		data = stbi_load(filepath, &width, &height, &channels, 4);
 		TextureButterfly = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
