@@ -21,6 +21,9 @@ vec4 texcol= texture(tex, vec2(texcoord.x,texcoord.y));
 color.rgb = vec3(	texcol.r * redmul.r + texcol.g * redmul.g + texcol.b * redmul.b, 
 					texcol.r * greenmul.r + texcol.g * greenmul.g + texcol.b * greenmul.b,
 					texcol.r * bluemul.r + texcol.g * bluemul.g + texcol.b * bluemul.b);
-color.a = texcol.a;
 
+//if(texcol.r==0 && texcol.g==0 && texcol.b==0)
+//	color.a = 0;
+//else
+	color.a = texcol.a;
 }

@@ -22,16 +22,19 @@ CPE/CSC 471 Lab base code Wood/Dunn/Eckhardt
 
 
 //#define RELEASEVERSION
-//#define NOKINECT
+#define NOKINECT
 #define PI 3.14159265
 bool fullscreen = true;
 bool firstTime = true;
 
 using namespace std;
+
 using namespace glm;
 shared_ptr<Shape> shape;
 
-vec3 modelpos=vec3(0.0500000007,-2.49999881,0), modelscale = vec3(7.60000801,7.60000801,2.0);
+//vec3 modelpos = vec3(0.0500000007, -2.49999881, 0);
+vec3 modelscale = vec3(7.60000801, 7.60000801, 2.0);
+vec3 modelpos = vec3(0.f, 0.0, -3.0);
 float camfov = 3.1415926 / 4.;
 
 float throat_scale = 1.0f;
@@ -42,6 +45,7 @@ float arm_thickness_scale = 1.2;
 float leg_thickness_scale = 0.4;
 float foot_thickness_scale = 0.5;
 float head_thickness_scale = 2.0;
+float arm_length_factor = 0.0;
 
 float chinstart = 0.5;
 float sidechinstart = 1.35;
@@ -179,7 +183,7 @@ public:
 
 enum scenemode_ {SCENE_LINES, SCENE_SCELETON, SCENE_SCELETONHEART, SCENE_BUTTERFLY,SCENE_FUR,SCENE_IDLE};
 enum runmode_ { RUN_NOFIRE,RUN_DEBUGFIRE,RUNFIRE};
-#define FIRESTARTTIME 20.0
+#define FIRESTARTTIME 0.0
 #define FIRESTARTTIMEDEBUG 2.0
 #define COOLDOWNTIME 50.0
 #define COOLDOWNTIMEDEBUG 8.0
@@ -189,12 +193,17 @@ enum runmode_ { RUN_NOFIRE,RUN_DEBUGFIRE,RUNFIRE};
 
 camera mycam;
 
-enum correctmode_ {CORR_SHIFT,CORR_SCALE,CORR_SCEWSCALEUP,CORR_SCEWSCALEDOWN, SCALE_TORSO_WIDTH, SCALE_TORSO_HEIGHT, SCALE_ARM, SCALE_LEG, SCALE_FOOT, SCALE_HEAD, SHIFT_CHIN, SHIFT_SIDE_CHIN};
+enum correctmode_ {CORR_SHIFT,CORR_SCALE,CORR_SCEWSCALEUP,CORR_SCEWSCALEDOWN, SCALE_TORSO_WIDTH, SCALE_TORSO_HEIGHT, SCALE_ARM, SCALE_LEG, SCALE_FOOT, SCALE_HEAD, SHIFT_CHIN, SHIFT_SIDE_CHIN, ARM_LENGTH_SCALE};
 
 float sign(float f)
 {
 	if (f < 0)return -1;
 	else return 1;
+}
+
+vec3 lerp(vec3 start, vec3 end, float percent)
+{
+	return (start + percent * (end - start));
 }
 
 
@@ -216,13 +225,11 @@ std::map< k4abt_joint_id_t, long double> average_all_joint_angles(vector<new_tra
 		{
 
 			angleAverages[element.first] += element.second;
-			cout << endl<< "DEVICE " << i << ": " << "JOINT "<< g_jointNames.at(element.first) << "ANGLE " << element.second<<endl;
 		}
 	}
 	for (pair< k4abt_joint_id_t, long double> element : angleAverages)
 	{
 		angleAverages[element.first] = element.second / trackedbody.size();
-		cout << endl<< "JOINT " << g_jointNames.at(element.first) << "ANGLE AVERAGES " << angleAverages[element.first] <<endl;
 	}
 	return angleAverages;
 }
@@ -430,24 +437,24 @@ void generate_body_vertices(new_trackedbody_ *trackedbody, vector<vec3>* pos, ve
 
 	vec3 ell = normalize(a + b);
 	ell *= arm_thickness;
-	ell *= -sign(cross(posi[K4ABT_JOINT_SHOULDER_LEFT] - posi[K4ABT_JOINT_ELBOW_LEFT],
-		posi[K4ABT_JOINT_WRIST_LEFT] - posi[K4ABT_JOINT_ELBOW_LEFT]).z);
-	vec3 hll = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_WRIST_LEFT) + ell;
-	vec3 hlr = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_WRIST_LEFT) - ell;
-	vec3 elr = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_ELBOW_LEFT) - ell;
-	ell = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_ELBOW_LEFT) + ell;
-
+	ell *= -sign(cross(posi[K4ABT_JOINT_SHOULDER_LEFT] - (posi[K4ABT_JOINT_ELBOW_LEFT]),
+		posi[K4ABT_JOINT_WRIST_LEFT] - (posi[K4ABT_JOINT_ELBOW_LEFT] )).z);
+	//ell.y *= arm_length_factor;
+	vec3 hll = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_WRIST_LEFT) + ell -vec3(arm_length_factor, -arm_length_factor, 0);
+	vec3 hlr = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_WRIST_LEFT) - ell -vec3(arm_length_factor, -arm_length_factor, 0);
+	vec3 elr = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_ELBOW_LEFT) - ell -vec3(arm_length_factor, -arm_length_factor, 0);
+	ell = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_ELBOW_LEFT) + ell -vec3(arm_length_factor, -arm_length_factor, 0);
 	vec3 err = normalize(normalize(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT) - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_ELBOW_RIGHT)) +
 		normalize(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_WRIST_RIGHT) - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_ELBOW_RIGHT))) *
 		arm_thickness;
 
-	err *= sign(cross(posi[K4ABT_JOINT_SHOULDER_RIGHT] - posi[K4ABT_JOINT_ELBOW_RIGHT],
-		posi[K4ABT_JOINT_WRIST_RIGHT] - posi[K4ABT_JOINT_ELBOW_RIGHT]).z);
+	err *= sign(cross(posi[K4ABT_JOINT_SHOULDER_RIGHT] - (posi[K4ABT_JOINT_ELBOW_RIGHT]),
+		posi[K4ABT_JOINT_WRIST_RIGHT] - (posi[K4ABT_JOINT_ELBOW_RIGHT])).z);
 
-	vec3 hrr = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_WRIST_RIGHT) + err;
-	vec3 hrl = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_WRIST_RIGHT) - err;
-	vec3 erl = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_ELBOW_RIGHT) - err;
-	err = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_ELBOW_RIGHT) + err;
+	vec3 hrr = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_WRIST_RIGHT) + err + vec3(arm_length_factor, arm_length_factor, 0);
+	vec3 hrl = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_WRIST_RIGHT) - err + vec3(arm_length_factor, arm_length_factor, 0);
+	vec3 erl = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_ELBOW_RIGHT) - err + vec3(arm_length_factor, arm_length_factor, 0);
+	err = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_ELBOW_RIGHT) + err + vec3(arm_length_factor, arm_length_factor, 0);
 
 
 	//construct arms:
@@ -735,7 +742,7 @@ public:
 	void roll_dice()
 		{
 
-		int scenerand = rand() % 3;
+		int scenerand = 1;// rand() % 3;
 		if (scenerand == 0)scenemode = SCENE_BUTTERFLY;
 		if (scenerand == 1)scenemode = SCENE_SCELETONHEART;
 		if (scenerand == 2)scenemode = SCENE_FUR;
@@ -758,12 +765,14 @@ public:
 		for (int ii = 0; ii < BUTTERFLYCOUNT; ii++)
 			{
 			butterfly[ii].rotz = frand() * 3.1415926 * 2.0;
-			butterfly[ii].scale = frand()*0.05;
+			butterfly[ii].scale = frand()*0.25;
 			butterfly[ii].red = vec3(frand(), frand(), frand());
 			butterfly[ii].green = vec3(frand(), frand(), frand());
 			butterfly[ii].blue = vec3(frand(), frand(), frand());
-			butterfly[ii].startanim = 1 + frand() * 4;
+			//butterfly[ii].startanim = 1 + frand() * 4;
+			butterfly[ii].startanim = frand() *2;
 			}
+		butterfly[13].startanim = 0;
 
 		//torso
 		int c = 13;
@@ -972,6 +981,10 @@ public:
 		{
 			correctmode = SHIFT_SIDE_CHIN;
 		}
+		if (key == GLFW_KEY_I && action == GLFW_RELEASE)
+		{
+			correctmode = ARM_LENGTH_SCALE;
+		}
 
 
 		if (key == GLFW_KEY_UP && action == GLFW_PRESS)
@@ -989,6 +1002,7 @@ public:
 			case SCALE_HEAD:			head_thickness_scale += val; break;
 			case SHIFT_CHIN:			chinstart+= val;	break;
 			case SHIFT_SIDE_CHIN:		sidechinstart += val; break;
+			case ARM_LENGTH_SCALE:		arm_length_factor += val; break;
 			}
 			}
 		if (key == GLFW_KEY_DOWN && action == GLFW_PRESS)
@@ -1006,6 +1020,8 @@ public:
 			case SCALE_HEAD:			head_thickness_scale -= val; break;
 			case SHIFT_CHIN:			chinstart -= val;	break;
 			case SHIFT_SIDE_CHIN:		sidechinstart -= val; break;
+			case ARM_LENGTH_SCALE:		arm_length_factor -= val; break;
+
 			}
 			}
 		if (key == GLFW_KEY_LEFT && action == GLFW_PRESS)
@@ -1494,6 +1510,10 @@ public:
 		tex.push_back(vec2(1, 0.962063));
 		tex.push_back(vec2(0.913081, 0.986313));
 
+		for (int i = 0; i < tex.size(); i++) {
+			tex[i].x -= .15;
+			tex[i].y += .4;
+		}
 		
 		vector<vec3> temp_posb;
 		generate_body_vertices(&body.trackedbody.at(0), &temp_posb, app_posb);
@@ -1545,7 +1565,7 @@ public:
 		data = stbi_load(filepath, &width, &height, &channels, 4);
 		TextureSkeletonHead = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
 
-		str = resourceDirectory + "/red.jpg";
+		str = resourceDirectory + "/flashlight.png";
 		strcpy(filepath, str.c_str());
 		data = stbi_load(filepath, &width, &height, &channels, 4);
 		TexRed = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
@@ -1584,7 +1604,7 @@ public:
 
 		
 		//texture 2
-		str = resourceDirectory + "/butterfly.png";
+		str = resourceDirectory + "/Firework.png";
 		strcpy(filepath, str.c_str());
 		data = stbi_load(filepath, &width, &height, &channels, 4);
 		TextureButterfly = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
@@ -1605,7 +1625,7 @@ public:
 		char txt[1000];
 		for (int ii = 0; ii < 25; ii++)
 			{
-			sprintf(txt, "../resources/firering_%.3d.png", ii + 1);
+			sprintf(txt, "../resources/light.png", ii + 1);
 			data = stbi_load(txt, &width, &height, &channels, 4);
 			if (data == NULL)
 				{
@@ -1961,7 +1981,7 @@ public:
 		texoff.x = (float)texframe_x;
 		texoff.y = (float)texframe_y;
 
-		float firescale = 100. - pow(phaseprogresstotaltime, 0.06) * 92;
+		float firescale = 100. - pow(phaseprogresstotaltime, 0.045) * 91;
 		if (firescale <= 0)
 			{
 			//reset
@@ -2117,13 +2137,13 @@ public:
 					pos.y = a.y *0.7 + b.y * 0.3;
 					pos.z = a.z;
 					mat4 MrectHeart = translate(mat4(1), pos) * rotate(mat4(1), 3.14159265f, vec3(0, 1, 0)) * scale(mat4(1), vec3(0.4, 0.4, 0.4));
-					render_rect(P, V, TexHeart, MrectHeart, texoff);
+					//render_rect(P, V, TexHeart, MrectHeart, texoff);
 
 
 
 					mat4 MrectHead = translate(mat4(1), body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_NOSE)*0.6f+ body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_HEAD)*0.6f) * scale(mat4(1), vec3(0.61, 0.61, 0.61));
 					texoff = vec4(1, 1, 0, 0);
-					render_rect(P, V, TextureSkeletonHead, MrectHead, texoff);
+					//render_rect(P, V, TextureSkeletonHead, MrectHead, texoff);
 					redtone = vec3(1, 0, 0);
 					greentone = vec3(0, 1, 0);
 					bluetone = vec3(0, 0, 1);
@@ -2215,17 +2235,66 @@ public:
 				break;
 				}
 			//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			glDrawElements(GL_TRIANGLES, (int)body_size, GL_UNSIGNED_SHORT, (const void*)0);
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			//glDrawElements(GL_TRIANGLES, (int)body_size, GL_UNSIGNED_SHORT, (const void*)0);
+			//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			progbody->unbind();
 
 #ifndef RELEASEVERSION
-			for (int ii = 0; ii < K4ABT_JOINT_COUNT; ii++)
+			/*for (int ii = 0; ii < K4ABT_JOINT_COUNT; ii++)
 				{
 				mat4 Mrect = translate(mat4(1), body.trackedbody.at(0).new_get_joint(FORECASTFACT, ii)) * scale(mat4(1), vec3(0.05, 0.05, 0.05));
 				vec4 texoff = vec4(1, 1, 0, 0);
 				render_rect(P, V, TexRed, Mrect, texoff);
+				}*/
+
+			vec3 flash_light_positions[16][3] =
+			{
+				{body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_WRIST_RIGHT),  body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_ELBOW_RIGHT), vec3(0.01f)},
+				{body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_ELBOW_RIGHT),  body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SHOULDER_RIGHT), vec3(0.02f)},
+
+				{body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SHOULDER_RIGHT),  body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SPINE_CHEST), vec3(0.03f)},
+				{body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SPINE_CHEST),  body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SPINE_NAVEL), vec3(0.03f)},
+				{body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SPINE_NAVEL),  body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_CLAVICLE_LEFT), vec3(0.03f)},
+
+				{body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_CLAVICLE_LEFT),  body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SHOULDER_RIGHT), vec3(0.03f)},
+				{body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SHOULDER_RIGHT),  body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_NECK), vec3(0.03f)},
+				{body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_NECK),  body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SPINE_CHEST), vec3(0.03f)},
+				{body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SPINE_CHEST),  body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SHOULDER_LEFT), vec3(0.03f)},
+				{body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SHOULDER_LEFT),  body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SHOULDER_RIGHT), vec3(0.03f)},
+
+				{body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SHOULDER_RIGHT),  body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_HIP_LEFT), vec3(0.02f)},
+				{body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_HIP_LEFT),  body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SPINE_NAVEL), vec3(0.03f)},
+				{body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SPINE_NAVEL),  body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_PELVIS), vec3(0.03f)},
+				{body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_PELVIS),  body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_HIP_RIGHT), vec3(0.03f)},
+				{body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_HIP_RIGHT),  body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_KNEE_RIGHT), vec3(0.03f)},
+				{body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_KNEE_RIGHT),  body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_ANKLE_RIGHT), vec3(0.03f)}
+
+
+			};
+			static int flash_light_index = 0;
+			static float light_speed = 0.0f;
+
+			static float r2 = 0.5f;
+			mat4 Mrect = translate(mat4(1), lerp(flash_light_positions[flash_light_index][0], flash_light_positions[flash_light_index][1], light_speed)) * scale(mat4(1), vec3(r2, r2, r2));
+			vec4 texoff = vec4(1, 1, 0, 0);
+			render_rect(P, V, TexRed, Mrect, texoff);
+			if (light_speed < 1.0f)
+				light_speed += flash_light_positions[flash_light_index][2].x;
+			else
+			{
+				
+				if (flash_light_index < (sizeof flash_light_positions / sizeof flash_light_positions[0]) - 1)
+				{
+					flash_light_index += 1;
+					light_speed = 0;
+					//r2 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / 0.3)) + 0.5;
 				}
+				else {
+					light_speed += flash_light_positions[flash_light_index][2].x;
+
+				}
+			}
+
 #endif
 			}
 		else
@@ -2254,28 +2323,29 @@ public:
 				vec3 t = body.trackedbody.at(0).new_get_joint(forecastfact,ii);
 				if (butterfly[ii].startanim >= (-1))
 					butterfly[ii].startanim -= frametime;
-				vec4 texoff = vec4(4, 4, 0, 0);
+				vec4 texoff = vec4(6, 5, 0, 0);
 				if (butterfly[ii].startanim <= 0)
 					{
 					float animprogress = -butterfly[ii].startanim * 2.;
-					if (animprogress >= 1.)
+					if (animprogress >= 2.)
 						{
 						animprogress = 1.;
-						texoff = vec4(4,4,3, 3);
+						texoff = vec4(6,5,5, 4);
 						}
 					else
 						{
 						float tileprogress = animprogress * 16.;
-						int tx = (int)tileprogress % 4;
-						int ty = (int)tileprogress / 4;
-						texoff = vec4(4,4,tx, ty);
+						int tx = (int)tileprogress % 6;
+						int ty = (int)tileprogress / 5;
+						texoff = vec4(6,5,tx, ty);
+						
 						}
 					}
 				glUniform4fv(progbut->getUniform("texsplit"), 1, &texoff.x);
 				glUniform3fv(progbut->getUniform("redmul"), 1, &butterfly[ii].red.x);
 				glUniform3fv(progbut->getUniform("bluemul"), 1, &butterfly[ii].blue.x);
 				glUniform3fv(progbut->getUniform("greenmul"), 1, &butterfly[ii].green.x);
-				
+
 				mat4 Mr = M * translate(mat4(1), pos) * Rz * Sc;
 				glUniformMatrix4fv(progbut->getUniform("M"), 1, GL_FALSE, &Mr[0][0]);
 				glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -2339,6 +2409,7 @@ public:
 enum progmode_ {MODE_STDBY,MODE_GO,MODE_UNKNOWN};
 int main(int argc, char **argv)
 {
+
 	progmode_ progmode = MODE_GO;
 	std::string resourceDir = "../resources"; // Where the resources are loaded from
 
@@ -2455,6 +2526,7 @@ int main(int argc, char **argv)
 		hz30 = !hz30;
 		if (bodytracked > 0)
 			{
+
 			//cout << application->body.trackedbody.joint_positions[K4ABT_JOINT_SPINE_CHEST].x << endl;
 			application->render_body_to_FBO(frametime, P, V);
 			application->render_render_fire_to_screen_FBO(frametime, P, V);
