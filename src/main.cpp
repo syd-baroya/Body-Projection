@@ -34,7 +34,7 @@ shared_ptr<Shape> shape;
 
 //vec3 modelpos = vec3(0.0500000007, -2.49999881, 0);
 vec3 modelscale = vec3(7.60000801, 7.60000801, 2.0);
-vec3 modelpos = vec3(0.f, 0.0, -3.0);
+vec3 modelpos = vec3(0.f, 0.0, -11.0);
 float camfov = 3.1415926 / 4.;
 
 float throat_scale = 1.0f;
@@ -1565,7 +1565,7 @@ public:
 		data = stbi_load(filepath, &width, &height, &channels, 4);
 		TextureSkeletonHead = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
 
-		str = resourceDirectory + "/flashlight.png";
+		str = resourceDirectory + "/blueLight.png";
 		strcpy(filepath, str.c_str());
 		data = stbi_load(filepath, &width, &height, &channels, 4);
 		TexRed = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
