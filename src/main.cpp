@@ -24,7 +24,7 @@ CPE/CSC 471 Lab base code Wood/Dunn/Eckhardt
 //#define RELEASEVERSION
 #define NOKINECT
 #define PI 3.14159265
-bool fullscreen = true;
+bool fullscreen = false;
 bool firstTime = true;
 
 using namespace std;
@@ -49,6 +49,9 @@ float arm_length_factor = 0.0;
 
 float chinstart = 0.5;
 float sidechinstart = 1.35;
+
+//for flashlight animation
+float flashlightTime = 0.0;
 
 vec3 points_to_vector(vec3 v1, vec3 v2) {
 	return vec3(v2.x - v1.x, v2.y - v1.y, v2.z - v1.z);
@@ -2273,13 +2276,33 @@ public:
 			};
 			static int flash_light_index = 0;
 			static float light_speed = 0.0f;
-
 			static float r2 = 0.5f;
-			mat4 Mrect = translate(mat4(1), lerp(flash_light_positions[flash_light_index][0], flash_light_positions[flash_light_index][1], light_speed)) * scale(mat4(1), vec3(r2, r2, r2));
+			static float r3 = 1.0f;
+			static float light_growth = 0.0f;
+
+			//light above dancer
+			//from 0 sec to 15 sec (2:51-3:06ish)
+
+			//light to dancer's right arm to side
+			//from 16 sec to 32 sec  (3:06ish - 3:23ish)
+
+			//light is flickering until it goes out
+			//from 33sec to  50sec (3:23ish -3:41ish)
+
+			//No effect 
+			//from 51 sec to (0:0 - 
+
+			mat4 Mrect = translate(mat4(1), lerp(flash_light_positions[flash_light_index][0], flash_light_positions[flash_light_index][1], light_speed)) * scale(mat4(1), lerp(vec3(r2, r2, r2), vec3(r3, r3, r3), light_growth));
 			vec4 texoff = vec4(1, 1, 0, 0);
+			cout << totaltime << endl;
+			/*vec3 lerp(vec3 start, vec3 end, float percent)
+				return (start + percent * (end - start));*/
+
 			render_rect(P, V, TexRed, Mrect, texoff);
-			if (light_speed < 1.0f)
+			if (light_speed < 1.0f) {
 				light_speed += flash_light_positions[flash_light_index][2].x;
+				light_growth += flash_light_positions[flash_light_index][2].x;
+			}
 			else
 			{
 				
@@ -2287,11 +2310,12 @@ public:
 				{
 					flash_light_index += 1;
 					light_speed = 0;
+					light_growth = 0;
 					//r2 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / 0.3)) + 0.5;
 				}
 				else {
 					light_speed += flash_light_positions[flash_light_index][2].x;
-
+					light_growth += flash_light_positions[flash_light_index][2].x;
 				}
 			}
 
