@@ -12,6 +12,7 @@
     <ClCompile Include="Shape.cpp" />
     <ClCompile Include="body.cpp" />
     <ClCompile Include="new_body.cpp" />
+    <ClCompile Include="Forces.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Program.h" />
@@ -25,6 +26,7 @@
     <ClInclude Include="body.h" />
     <ClInclude Include="new_body.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="Forces.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ext">

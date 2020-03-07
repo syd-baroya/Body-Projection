@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="..\ext\glad\src\glad.c" />
     <ClCompile Include="body.cpp" />
+    <ClCompile Include="Forces.cpp" />
     <ClCompile Include="GLSL.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MatrixStack.cpp" />
@@ -30,6 +31,7 @@
     <ClCompile Include="WindowManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Forces.h" />
     <ClInclude Include="GLSL.h" />
     <ClInclude Include="body.h" />
     <ClInclude Include="MatrixStack.h" />
