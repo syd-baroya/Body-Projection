@@ -2282,7 +2282,25 @@ public:
 
 			//light above dancer
 			//from 0 sec to 15 sec (2:51-3:06ish)
+			if (totaltime < 15.0) {
+				vec3 first = vec3(body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SHOULDER_LEFT)[0] - 1.5f, body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SHOULDER_LEFT)[1] + .5f, body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SHOULDER_LEFT)[2]);
+				vec3 second = vec3(body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SHOULDER_LEFT)[0], body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SHOULDER_LEFT)[1], body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SHOULDER_LEFT)[2]);
+				mat4 Mrect = translate(mat4(1), lerp(first, second, light_speed)) * scale(mat4(1), vec3(0.5f, 0.5f, 0.5f));
+				vec4 texoff = vec4(1, 1, 0, 0);
+				cout << body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SHOULDER_RIGHT)[0] << endl;
+				cout << (float)width / 5.0 << endl;
+				render_rect(P, V, TexRed, Mrect, texoff);
 
+				if (light_speed < 1.0f) {
+					light_speed += .009f;
+				}
+				else
+				{
+
+					light_speed = 0;
+
+				}
+			}
 			//light to dancer's right arm to side
 			//from 16 sec to 32 sec  (3:06ish - 3:23ish)
 
@@ -2291,31 +2309,32 @@ public:
 
 			//No effect 
 			//from 51 sec to (0:0 - 
+			else {
+				mat4 Mrect = translate(mat4(1), lerp(flash_light_positions[flash_light_index][0], flash_light_positions[flash_light_index][1], light_speed)) * scale(mat4(1), lerp(vec3(r2, r2, r2), vec3(r3, r3, r3), light_growth));
+				vec4 texoff = vec4(1, 1, 0, 0);
+				cout << totaltime << endl;
+				/*vec3 lerp(vec3 start, vec3 end, float percent)
+					return (start + percent * (end - start));*/
 
-			mat4 Mrect = translate(mat4(1), lerp(flash_light_positions[flash_light_index][0], flash_light_positions[flash_light_index][1], light_speed)) * scale(mat4(1), lerp(vec3(r2, r2, r2), vec3(r3, r3, r3), light_growth));
-			vec4 texoff = vec4(1, 1, 0, 0);
-			cout << totaltime << endl;
-			/*vec3 lerp(vec3 start, vec3 end, float percent)
-				return (start + percent * (end - start));*/
-
-			render_rect(P, V, TexRed, Mrect, texoff);
-			if (light_speed < 1.0f) {
-				light_speed += flash_light_positions[flash_light_index][2].x;
-				light_growth += flash_light_positions[flash_light_index][2].x;
-			}
-			else
-			{
-				
-				if (flash_light_index < (sizeof flash_light_positions / sizeof flash_light_positions[0]) - 1)
-				{
-					flash_light_index += 1;
-					light_speed = 0;
-					light_growth = 0;
-					//r2 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / 0.3)) + 0.5;
-				}
-				else {
+				render_rect(P, V, TexRed, Mrect, texoff);
+				if (light_speed < 1.0f) {
 					light_speed += flash_light_positions[flash_light_index][2].x;
 					light_growth += flash_light_positions[flash_light_index][2].x;
+				}
+				else
+				{
+
+					if (flash_light_index < (sizeof flash_light_positions / sizeof flash_light_positions[0]) - 1)
+					{
+						flash_light_index += 1;
+						light_speed = 0;
+						light_growth = 0;
+						//r2 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / 0.3)) + 0.5;
+					}
+					else {
+						light_speed += flash_light_positions[flash_light_index][2].x;
+						light_growth += flash_light_positions[flash_light_index][2].x;
+					}
 				}
 			}
 
