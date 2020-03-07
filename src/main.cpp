@@ -2025,7 +2025,7 @@ public:
 				mat4 Mrect = translate(mat4(1), body.trackedbody.get_joint(FORECASTFACT, ii)) * scale(mat4(1), vec3(0.05, 0.05, 0.05));
 				vec4 texoff = vec4(1, 1, 0, 0);
 				render_rect(P, V, TexRed, Mrect, texoff);
-				printf("Position x: %f, Position y: %f, Position z: %f\n", body.trackedbody.get_joint(FORECASTFACT, ii).x, body.trackedbody.get_joint(FORECASTFACT, ii).y, body.trackedbody.get_joint(FORECASTFACT, ii).z);
+				
 				}
 			for (int i = 0; i < 10; i++) {
 				//6 represents left elbow
@@ -2046,10 +2046,11 @@ public:
 			int siz = sizeof(ssbo_data);
 			memcpy(&ssbo_CPUMEM, p, siz);
 			glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);*/
-			for (int i = 0; i < ssbo_size; i++) {
+			for (int i = 0; i < 10; i++){// ssbo_size; i++) {
 				vec3 part = vec3(ssbo_CPUMEM.positions_list[i].x, ssbo_CPUMEM.positions_list[i].y, ssbo_CPUMEM.positions_list[i].z);
 				mat4 Mrect = translate(mat4(1), part) * scale(mat4(1), vec3(0.1, 0.1, 0.1));
 				vec4 texoff = vec4(1, 1, 0, 0);
+				printf("Position x: %d, Position y: %d, Position z: %d\n", ssbo_CPUMEM.positions_list[i].x, ssbo_CPUMEM.positions_list[i].y, ssbo_CPUMEM.positions_list[i].z);
 				render_part(P, V, TexRed, Mrect, texoff);
 			}
 			if (firstTimeE) {
