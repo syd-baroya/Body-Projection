@@ -22,7 +22,7 @@ CPE/CSC 471 Lab base code Wood/Dunn/Eckhardt
 
 
 //#define RELEASEVERSION
-#define NOKINECT
+//#define NOKINECT
 //Emily's new variables
 bool firstTimeE = true;
 vector<vec3> particle_pos;
@@ -496,7 +496,7 @@ class butterfly_
 class ssbo_data
 {
 public:
-	ivec4 positions_list[ssbo_size];
+	vec4 positions_list[ssbo_size];
 };
 
 class Application : public EventCallbacks
@@ -588,7 +588,7 @@ public:
 		cout << endl << endl << "BUFFER BEFORE COMPUTE SHADER" << endl << endl;
 
 		for (int i = 0; i < ssbo_size; i++) {
-			ssbo_CPUMEM.positions_list[i] = ivec4(float(i), 0, 0, 0);
+			ssbo_CPUMEM.positions_list[i] = vec4(float(i), 0, 0, 0);
 			cout << ssbo_CPUMEM.positions_list[i].x << ", " << ssbo_CPUMEM.positions_list[i].y << ", " << ssbo_CPUMEM.positions_list[i].z << ", " << ssbo_CPUMEM.positions_list[i].w << endl;
 		}
 
@@ -2050,7 +2050,7 @@ public:
 				vec3 part = vec3(ssbo_CPUMEM.positions_list[i].x, ssbo_CPUMEM.positions_list[i].y, ssbo_CPUMEM.positions_list[i].z);
 				mat4 Mrect = translate(mat4(1), part) * scale(mat4(1), vec3(0.1, 0.1, 0.1));
 				vec4 texoff = vec4(1, 1, 0, 0);
-				printf("Position x: %d, Position y: %d, Position z: %d\n", ssbo_CPUMEM.positions_list[i].x, ssbo_CPUMEM.positions_list[i].y, ssbo_CPUMEM.positions_list[i].z);
+				printf("Position x: %f, Position y: %f, Position z: %f\n", ssbo_CPUMEM.positions_list[i].x, ssbo_CPUMEM.positions_list[i].y, ssbo_CPUMEM.positions_list[i].z);
 				render_part(P, V, TexRed, Mrect, texoff);
 			}
 			if (firstTimeE) {

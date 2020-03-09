@@ -18,7 +18,7 @@ layout(rgba8, binding = 0) uniform image2D img;		//input/output image
 //local group of shaders
 layout (std430, binding=0) volatile buffer shader_data
 { 
-  ivec4 positions_list[1024];
+  vec4 positions_list[1024];
 };
 uniform int sizeofbuffer;
 //uniform int firstTimeE;
@@ -41,9 +41,9 @@ void main()
 		x += 2;
 	}
 	for (int i = 0; i < 10; i++) {
-		positions_list[i].x = 1;
-		positions_list[i].y = 1;
-		positions_list[i].z = 1;
+		positions_list[i].x = 1.0f;
+		positions_list[i].y = 1.0f;
+		positions_list[i].z = 1.0f;
 		//printf("x: %f, y: %f \n", part[i].x,part[i].y);
 	}
 	//uint index = gl_LocalInvocationID.x;
