@@ -23,8 +23,17 @@ CPE/CSC 471 Lab base code Wood/Dunn/Eckhardt
 
 //#define RELEASEVERSION
 #define NOKINECT
+//<<Updated upstream
 #define PI 3.14159265
 bool fullscreen = false;
+//Emily's new variables
+bool firstTimeE = true;
+vector<vec3> particle_pos;
+vector<vec2> groups;
+
+
+//bool fullscreen = true;
+//>>>>>>> Stashed changes
 bool firstTime = true;
 
 using namespace std;
@@ -2121,38 +2130,38 @@ public:
 		M = TransZ * S;
 		// Draw the box using GLSL.
 		if (scenemode != SCENE_BUTTERFLY)
-			{
+		{
 			switch (scenemode)
-				{
-				default:
+			{
+			default:
 				break;
-				case SCENE_SCELETONHEART:
-					{
+			case SCENE_SCELETONHEART:
+			{
 
-					float tileprogress = totaltime * 16.;
-					int tx = (int)tileprogress % 4;
-					int ty = (int)tileprogress / 4;
-					vec4 texoff = vec4(4, 4, tx, ty);
-					vec3 a= body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SHOULDER_LEFT);
-					vec3 b = body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SPINE_CHEST);
-					vec3 pos;
-					pos.x = a.x * 0.2 + b.x * 0.8;
-					pos.y = a.y *0.7 + b.y * 0.3;
-					pos.z = a.z;
-					mat4 MrectHeart = translate(mat4(1), pos) * rotate(mat4(1), 3.14159265f, vec3(0, 1, 0)) * scale(mat4(1), vec3(0.4, 0.4, 0.4));
-					//render_rect(P, V, TexHeart, MrectHeart, texoff);
+				float tileprogress = totaltime * 16.;
+				int tx = (int)tileprogress % 4;
+				int ty = (int)tileprogress / 4;
+				vec4 texoff = vec4(4, 4, tx, ty);
+				vec3 a = body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SHOULDER_LEFT);
+				vec3 b = body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SPINE_CHEST);
+				vec3 pos;
+				pos.x = a.x * 0.2 + b.x * 0.8;
+				pos.y = a.y * 0.7 + b.y * 0.3;
+				pos.z = a.z;
+				mat4 MrectHeart = translate(mat4(1), pos) * rotate(mat4(1), 3.14159265f, vec3(0, 1, 0)) * scale(mat4(1), vec3(0.4, 0.4, 0.4));
+				//render_rect(P, V, TexHeart, MrectHeart, texoff);
 
 
 
-					mat4 MrectHead = translate(mat4(1), body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_NOSE)*0.6f+ body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_HEAD)*0.6f) * scale(mat4(1), vec3(0.61, 0.61, 0.61));
-					texoff = vec4(1, 1, 0, 0);
-					//render_rect(P, V, TextureSkeletonHead, MrectHead, texoff);
-					redtone = vec3(1, 0, 0);
-					greentone = vec3(0, 1, 0);
-					bluetone = vec3(0, 0, 1);
-					}
-				break;
-				}
+				mat4 MrectHead = translate(mat4(1), body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_NOSE) * 0.6f + body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_HEAD) * 0.6f) * scale(mat4(1), vec3(0.61, 0.61, 0.61));
+				texoff = vec4(1, 1, 0, 0);
+				//render_rect(P, V, TextureSkeletonHead, MrectHead, texoff);
+				redtone = vec3(1, 0, 0);
+				greentone = vec3(0, 1, 0);
+				bluetone = vec3(0, 0, 1);
+			}
+			break;
+			}
 
 			progbody->bind();
 			M = glm::translate(glm::mat4(1.0f), modelpos) * glm::scale(glm::mat4(1.0f), modelscale);
@@ -2163,80 +2172,80 @@ public:
 			glUniformMatrix4fv(progbody->getUniform("M"), 1, GL_FALSE, &M[0][0]);
 			//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-			glUniform3fv(progbody->getUniform("redmul"), 1, &redtone.x);			
+			glUniform3fv(progbody->getUniform("redmul"), 1, &redtone.x);
 			glUniform3fv(progbody->getUniform("greenmul"), 1, &greentone.x);
 			glUniform3fv(progbody->getUniform("bluemul"), 1, &bluetone.x);
 
 			glBindVertexArray(VAObody);
 
 			switch (scenemode)
-				{
-				default:
-				case SCENE_LINES:
+			{
+			default:
+			case SCENE_LINES:
 				glActiveTexture(GL_TEXTURE0);		glBindTexture(GL_TEXTURE_2D, TextureLines);
 				break;
-				case SCENE_SCELETON:
+			case SCENE_SCELETON:
 				glActiveTexture(GL_TEXTURE0);		glBindTexture(GL_TEXTURE_2D, TextureSkeleton);
 				break;
-				case SCENE_SCELETONHEART:
-				glActiveTexture(GL_TEXTURE0);		glBindTexture(GL_TEXTURE_2D, TextureSkeletonH);				
+			case SCENE_SCELETONHEART:
+				glActiveTexture(GL_TEXTURE0);		glBindTexture(GL_TEXTURE_2D, TextureSkeletonH);
 				break;
-				case SCENE_FUR:
-					{
-					static GLuint tex1=-1, tex2=-1;
-					static vec3 next_redtone = vec3(1, 0, 0); 
-					static vec3 next_greentone = vec3(0, 1, 0); 
-					static vec3 next_bluetone = vec3(0, 0, 1);
-					vec3 actual_redtone = redtone;
-					vec3 actual_greentone = greentone;
-					vec3 actual_bluetone = bluetone;
-					
-					if(fur_phase_total_time<0.001)
-						{ 
-						tex1 = rand() % FURMAXTEX;
-						tex2 = rand() % FURMAXTEX;
-						next_redtone =  normalize(vec3(frand(), frand(), frand()));
-						next_greentone =  normalize(vec3(frand(), frand(), frand()));
-						next_bluetone =  normalize(vec3(frand(), frand(), frand()));
-						}					
-					else if (fur_phase_total_time > FURCHANGETIME)
-						{
-						fur_phase_total_time = 0.001;
-						tex1 = tex2;
-						tex2 = rand() % FURMAXTEX;
-						redtone = next_redtone;
-						greentone = next_greentone;
-						bluetone = next_bluetone;
-						next_redtone = normalize(vec3(frand(), frand(), frand()));
-						next_greentone = normalize(vec3(frand(), frand(), frand()));
-						next_bluetone = normalize(vec3(frand(), frand(), frand()));
-						actual_redtone = redtone;
-						actual_greentone = greentone;
-						actual_bluetone = bluetone;
-						}
-					else if (fur_phase_total_time > FURBLENDTIME)
-						{
-						float blend = fur_phase_total_time - FURBLENDTIME;
-						blend /= FURCHANGETIME - FURBLENDTIME;
-						if (blend > 1.0)	blend = 1.0;
-						glUniform1f(progbody->getUniform("texblend"), blend);
-						actual_redtone = mix(redtone, next_redtone,blend);
-						actual_greentone = mix(greentone, next_greentone, blend);
-						actual_bluetone = mix(bluetone, next_bluetone, blend);
-						}
-					
-					fur_phase_total_time += frametime;
-					glUniform3fv(progbody->getUniform("redmul"), 1, &actual_redtone.x);
-					glUniform3fv(progbody->getUniform("greenmul"), 1, &actual_greentone.x);
-					glUniform3fv(progbody->getUniform("bluemul"), 1, &actual_bluetone.x);
+			case SCENE_FUR:
+			{
+				static GLuint tex1 = -1, tex2 = -1;
+				static vec3 next_redtone = vec3(1, 0, 0);
+				static vec3 next_greentone = vec3(0, 1, 0);
+				static vec3 next_bluetone = vec3(0, 0, 1);
+				vec3 actual_redtone = redtone;
+				vec3 actual_greentone = greentone;
+				vec3 actual_bluetone = bluetone;
+
+				if (fur_phase_total_time < 0.001)
+				{
+					tex1 = rand() % FURMAXTEX;
+					tex2 = rand() % FURMAXTEX;
+					next_redtone = normalize(vec3(frand(), frand(), frand()));
+					next_greentone = normalize(vec3(frand(), frand(), frand()));
+					next_bluetone = normalize(vec3(frand(), frand(), frand()));
+				}
+				else if (fur_phase_total_time > FURCHANGETIME)
+				{
+					fur_phase_total_time = 0.001;
+					tex1 = tex2;
+					tex2 = rand() % FURMAXTEX;
+					redtone = next_redtone;
+					greentone = next_greentone;
+					bluetone = next_bluetone;
+					next_redtone = normalize(vec3(frand(), frand(), frand()));
+					next_greentone = normalize(vec3(frand(), frand(), frand()));
+					next_bluetone = normalize(vec3(frand(), frand(), frand()));
+					actual_redtone = redtone;
+					actual_greentone = greentone;
+					actual_bluetone = bluetone;
+				}
+				else if (fur_phase_total_time > FURBLENDTIME)
+				{
+					float blend = fur_phase_total_time - FURBLENDTIME;
+					blend /= FURCHANGETIME - FURBLENDTIME;
+					if (blend > 1.0)	blend = 1.0;
+					glUniform1f(progbody->getUniform("texblend"), blend);
+					actual_redtone = mix(redtone, next_redtone, blend);
+					actual_greentone = mix(greentone, next_greentone, blend);
+					actual_bluetone = mix(bluetone, next_bluetone, blend);
+				}
+
+				fur_phase_total_time += frametime;
+				glUniform3fv(progbody->getUniform("redmul"), 1, &actual_redtone.x);
+				glUniform3fv(progbody->getUniform("greenmul"), 1, &actual_greentone.x);
+				glUniform3fv(progbody->getUniform("bluemul"), 1, &actual_bluetone.x);
 				/*	glUniform3fv(progbody->getUniform("redmul"), 1, &redtone.x);
 					glUniform3fv(progbody->getUniform("bluemul"), 1, &greentone.x);
 					glUniform3fv(progbody->getUniform("greenmul"), 1, &bluetone.x);*/
-					glActiveTexture(GL_TEXTURE0);		glBindTexture(GL_TEXTURE_2D, TextureSkin[tex1]);
-					glActiveTexture(GL_TEXTURE1);		glBindTexture(GL_TEXTURE_2D, TextureSkin[tex2]);
-					}
-				break;
-				}
+				glActiveTexture(GL_TEXTURE0);		glBindTexture(GL_TEXTURE_2D, TextureSkin[tex1]);
+				glActiveTexture(GL_TEXTURE1);		glBindTexture(GL_TEXTURE_2D, TextureSkin[tex2]);
+			}
+			break;
+			}
 			//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 			//glDrawElements(GL_TRIANGLES, (int)body_size, GL_UNSIGNED_SHORT, (const void*)0);
 			//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -2258,7 +2267,7 @@ public:
 				{vec3(-0.1f, 0.75f, 0.0f),vec3(-0.75f, 0.85f, 0.0f),vec3(.009f) },
 				{vec3(-0.75f, 0.85f, 0.0f),vec3(1.1f, 0.80f, 0.0f),vec3(.009f) },
 				{vec3(1.1f, 0.80f, 0.0f),vec3(1.3f, 0.75f, 0.0f),vec3(.00009f) },
-				
+
 			};
 			vec3 first_growth[7][3] =
 			{
@@ -2269,36 +2278,42 @@ public:
 				{vec3(1.2f),vec3(1.2f),vec3(.4f)},
 				{vec3(1.2f),vec3(1.0f),vec3(.009f)},
 				{vec3(1.0f),vec3(1.0f),vec3(.4f)},
-				
+
 			};
+			vec3 second_growth[6][3] = {
+			
+				{vec3(1.0f),vec3(1.3f),vec3(.4f)},
+				{vec3(1.3f),vec3(1.0f),vec3(.4f)},
+				{vec3(1.0f),vec3(1.3f),vec3(.4f)},
+				{vec3(1.3f),vec3(1.0f),vec3(.4f)},
+				{vec3(1.0f),vec3(1.3f),vec3(.04f)},
+				{vec3(1.3f),vec3(1.0f),vec3(.04f)}
+				
 
-			vec3 flash_light_positions[16][3] =
+			};
+			//to the right side of my body
+			vec3 right_side = vec3(body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SPINE_NAVEL).x + .01f, body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SPINE_NAVEL).y, body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SPINE_NAVEL).z);
+			vec3 flash_light_positions[8][3] =
 			{
-				{vec3(1.3f, 0.75f, 0.0f),  body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_ELBOW_RIGHT), vec3(0.01f)},
-				{body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_ELBOW_RIGHT),  body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SHOULDER_RIGHT), vec3(0.02f)},
+				{vec3(1.3f, 0.75f, 0.0f),  body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_WRIST_LEFT), vec3(0.003f)},
+				{body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_WRIST_LEFT),  body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_ELBOW_LEFT), vec3(0.005f)},
 
-				{body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SHOULDER_RIGHT),  body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SPINE_CHEST), vec3(0.03f)},
-				{body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SPINE_CHEST),  body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SPINE_NAVEL), vec3(0.03f)},
-				{body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SPINE_NAVEL),  body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_CLAVICLE_LEFT), vec3(0.03f)},
+				{body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_ELBOW_LEFT),  body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SHOULDER_LEFT), vec3(0.03f)},
+				{body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SHOULDER_LEFT),  body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_CLAVICLE_LEFT), vec3(0.03f)},
+				{body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_CLAVICLE_LEFT),  body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_NECK), vec3(0.03f)},
 
-				{body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_CLAVICLE_LEFT),  body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SHOULDER_RIGHT), vec3(0.03f)},
-				{body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SHOULDER_RIGHT),  body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_NECK), vec3(0.03f)},
 				{body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_NECK),  body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SPINE_CHEST), vec3(0.03f)},
-				{body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SPINE_CHEST),  body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SHOULDER_LEFT), vec3(0.03f)},
-				{body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SHOULDER_LEFT),  body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SHOULDER_RIGHT), vec3(0.03f)},
-
-				{body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SHOULDER_RIGHT),  body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_HIP_LEFT), vec3(0.02f)},
-				{body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_HIP_LEFT),  body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SPINE_NAVEL), vec3(0.03f)},
-				{body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SPINE_NAVEL),  body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_PELVIS), vec3(0.03f)},
-				{body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_PELVIS),  body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_HIP_RIGHT), vec3(0.03f)},
-				{body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_HIP_RIGHT),  body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_KNEE_RIGHT), vec3(0.03f)},
-				{body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_KNEE_RIGHT),  body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_ANKLE_RIGHT), vec3(0.03f)}
-
+				{body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SPINE_CHEST),  body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SPINE_NAVEL), vec3(0.03f)},
+				
+				{body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SPINE_NAVEL), right_side, vec3(0.03f)}	
 
 			};
 			static int flash_light_index = 0;
+			static int flash_light_index_2 = 0;
 			static int first_index = 0;
+			static int second_g_index = 0;
 			static float light_speed = 0.0f;
+			static float light_speed_2 = 0.0f;
 			static float r2 = 0.5f;
 			static float r3 = 1.0f;
 			static float r4 = 1.0f;
@@ -2307,58 +2322,50 @@ public:
 
 			//light above dancer
 			//from 0 sec to 15 sec (2:51-3:06ish)
-			if (totaltime < 20.0) {
-				
-				if (totaltime >= 17.0) {
-					mat4 Mrect = translate(mat4(1), vec3(1.3f, 0.75f, 0.0f)) * scale(mat4(1), lerp(vec3(r4), vec3(r5), light_growth));
-					vec4 texoff = vec4(1, 1, 0, 0);
+			if (totaltime < 1.0) { //17.0
 
-					render_rect(P, V, TexRed, Mrect, texoff);
-					if (light_growth < 100.0f) {
-						light_growth += 0005;
-					}
-					else {
-						light_growth = 0.0f;
-						if (r4 == 1.0f) {
-							r4 = 1.01;
-							r5 = 1.0;
-						}
-						else {
-							r5 = 1.01;
-							r4 = 1.0;
-						}
 
-					}
-				}
-				else {
 
 					mat4 Mrect = translate(mat4(1), lerp(first_positions[first_index][0], first_positions[first_index][1], light_speed)) * scale(mat4(1), lerp(first_growth[first_index][0], first_growth[first_index][1], light_growth));
 					vec4 texoff = vec4(1, 1, 0, 0);
 
 
 					render_rect(P, V, TexRed, Mrect, texoff);
-				}
-				if (light_speed < 1.0f) {
-					light_speed += first_positions[first_index][2].x;
-					light_growth += first_growth[first_index][2].x;
-				}
-				else {
-					if (first_index < (sizeof first_positions / sizeof first_positions[0]) - 1) {
-
-						first_index += 1;
-						light_speed = 0;
-						light_growth = 0;
-					}
-					else
-					{
-						light_speed += first_positions[first_index][2].x;
+					if (light_speed < 1.0f) {
 						light_growth += first_growth[first_index][2].x;
-
+						light_speed += first_positions[first_index][2].x;
 					}
-				}
+					else {
+						if (first_index < (sizeof first_positions / sizeof first_positions[0]) - 1) {
+
+							first_index += 1;
+							light_speed = 0;
+							light_growth = 0;
+						}
+						else
+						{
+							light_speed += first_positions[first_index][2].x;
+							light_growth += first_growth[first_index][2].x;
+
+						}
+					}
 				
 			}
-			
+			else if (totaltime < 2.0) { //20
+				if (totaltime == 17.0 || totaltime == 18.0 || totaltime == 19.0 || totaltime == 17.5 || totaltime == 18.5 || totaltime == 19.5) {
+					r3 += .01;
+				}
+				else {
+					r3 -= .01;
+				}
+
+				mat4 Mrect = translate(mat4(1), vec3(1.3f, 0.75f, 0.0f)) * scale(mat4(1), vec3(r3));
+				vec4 texoff = vec4(1, 1, 0, 0);
+
+				render_rect(P, V, TexRed, Mrect, texoff);
+				
+			}
+				
 			
 			//light to dancer's right arm to side
 			//from 16 sec to 32 sec  (3:06ish - 3:23ish)
@@ -2370,30 +2377,30 @@ public:
 			//from 51 sec to (0:0 - 
 			else {
 				
-				mat4 Mrect = translate(mat4(1), lerp(flash_light_positions[flash_light_index][0], flash_light_positions[flash_light_index][1], light_speed)) * scale(mat4(1), lerp(vec3(r2, r2, r2), vec3(r3, r3, r3), light_growth));
+				mat4 Mrect = translate(mat4(1), lerp(flash_light_positions[flash_light_index_2][0], flash_light_positions[flash_light_index_2][1], light_speed_2)) * scale(mat4(1), vec3(1.0f));
 				vec4 texoff = vec4(1, 1, 0, 0);
 				cout << totaltime << endl;
 				/*vec3 lerp(vec3 start, vec3 end, float percent)
 					return (start + percent * (end - start));*/
 
 				render_rect(P, V, TexRed, Mrect, texoff);
-				if (light_speed < 1.0f) {
-					light_speed += flash_light_positions[flash_light_index][2].x;
-					light_growth += flash_light_positions[flash_light_index][2].x;
+				if (light_speed_2 < 1.0f) {
+					light_speed_2 += flash_light_positions[flash_light_index_2][2].x;
+					//light_growth += flash_light_positions[flash_light_index_2][2].x;
 				}
 				else
 				{
 
-					if (flash_light_index < (sizeof flash_light_positions / sizeof flash_light_positions[0]) - 1)
+					if (flash_light_index_2 < (sizeof flash_light_positions / sizeof flash_light_positions[0]) - 1)
 					{
-						flash_light_index += 1;
-						light_speed = 0;
-						light_growth = 0;
+						flash_light_index_2 += 1;
+						light_speed_2 = 0;
+						//light_growth = 0;
 						//r2 = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / 0.3)) + 0.5;
 					}
 					else {
-						light_speed += flash_light_positions[flash_light_index][2].x;
-						light_growth += flash_light_positions[flash_light_index][2].x;
+						light_speed_2 += flash_light_positions[flash_light_index_2][2].x;
+						//light_growth += flash_light_positions[flash_light_index][2].x;
 					}
 				}
 			}
