@@ -2249,10 +2249,32 @@ public:
 				vec4 texoff = vec4(1, 1, 0, 0);
 				render_rect(P, V, TexRed, Mrect, texoff);
 				}*/
+			vec3 first_positions[7][3] =
+			{
+				{vec3(1.5f, 0.75f, 0.0f),vec3(-0.01f, 0.75f, 0.0f),vec3(.004f) },
+				{vec3(-0.01f, 0.75f, 0.0f),vec3(1.3f, 0.70f, 0.0f),vec3(.003f) },
+				{vec3(1.3f, 0.70f, 0.0f),vec3(1.0f, 0.60f, 0.0f),vec3(.009f) },
+				{vec3(1.0f, 0.60f, 0.0f),vec3(-0.1f, 0.75f, 0.0f),vec3(.009f) },
+				{vec3(-0.1f, 0.75f, 0.0f),vec3(-0.75f, 0.85f, 0.0f),vec3(.009f) },
+				{vec3(-0.75f, 0.85f, 0.0f),vec3(1.1f, 0.80f, 0.0f),vec3(.009f) },
+				{vec3(1.1f, 0.80f, 0.0f),vec3(1.3f, 0.75f, 0.0f),vec3(.00009f) },
+				
+			};
+			vec3 first_growth[7][3] =
+			{
+				{vec3(0.5f),vec3(1.5f),vec3(.004f)},
+				{vec3(1.5f),vec3(1.5f),vec3(.4f)},
+				{vec3(1.5f),vec3(1.5f),vec3(.4f)},
+				{vec3(1.5f),vec3(1.2f),vec3(.009f)},
+				{vec3(1.2f),vec3(1.2f),vec3(.4f)},
+				{vec3(1.2f),vec3(1.0f),vec3(.009f)},
+				{vec3(1.0f),vec3(1.0f),vec3(.4f)},
+				
+			};
 
 			vec3 flash_light_positions[16][3] =
 			{
-				{body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_WRIST_RIGHT),  body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_ELBOW_RIGHT), vec3(0.01f)},
+				{vec3(1.3f, 0.75f, 0.0f),  body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_ELBOW_RIGHT), vec3(0.01f)},
 				{body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_ELBOW_RIGHT),  body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SHOULDER_RIGHT), vec3(0.02f)},
 
 				{body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SHOULDER_RIGHT),  body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SPINE_CHEST), vec3(0.03f)},
@@ -2275,32 +2297,69 @@ public:
 
 			};
 			static int flash_light_index = 0;
+			static int first_index = 0;
 			static float light_speed = 0.0f;
 			static float r2 = 0.5f;
 			static float r3 = 1.0f;
+			static float r4 = 1.0f;
+			static float r5 = 1.01f;
 			static float light_growth = 0.0f;
 
 			//light above dancer
 			//from 0 sec to 15 sec (2:51-3:06ish)
-			if (totaltime < 15.0) {
-				vec3 first = vec3(body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SHOULDER_LEFT)[0] - 1.5f, body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SHOULDER_LEFT)[1] + .5f, body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SHOULDER_LEFT)[2]);
-				vec3 second = vec3(body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SHOULDER_LEFT)[0], body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SHOULDER_LEFT)[1], body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SHOULDER_LEFT)[2]);
-				mat4 Mrect = translate(mat4(1), lerp(first, second, light_speed)) * scale(mat4(1), vec3(0.5f, 0.5f, 0.5f));
-				vec4 texoff = vec4(1, 1, 0, 0);
-				cout << body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SHOULDER_RIGHT)[0] << endl;
-				cout << (float)width / 5.0 << endl;
-				render_rect(P, V, TexRed, Mrect, texoff);
+			if (totaltime < 20.0) {
+				
+				if (totaltime >= 17.0) {
+					mat4 Mrect = translate(mat4(1), vec3(1.3f, 0.75f, 0.0f)) * scale(mat4(1), lerp(vec3(r4), vec3(r5), light_growth));
+					vec4 texoff = vec4(1, 1, 0, 0);
 
+					render_rect(P, V, TexRed, Mrect, texoff);
+					if (light_growth < 100.0f) {
+						light_growth += 0005;
+					}
+					else {
+						light_growth = 0.0f;
+						if (r4 == 1.0f) {
+							r4 = 1.01;
+							r5 = 1.0;
+						}
+						else {
+							r5 = 1.01;
+							r4 = 1.0;
+						}
+
+					}
+				}
+				else {
+
+					mat4 Mrect = translate(mat4(1), lerp(first_positions[first_index][0], first_positions[first_index][1], light_speed)) * scale(mat4(1), lerp(first_growth[first_index][0], first_growth[first_index][1], light_growth));
+					vec4 texoff = vec4(1, 1, 0, 0);
+
+
+					render_rect(P, V, TexRed, Mrect, texoff);
+				}
 				if (light_speed < 1.0f) {
-					light_speed += .009f;
+					light_speed += first_positions[first_index][2].x;
+					light_growth += first_growth[first_index][2].x;
 				}
-				else
-				{
+				else {
+					if (first_index < (sizeof first_positions / sizeof first_positions[0]) - 1) {
 
-					light_speed = 0;
+						first_index += 1;
+						light_speed = 0;
+						light_growth = 0;
+					}
+					else
+					{
+						light_speed += first_positions[first_index][2].x;
+						light_growth += first_growth[first_index][2].x;
 
+					}
 				}
+				
 			}
+			
+			
 			//light to dancer's right arm to side
 			//from 16 sec to 32 sec  (3:06ish - 3:23ish)
 
@@ -2310,6 +2369,7 @@ public:
 			//No effect 
 			//from 51 sec to (0:0 - 
 			else {
+				
 				mat4 Mrect = translate(mat4(1), lerp(flash_light_positions[flash_light_index][0], flash_light_positions[flash_light_index][1], light_speed)) * scale(mat4(1), lerp(vec3(r2, r2, r2), vec3(r3, r3, r3), light_growth));
 				vec4 texoff = vec4(1, 1, 0, 0);
 				cout << totaltime << endl;
