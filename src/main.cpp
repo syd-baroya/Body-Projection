@@ -2547,14 +2547,17 @@ public:
 			mat4 Mrect = translate(mat4(1), vec3(0.5, 0.5, 0.0)) * scale(mat4(1), vec3(30.0));
 			vec4 texoff = vec4(1, 1, 0, 0);
 			cout << totaltime << endl;
+			render_rect(P, V, TexRed, Mrect, texoff);
 			}
 			else if (totaltime >= 28.5 && totaltime < 29.0) {
 			cout << totaltime << endl;
 			}
+
 			else if (totaltime >= 29.0 && totaltime < 29.5) {
 			mat4 Mrect = translate(mat4(1), vec3(0.5, 0.5, 0.0)) * scale(mat4(1), vec3(30.0));
 			vec4 texoff = vec4(1, 1, 0, 0);
 			cout << totaltime << endl;
+			render_rect(P, V, TexRed, Mrect, texoff);
 			}
 			
 		
