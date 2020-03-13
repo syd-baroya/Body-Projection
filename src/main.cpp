@@ -2280,15 +2280,40 @@ public:
 				{vec3(1.0f),vec3(1.0f),vec3(.4f)},
 
 			};
-			vec3 second_growth[6][3] = {
+			vec3 second_growth[12][3] = {
 			
-				{vec3(1.0f),vec3(1.3f),vec3(.4f)},
-				{vec3(1.3f),vec3(1.0f),vec3(.4f)},
-				{vec3(1.0f),vec3(1.3f),vec3(.4f)},
-				{vec3(1.3f),vec3(1.0f),vec3(.4f)},
 				{vec3(1.0f),vec3(1.3f),vec3(.04f)},
-				{vec3(1.3f),vec3(1.0f),vec3(.04f)}
+				{vec3(1.3f),vec3(1.0f),vec3(.04f)},
+				{vec3(1.0f),vec3(1.3f),vec3(.04f)},
+				{vec3(1.3f),vec3(1.0f),vec3(.04f)},
+				{vec3(1.0f),vec3(1.3f),vec3(.04f)},
+				{vec3(1.3f),vec3(1.0f),vec3(.04f)},
+				{vec3(1.3f),vec3(1.0f),vec3(.04f)},
+				{vec3(1.0f),vec3(1.3f),vec3(.04f)},
+				{vec3(1.3f),vec3(1.0f),vec3(.4f)},
+				{vec3(1.0f),vec3(1.3f),vec3(.4f)},
+				{vec3(1.3f),vec3(1.0f),vec3(.4f)},
+				{vec3(1.0f),vec3(1.3f),vec3(.4f)}
 				
+
+			};
+			vec3 third_growth[16][3] = {
+
+				{vec3(1.0f),vec3(1.3f),vec3(.04f)},
+				{vec3(1.3f),vec3(1.0f),vec3(.04f)},
+				{vec3(1.0f),vec3(1.3f),vec3(.04f)},
+				{vec3(1.3f),vec3(1.0f),vec3(.04f)},
+				{vec3(1.0f),vec3(1.3f),vec3(.04f)},
+				{vec3(1.3f),vec3(1.0f),vec3(.04f)},
+				{vec3(1.3f),vec3(1.0f),vec3(.04f)},
+				{vec3(1.0f),vec3(1.3f),vec3(.04f)},
+				{vec3(1.3f),vec3(.8f),vec3(.04f)},
+				{vec3(.8f),vec3(1.0f),vec3(.04f)},
+				{vec3(1.0f),vec3(.5f),vec3(04f)},
+				{vec3(.5f),vec3(.8f),vec3(.04f)},
+				{vec3(.8f),vec3(.5f),vec3(.04f)},
+				{vec3(.5f),vec3(0.0f),vec3(.04f)}
+
 
 			};
 			//to the right side of my body
@@ -2365,6 +2390,8 @@ public:
 				render_rect(P, V, TexRed, Mrect, texoff);
 				
 			}
+
+	
 				
 			
 			//light to dancer's right arm to side
@@ -2375,7 +2402,7 @@ public:
 
 			//No effect 
 			//from 51 sec to (0:0 - 
-			else {
+			else if(totaltime < 4.0){
 				
 				mat4 Mrect = translate(mat4(1), lerp(flash_light_positions[flash_light_index_2][0], flash_light_positions[flash_light_index_2][1], light_speed_2)) * scale(mat4(1), vec3(1.0f));
 				vec4 texoff = vec4(1, 1, 0, 0);
@@ -2403,6 +2430,34 @@ public:
 						//light_growth += flash_light_positions[flash_light_index][2].x;
 					}
 				}
+			}
+			else {
+				mat4 Mrect = translate(mat4(1), right_side) * scale(mat4(1), lerp(third_growth[second_g_index][0], third_growth[second_g_index][1], light_growth));
+				vec4 texoff = vec4(1, 1, 0, 0);
+				cout << totaltime << endl;
+				/*vec3 lerp(vec3 start, vec3 end, float percent)
+					return (start + percent * (end - start));*/
+
+				render_rect(P, V, TexRed, Mrect, texoff);
+				if (light_growth < 1.0f) {
+					light_growth += third_growth[second_g_index][2].x;
+					
+				}
+				else {
+					if (second_g_index < (sizeof third_growth / sizeof third_growth[0]) - 1) {
+
+						second_g_index += 1;
+						
+						light_growth = 0;
+					}
+					else
+					{
+						
+						light_growth += third_growth[first_index][2].x;
+
+					}
+				}
+
 			}
 
 #endif
