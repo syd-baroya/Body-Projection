@@ -2299,20 +2299,22 @@ public:
 			};
 			vec3 third_growth[16][3] = {
 
-				{vec3(1.0f),vec3(1.3f),vec3(.04f)},
-				{vec3(1.3f),vec3(1.0f),vec3(.04f)},
-				{vec3(1.0f),vec3(1.3f),vec3(.04f)},
-				{vec3(1.3f),vec3(1.0f),vec3(.04f)},
-				{vec3(1.0f),vec3(1.3f),vec3(.04f)},
-				{vec3(1.3f),vec3(1.0f),vec3(.04f)},
-				{vec3(1.3f),vec3(1.0f),vec3(.04f)},
-				{vec3(1.0f),vec3(1.3f),vec3(.04f)},
-				{vec3(1.3f),vec3(.8f),vec3(.04f)},
-				{vec3(.8f),vec3(1.0f),vec3(.04f)},
-				{vec3(1.0f),vec3(.5f),vec3(04f)},
-				{vec3(.5f),vec3(.8f),vec3(.04f)},
-				{vec3(.8f),vec3(.5f),vec3(.04f)},
-				{vec3(.5f),vec3(0.0f),vec3(.04f)}
+				{vec3(1.0f),vec3(1.3f),vec3(.03f)},
+				{vec3(1.3f),vec3(1.0f),vec3(.03f)},
+				{vec3(1.0f),vec3(1.5f),vec3(.03f)},
+				{vec3(1.5f),vec3(1.0f),vec3(.03f)},
+				{vec3(1.0f),vec3(1.3f),vec3(.03f)},
+				{vec3(1.3f),vec3(.9f),vec3(.03f)},
+				{vec3(.9f),vec3(1.3f),vec3(.02f)},
+				{vec3(1.3f),vec3(.8f),vec3(.02f)},
+				{vec3(.8f),vec3(1.0f),vec3(.02f)},
+				{vec3(1.0f),vec3(.6f),vec3(.02)},
+				{vec3(.6f),vec3(.8f),vec3(.01f)},
+				{vec3(.8f),vec3(.5f),vec3(.01f)},
+				{vec3(.5f),vec3(0.2f),vec3(.01)},
+				{vec3(.2f),vec3(0.4f),vec3(.01f)},
+				{vec3(.4f),vec3(0.001f),vec3(.01f)},
+				{vec3(.001f),vec3(0.0f),vec3(.0001f)}
 
 
 			};
@@ -2339,11 +2341,14 @@ public:
 			static int second_g_index = 0;
 			static float light_speed = 0.0f;
 			static float light_speed_2 = 0.0f;
+			static float light_speed_3 = 0.0f;
 			static float r2 = 0.5f;
 			static float r3 = 1.0f;
 			static float r4 = 1.0f;
 			static float r5 = 1.01f;
 			static float light_growth = 0.0f;
+			static float light_growth_2 = 0.0f;
+			static float light_growth_3 = 0.0f;
 
 			//light above dancer
 			//from 0 sec to 15 sec (2:51-3:06ish)
@@ -2400,9 +2405,8 @@ public:
 			//light is flickering until it goes out
 			//from 33sec to  50sec (3:23ish -3:41ish)
 
-			//No effect 
-			//from 51 sec to (0:0 - 
-			else if(totaltime < 4.0){
+			
+			else if(totaltime < 3.0){ //35
 				
 				mat4 Mrect = translate(mat4(1), lerp(flash_light_positions[flash_light_index_2][0], flash_light_positions[flash_light_index_2][1], light_speed_2)) * scale(mat4(1), vec3(1.0f));
 				vec4 texoff = vec4(1, 1, 0, 0);
@@ -2431,8 +2435,8 @@ public:
 					}
 				}
 			}
-			else {
-				mat4 Mrect = translate(mat4(1), right_side) * scale(mat4(1), lerp(third_growth[second_g_index][0], third_growth[second_g_index][1], light_growth));
+			else if(totaltime < 5.0) {
+				mat4 Mrect = translate(mat4(1), vec3(right_side.x+.05f, right_side.y, right_side.z)) * scale(mat4(1), lerp(third_growth[second_g_index][0], third_growth[second_g_index][1], light_growth));
 				vec4 texoff = vec4(1, 1, 0, 0);
 				cout << totaltime << endl;
 				/*vec3 lerp(vec3 start, vec3 end, float percent)
@@ -2459,6 +2463,104 @@ public:
 				}
 
 			}
+			//No effect 
+			//from 51 sec to (0:0 - 
+			else if (totaltime >= 8.0 && totaltime < 12.0) { //greater than  or = 119 and less than 123
+			mat4 Mrect = translate(mat4(1), body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SPINE_NAVEL)) * scale(mat4(1), lerp(vec3(0.0), vec3(1.5), light_growth_2));
+			vec4 texoff = vec4(1, 1, 0, 0);
+			cout << totaltime << endl;
+			/*vec3 lerp(vec3 start, vec3 end, float percent)
+				return (start + percent * (end - start));*/
+
+			render_rect(P, V, TexRed, Mrect, texoff);
+				if (light_growth_2 < 1.0f) {
+					light_growth_2 += .005;
+
+				}
+				
+				//should be 4 seconds in between
+			}
+			else if (totaltime >= 12.0 && totaltime < 15.0) { //greater than or = 123 and less than 126
+				mat4 Mrect = translate(mat4(1), lerp(body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SPINE_NAVEL), vec3(0.0, 2.5, 0.0), light_speed_3)) * scale(mat4(1), vec3(1.0));
+				vec4 texoff = vec4(1, 1, 0, 0);
+				cout << totaltime << endl;
+				/*vec3 lerp(vec3 start, vec3 end, float percent)
+					return (start + percent * (end - start));*/
+
+				render_rect(P, V, TexRed, Mrect, texoff);
+				if (light_speed_3 < 1.0f) {
+					light_speed_3 += .01f;
+					//light_growth += flash_light_positions[flash_light_index_2][2].x;
+				}
+				
+			}
+			//start final scenes at 168
+			//start in left hand corner and grow to cover whole screen
+			//grows for 5 seconds to cover screen
+			else if (totaltime >= 15.0 && totaltime < 21.0) { //greater than or = 168
+
+				mat4 Mrect = translate(mat4(1), vec3(0.5, 0.5, 0.0)) * scale(mat4(1), lerp(vec3(0.0), vec3(30.0), light_growth_3));
+				vec4 texoff = vec4(1, 1, 0, 0);
+				cout << totaltime << endl;
+				/*vec3 lerp(vec3 start, vec3 end, float percent)
+					return (start + percent * (end - start));*/
+
+				render_rect(P, V, TexRed, Mrect, texoff);
+				if (light_growth_3 < 1.0f) {
+					light_growth_3 += .003;
+
+				}
+			}
+			//flashing every 2 sec
+			else if (totaltime >= 21.0 && totaltime < 23.0) {
+				cout << totaltime << endl;
+			}
+
+			else if (totaltime >= 23.0 && totaltime < 25.0) {
+				mat4 Mrect = translate(mat4(1), vec3(0.5, 0.5, 0.0)) * scale(mat4(1), vec3(30.0));
+				vec4 texoff = vec4(1, 1, 0, 0);
+				cout << totaltime << endl;
+				/*vec3 lerp(vec3 start, vec3 end, float percent)
+					return (start + percent * (end - start));*/
+
+				render_rect(P, V, TexRed, Mrect, texoff);
+			}
+
+			else if (totaltime >= 25.0 && totaltime < 27.0) {
+			cout << totaltime << endl;
+			}
+
+			else if (totaltime >= 27.0 && totaltime < 27.5) {
+			mat4 Mrect = translate(mat4(1), vec3(0.5, 0.5, 0.0)) * scale(mat4(1), vec3(30.0));
+			vec4 texoff = vec4(1, 1, 0, 0);
+			cout << totaltime << endl;
+			/*vec3 lerp(vec3 start, vec3 end, float percent)
+				return (start + percent * (end - start));*/
+
+			render_rect(P, V, TexRed, Mrect, texoff);
+			}
+			else if (totaltime >= 27.5 && totaltime < 28.0) {
+			cout << totaltime << endl;
+			}
+
+			else if (totaltime >= 28.0 && totaltime < 28.5) {
+			mat4 Mrect = translate(mat4(1), vec3(0.5, 0.5, 0.0)) * scale(mat4(1), vec3(30.0));
+			vec4 texoff = vec4(1, 1, 0, 0);
+			cout << totaltime << endl;
+			}
+			else if (totaltime >= 28.5 && totaltime < 29.0) {
+			cout << totaltime << endl;
+			}
+			else if (totaltime >= 29.0 && totaltime < 29.5) {
+			mat4 Mrect = translate(mat4(1), vec3(0.5, 0.5, 0.0)) * scale(mat4(1), vec3(30.0));
+			vec4 texoff = vec4(1, 1, 0, 0);
+			cout << totaltime << endl;
+			}
+			
+		
+			else {
+				//Do nothing
+}
 
 #endif
 			}
