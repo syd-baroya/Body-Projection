@@ -7,7 +7,11 @@ x64/
 .DS_Store
 packages/
 dnn_model_2_0.onnx
-*.sln
 *.vcxproj
 *.vcxproj.filters
-*.vcxproj.user
+*.user
+*.suo
+*.ncb
+ipch/
+*.sdf
+*.opensdf
