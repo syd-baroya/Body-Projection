@@ -13,6 +13,10 @@
 #include <stdlib.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <map>
+#include <GLFW/glfw3.h>
+
+
 
 using namespace std;
 using namespace glm;
@@ -59,11 +63,27 @@ class new_trackedbody_
 			return joint_positions[j] - oldv * forecast_fact;// -joint_speed[0] * forecast_fact;
 		
 			}
+
+		vec3 new_get_joint(float forecast_fact, int j)
+		{
+			float cur_time = glfwGetTime();
+			float future_time = glfwGetTime() + +0.000000001f;
+			static vec3 oldv = vec3(0);
+			vec3 sumv = joint_speed[0] + joint_speed[1] + joint_speed[2];
+			sumv /= 3.;
+			oldv = oldv + (sumv - oldv) * 0.03f;
+			vec3 delta_d = oldv * (future_time - cur_time);
+			joint_positions[j] = joint_positions[j] + delta_d;
+			return joint_positions[j];// -oldv * forecast_fact;// -joint_speed[0] * forecast_fact;
+		}
+
 		bool init_tracked;
 		float time_till_last_tracked;
 		bool jointTracked[K4ABT_JOINT_COUNT];
 		vec3 joint_positions[K4ABT_JOINT_COUNT];
 		float time_till_last_joint_tracked[K4ABT_JOINT_COUNT];
+		std::map<k4abt_joint_id_t, long double> jointAngleMap;
+
 		new_trackedbody_() { reset(); }
 		void OnLostTrack()
 		{}
@@ -89,33 +109,34 @@ class new_trackedbody_
 	
 
 		void cascade()
-			{
+		{
 			bool stepcascade = false;
 			
 
 			for (int ii = 0; ii < K4ABT_JOINT_COUNT; ii++)
+			{
 				if (jointTracked[ii])
 				{
 					if (cascade_count[ii] == 0)
-						{
+					{
 						joint_speed[ii] = vec3(0);
 						old_joint_positions[ii][4] = joint_positions[ii];
-						}
+					}
 					else
-						{
+					{
 						vec3 sum = vec3(0);
-						for (int i = CASCADE -1; i >= CASCADE - cascade_count[ii]; i--)
+						for (int i = CASCADE - 1; i >= CASCADE - cascade_count[ii]; i--)
 							sum += old_joint_positions[ii][i];
 						sum /= cascade_count[ii];
-						
+
 						old_joint_positions[ii][CASCADE - 1] = joint_positions[ii];
 						joint_speed[ii] = sum - joint_positions[ii];
 						joint_positions[ii] = sum;
-						
-						}
+
+					}
 					stepcascade = true;
 				}
-				else if (cascade_count[ii] >0 && time_till_last_joint_tracked[ii] <= RECOVER_JOINT_POSITION_TIME)
+				else if (cascade_count[ii] > 0 && time_till_last_joint_tracked[ii] <= RECOVER_JOINT_POSITION_TIME)
 				{
 					vec3 sum = vec3(0);
 					for (int i = 0; i < CASCADE - cascade_count[ii]; i++)
@@ -131,45 +152,49 @@ class new_trackedbody_
 						cascade_count[ii] = 0;
 				}
 
-
-			if(stepcascade)
-			 
+			}
+			if (stepcascade)
+			{
 				for (int ii = 0; ii < K4ABT_JOINT_COUNT; ii++)
 				{
 					for (int i = 0; i < CASCADE - 1; i++)
 						old_joint_positions[ii][i] = old_joint_positions[ii][i + 1];
-					
-				if (cascade_count[ii] < CASCADE)
-					cascade_count[ii]++;
+
+					if (cascade_count[ii] < CASCADE)
+						cascade_count[ii]++;
 
 				}
-			
 			}
+		}
 
 };
 
 class new_body_
 	{
 	private:
-		bool ProcessBody(float frametime, uint64_t nTime, int nBodyCount, new_bodypack_* bodypack);
-		k4a_device_t device;
+		bool ProcessBody(float frametime, uint64_t nTime, int nBodyCount, new_bodypack_* bodypack, uint32_t deviceIndex);
+		vector<k4a_device_t> devices;
 		k4a_device_configuration_t deviceConfig;
-		k4abt_tracker_t tracker;
+		vector<k4abt_tracker_t> trackers;
 		k4abt_tracker_configuration_t tracker_config;
-
+		uint32_t device_count;
+		size_t num_bodies;
 
 	public:
-		new_trackedbody_ trackedbody;
+		vector<new_trackedbody_> trackedbody;
 		int Update(float frametime);
 		void InitializeDefaultSensor();
 		void CloseSensor();
+		uint32_t getDeviceCount();
+		void setDeviceCount(uint32_t device_count);
+		size_t getNumBodies();
 		new_body_()
 		{
-			device = nullptr;
+			num_bodies = 0;
+			device_count = 0;
 			deviceConfig = K4A_DEVICE_CONFIG_INIT_DISABLE_ALL;
 			deviceConfig.depth_mode = K4A_DEPTH_MODE_NFOV_UNBINNED;
 			deviceConfig.color_resolution = K4A_COLOR_RESOLUTION_OFF;
-			tracker = NULL;
 			tracker_config = K4ABT_TRACKER_CONFIG_DEFAULT;
 			tracker_config.processing_mode = K4ABT_TRACKER_PROCESSING_MODE_GPU;
 		}

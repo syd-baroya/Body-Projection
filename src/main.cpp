@@ -18,10 +18,12 @@ CPE/CSC 471 Lab base code Wood/Dunn/Eckhardt
 #include "Shape.h"
 #include "new_body.h"
 #include <fstream>
+#include <math.h>
 
 
 //#define RELEASEVERSION
 #define NOKINECT
+#define PI 3.14159265
 bool fullscreen = true;
 bool firstTime = true;
 
@@ -29,20 +31,68 @@ using namespace std;
 using namespace glm;
 shared_ptr<Shape> shape;
 
-vec3 modelpos=vec3(0,0,0), modelscale = vec3(2.0);
+vec3 modelpos=vec3(0.0500000007,-2.49999881,0), modelscale = vec3(7.60000801,7.60000801,2.0);
 float camfov = 3.1415926 / 4.;
 
-long double angle_vec(vec3 v1, vec3 v2)
+float throat_scale = 1.0f;
+
+float torso_width_scale = 1.2;
+float torso_height_scale = 0.5;
+float arm_thickness_scale = 1.2;
+float leg_thickness_scale = 0.4;
+float foot_thickness_scale = 0.5;
+float head_thickness_scale = 2.0;
+
+float chinstart = 0.5;
+float sidechinstart = 1.35;
+
+vec3 points_to_vector(vec3 v1, vec3 v2) {
+	return vec3(v2.x - v1.x, v2.y - v1.y, v2.z - v1.z);
+}
+
+vec2 coord_after_rotation(vec2 old_position, vec2 rotating_point, float rotation_angle, float new_angle) {
+	float x_prime = 0;
+	float y_prime = 0;
+	if (new_angle > 90 && new_angle <= 180)
+	{
+		//rotation_angle = rotation_angle - 90;
+		x_prime = -1 * ((old_position.x - rotating_point.x) * cos(rotation_angle) - (old_position.y - rotating_point.y) * sin(rotation_angle)) + rotating_point.x;
+		y_prime = (old_position.x - rotating_point.x) * sin(rotation_angle) + (old_position.y - rotating_point.y) * cos(rotation_angle) + rotating_point.y;
+	}
+	else if (new_angle > 180 && new_angle <= 270)
+	{
+		//rotation_angle = rotation_angle - 180;
+		x_prime = -1 * ((old_position.x - rotating_point.x) * cos(rotation_angle) - (old_position.y - rotating_point.y) * sin(rotation_angle)) + rotating_point.x;
+		y_prime = -1 * ((old_position.x - rotating_point.x) * sin(rotation_angle) + (old_position.y - rotating_point.y) * cos(rotation_angle)) + rotating_point.y;
+	}
+	else if (new_angle > 270 && new_angle <= 360)
+	{
+		//rotation_angle = rotation_angle - 270;
+		x_prime = (old_position.x - rotating_point.x) * cos(rotation_angle) - (old_position.y - rotating_point.y) * sin(rotation_angle) + rotating_point.x;
+		y_prime = -1 * ((old_position.x - rotating_point.x) * sin(rotation_angle) + (old_position.y - rotating_point.y) * cos(rotation_angle)) + rotating_point.y;
+	}
+	else
+	{
+		x_prime = (old_position.x - rotating_point.x) * cos(rotation_angle) - (old_position.y - rotating_point.y) * sin(rotation_angle) + rotating_point.x;
+		y_prime = (old_position.x - rotating_point.x) * sin(rotation_angle) + (old_position.y - rotating_point.y) * cos(rotation_angle) + rotating_point.y;
+	}
+	return vec2(x_prime, y_prime);
+}
+
+long double calc_angle(vec3 v1, vec3 v2)
 	{
 	v1 = normalize(v1);
 	v2 = normalize(v2);
-	long double  z = dot(v1,v2);
-	vec3 c = cross(v1,v2);
+	long double numerator = dot(v1,v2);
+	long double denominator = (double)length(v1) * length(v2);
 	
-	long double f = acos(z);
-	if (c.z < 0.0) f *= -1.;
-	return f;
+	long double f = acos(numerator/denominator);
+	//convert radians to degrees
+
+	return f*180.0/PI;
 	}
+
+
 float frand()
 	{
 	return (float)rand() / 32768.0;
@@ -139,7 +189,7 @@ enum runmode_ { RUN_NOFIRE,RUN_DEBUGFIRE,RUNFIRE};
 
 camera mycam;
 
-enum correctmode_ {CORR_SHIFT,CORR_SCALE,CORR_SCEWSCALEUP,CORR_SCEWSCALEDOWN};
+enum correctmode_ {CORR_SHIFT,CORR_SCALE,CORR_SCEWSCALEUP,CORR_SCEWSCALEDOWN, SCALE_TORSO_WIDTH, SCALE_TORSO_HEIGHT, SCALE_ARM, SCALE_LEG, SCALE_FOOT, SCALE_HEAD, SHIFT_CHIN, SHIFT_SIDE_CHIN};
 
 float sign(float f)
 {
@@ -147,233 +197,343 @@ float sign(float f)
 	else return 1;
 }
 
-void generate_body_vertices(new_body_ *body, vector<vec3> *pos)
+
+long double calculate_joint_angles(vec3 a, vec3 b, vec3 c)
+{
+	vec3 vec_ab = points_to_vector(a, b);
+	vec3 vec_bc = points_to_vector(b, c);
+
+	return calc_angle(vec_ab, vec_bc);
+
+}
+
+std::map< k4abt_joint_id_t, long double> average_all_joint_angles(vector<new_trackedbody_> trackedbody)
+{
+	std::map< k4abt_joint_id_t, long double> angleAverages;
+	for (int i = 0; i < trackedbody.size(); i++) 
+	{
+		for (pair<k4abt_joint_id_t, long double> element : trackedbody.at(i).jointAngleMap)
+		{
+
+			angleAverages[element.first] += element.second;
+			cout << endl<< "DEVICE " << i << ": " << "JOINT "<< g_jointNames.at(element.first) << "ANGLE " << element.second<<endl;
+		}
+	}
+	for (pair< k4abt_joint_id_t, long double> element : angleAverages)
+	{
+		angleAverages[element.first] = element.second / trackedbody.size();
+		cout << endl<< "JOINT " << g_jointNames.at(element.first) << "ANGLE AVERAGES " << angleAverages[element.first] <<endl;
+	}
+	return angleAverages;
+}
+
+void generate_joint_angles(std::map<k4abt_joint_id_t, long double> *jointAngles, new_trackedbody_ trackedbody)
+{
+	float forecastfact = FORECASTFACT;
+
+	if (jointAngles->size() == 0)
+	{
+		jointAngles->insert(make_pair(K4ABT_JOINT_SHOULDER_RIGHT, calculate_joint_angles(trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_SPINE_CHEST), trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT), trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_ELBOW_RIGHT))));
+		jointAngles->insert(make_pair(K4ABT_JOINT_ELBOW_RIGHT, calculate_joint_angles(trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT), trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_ELBOW_RIGHT), trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_WRIST_RIGHT))));
+		jointAngles->insert(make_pair(K4ABT_JOINT_WRIST_RIGHT, calculate_joint_angles(trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_ELBOW_RIGHT), trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_WRIST_RIGHT), trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_HAND_RIGHT))));
+		jointAngles->insert(make_pair(K4ABT_JOINT_HIP_RIGHT, calculate_joint_angles(trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_PELVIS), trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_HIP_RIGHT), trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_KNEE_RIGHT))));
+		jointAngles->insert(make_pair(K4ABT_JOINT_KNEE_RIGHT, calculate_joint_angles(trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_HIP_RIGHT), trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_KNEE_RIGHT), trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_ANKLE_RIGHT))));
+		jointAngles->insert(make_pair(K4ABT_JOINT_ANKLE_RIGHT, calculate_joint_angles(trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_KNEE_RIGHT), trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_ANKLE_RIGHT), trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_FOOT_RIGHT))));
+
+		jointAngles->insert(make_pair(K4ABT_JOINT_SHOULDER_LEFT, calculate_joint_angles(trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_SPINE_CHEST), trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT), trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_ELBOW_LEFT))));
+		jointAngles->insert(make_pair(K4ABT_JOINT_ELBOW_LEFT, calculate_joint_angles(trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT), trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_ELBOW_LEFT), trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_WRIST_LEFT))));
+		jointAngles->insert(make_pair(K4ABT_JOINT_WRIST_LEFT, calculate_joint_angles(trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_ELBOW_LEFT), trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_WRIST_LEFT), trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_HAND_LEFT))));
+		jointAngles->insert(make_pair(K4ABT_JOINT_HIP_LEFT, calculate_joint_angles(trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_PELVIS), trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_HIP_LEFT), trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_KNEE_LEFT))));
+		jointAngles->insert(make_pair(K4ABT_JOINT_KNEE_LEFT, calculate_joint_angles(trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_HIP_LEFT), trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_KNEE_LEFT), trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_ANKLE_LEFT))));
+		jointAngles->insert(make_pair(K4ABT_JOINT_ANKLE_LEFT, calculate_joint_angles(trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_KNEE_LEFT), trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_ANKLE_LEFT), trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_FOOT_LEFT))));
+	}
+
+	else
+	{
+		jointAngles->operator[](K4ABT_JOINT_SHOULDER_RIGHT) = calculate_joint_angles(trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_SPINE_CHEST), trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT), trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_ELBOW_RIGHT));
+		jointAngles->operator[](K4ABT_JOINT_ELBOW_RIGHT) = calculate_joint_angles(trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT), trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_ELBOW_RIGHT), trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_WRIST_RIGHT));
+		jointAngles->operator[](K4ABT_JOINT_WRIST_RIGHT) = calculate_joint_angles(trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_ELBOW_RIGHT), trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_WRIST_RIGHT), trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_HAND_RIGHT));
+		jointAngles->operator[](K4ABT_JOINT_HIP_RIGHT) = calculate_joint_angles(trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_PELVIS), trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_HIP_RIGHT), trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_KNEE_RIGHT));
+		jointAngles->operator[](K4ABT_JOINT_KNEE_RIGHT) = calculate_joint_angles(trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_HIP_RIGHT), trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_KNEE_RIGHT), trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_ANKLE_RIGHT));
+		jointAngles->operator[](K4ABT_JOINT_ANKLE_RIGHT) = calculate_joint_angles(trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_KNEE_RIGHT), trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_ANKLE_RIGHT), trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_FOOT_RIGHT));
+
+		jointAngles->operator[](K4ABT_JOINT_SHOULDER_LEFT) = calculate_joint_angles(trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_SPINE_CHEST), trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT), trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_ELBOW_LEFT));
+		jointAngles->operator[](K4ABT_JOINT_ELBOW_LEFT) = calculate_joint_angles(trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT), trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_ELBOW_LEFT), trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_WRIST_LEFT));
+		jointAngles->operator[](K4ABT_JOINT_WRIST_LEFT) = calculate_joint_angles(trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_ELBOW_LEFT), trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_WRIST_LEFT), trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_HAND_LEFT));
+		jointAngles->operator[](K4ABT_JOINT_HIP_LEFT) = calculate_joint_angles(trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_PELVIS), trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_HIP_LEFT), trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_KNEE_LEFT));
+		jointAngles->operator[](K4ABT_JOINT_KNEE_LEFT) = calculate_joint_angles(trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_HIP_LEFT), trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_KNEE_LEFT), trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_ANKLE_LEFT));
+		jointAngles->operator[](K4ABT_JOINT_ANKLE_LEFT) = calculate_joint_angles(trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_KNEE_LEFT), trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_ANKLE_LEFT), trackedbody.new_get_joint(forecastfact, K4ABT_JOINT_FOOT_LEFT));
+	}
+
+
+}
+
+void angle_hierarchy(std::map <k4abt_joint_id_t, vector<k4abt_joint_id_t>> *angleHierarchy) 
+{
+	vector<k4abt_joint_id_t> shoulder_right;
+	shoulder_right.push_back(K4ABT_JOINT_SHOULDER_RIGHT);
+	shoulder_right.push_back(K4ABT_JOINT_ELBOW_RIGHT);
+	shoulder_right.push_back(K4ABT_JOINT_WRIST_RIGHT);
+	angleHierarchy->insert(make_pair(K4ABT_JOINT_SHOULDER_RIGHT, shoulder_right));
+
+	vector<k4abt_joint_id_t> elbow_right;
+	elbow_right.push_back(K4ABT_JOINT_ELBOW_RIGHT);
+	elbow_right.push_back(K4ABT_JOINT_WRIST_RIGHT);
+	angleHierarchy->insert(make_pair(K4ABT_JOINT_SHOULDER_RIGHT, elbow_right));
+
+	vector<k4abt_joint_id_t> wrist_right;
+	wrist_right.push_back(K4ABT_JOINT_WRIST_RIGHT);
+	angleHierarchy->insert(make_pair(K4ABT_JOINT_SHOULDER_RIGHT, wrist_right));
+
+	vector<k4abt_joint_id_t> shoulder_left;
+	shoulder_left.push_back(K4ABT_JOINT_SHOULDER_LEFT);
+	shoulder_left.push_back(K4ABT_JOINT_ELBOW_LEFT);
+	shoulder_left.push_back(K4ABT_JOINT_WRIST_LEFT);
+	angleHierarchy->insert(make_pair(K4ABT_JOINT_SHOULDER_LEFT, shoulder_left));
+
+	vector<k4abt_joint_id_t> elbow_left;
+	elbow_left.push_back(K4ABT_JOINT_ELBOW_LEFT);
+	elbow_left.push_back(K4ABT_JOINT_WRIST_LEFT);
+	angleHierarchy->insert(make_pair(K4ABT_JOINT_SHOULDER_LEFT, elbow_left));
+
+	vector<k4abt_joint_id_t> wrist_left;
+	wrist_left.push_back(K4ABT_JOINT_WRIST_LEFT);
+	angleHierarchy->insert(make_pair(K4ABT_JOINT_SHOULDER_LEFT, wrist_left));
+
+	vector<k4abt_joint_id_t> hip_right;
+	hip_right.push_back(K4ABT_JOINT_HIP_RIGHT);
+	hip_right.push_back(K4ABT_JOINT_KNEE_RIGHT);
+	hip_right.push_back(K4ABT_JOINT_ANKLE_RIGHT);
+	angleHierarchy->insert(make_pair(K4ABT_JOINT_SHOULDER_RIGHT, hip_right));
+
+	vector<k4abt_joint_id_t> knee_right;
+	knee_right.push_back(K4ABT_JOINT_KNEE_RIGHT);
+	knee_right.push_back(K4ABT_JOINT_ANKLE_RIGHT);
+	angleHierarchy->insert(make_pair(K4ABT_JOINT_SHOULDER_RIGHT, knee_right));
+
+	vector<k4abt_joint_id_t> ankle_right;
+	ankle_right.push_back(K4ABT_JOINT_ANKLE_RIGHT);
+	angleHierarchy->insert(make_pair(K4ABT_JOINT_SHOULDER_RIGHT, ankle_right));
+
+	vector<k4abt_joint_id_t> hip_left;
+	hip_left.push_back(K4ABT_JOINT_HIP_LEFT);
+	hip_left.push_back(K4ABT_JOINT_KNEE_LEFT);
+	hip_left.push_back(K4ABT_JOINT_ANKLE_LEFT);
+	angleHierarchy->insert(make_pair(K4ABT_JOINT_SHOULDER_LEFT, hip_left));
+
+	vector<k4abt_joint_id_t> knee_left;
+	knee_left.push_back(K4ABT_JOINT_KNEE_LEFT);
+	knee_left.push_back(K4ABT_JOINT_ANKLE_LEFT);
+	angleHierarchy->insert(make_pair(K4ABT_JOINT_SHOULDER_LEFT, knee_left));
+
+	vector<k4abt_joint_id_t> ankle_left;
+	ankle_left.push_back(K4ABT_JOINT_ANKLE_LEFT);
+	angleHierarchy->insert(make_pair(K4ABT_JOINT_SHOULDER_LEFT, ankle_left));
+}
+
+void generate_body_vertices(new_trackedbody_ *trackedbody, vector<vec3>* pos, vector<vec3> app_pos)
 {
 
-	//cout << body->trackedbody.joint_positions[K4ABT_JOINT_WRIST_LEFT].x << endl;
+
 
 	float forecastfact = FORECASTFACT;
-	float z_base = body->trackedbody.get_joint(forecastfact,0).z;
+	float z_base = trackedbody->new_get_joint(forecastfact, 0).z;
 
 	vec3 posi[K4ABT_JOINT_COUNT];
 	for (int ii = 1; ii < K4ABT_JOINT_COUNT; ii++)
-		body->trackedbody.joint_positions[ii].z = z_base;
+		trackedbody->joint_positions[ii].z = z_base;
 
-	
-	vec3 center = body->trackedbody.get_joint(forecastfact,0);
-	//cout << center.x << endl;
-	center.z = 0;
-	/*for (int ii = 0; ii < JointType_Count; ii++)
-		body->trackedbody.get_joint(forecastfact,ii] -= center;
-*/
-	/*body->trackedbody.get_joint(forecastfact,JointType_ElbowLeft].y += (body->trackedbody.get_joint(forecastfact,JointType_ShoulderLeft].y - body->trackedbody.get_joint(forecastfact,JointType_ElbowLeft].y)*2.0f;
-	body->trackedbody.get_joint(forecastfact,JointType_ElbowRight].y +=( body->trackedbody.get_joint(forecastfact,JointType_ShoulderRight].y - body->trackedbody.get_joint(forecastfact,JointType_ElbowRight].y) * 2.0f;
-
-	body->trackedbody.get_joint(forecastfact,JointType_WristLeft].y += (body->trackedbody.get_joint(forecastfact,JointType_ShoulderLeft].y - body->trackedbody.get_joint(forecastfact,JointType_WristLeft].y) * 2.0f;
-	body->trackedbody.get_joint(forecastfact,JointType_WristRight].y += (body->trackedbody.get_joint(forecastfact,JointType_ShoulderRight].y - body->trackedbody.get_joint(forecastfact,JointType_WristRight].y) * 2.0f;
-
-	body->trackedbody.get_joint(forecastfact,JointType_HandTipLeft].y += (body->trackedbody.get_joint(forecastfact,JointType_ShoulderLeft].y - body->trackedbody.get_joint(forecastfact,JointType_HandTipLeft].y) * 2.0f;
-	body->trackedbody.get_joint(forecastfact,JointType_HandTipRight].y += (body->trackedbody.get_joint(forecastfact,JointType_ShoulderRight].y - body->trackedbody.get_joint(forecastfact,JointType_HandTipRight].y) * 2.0f;*/
-
-	
 	for (int ii = 1; ii < K4ABT_JOINT_COUNT; ii++)
-	{	
-		posi[ii] = body->trackedbody.get_joint(forecastfact,ii);
+	{
+		posi[ii] = trackedbody->new_get_joint(forecastfact, ii);
 		posi[ii].z = 0;
 
 	}
-	float throat_width = 0.3;
-	
-	float torso_width_left = 1.2 * length(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT).x - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_CLAVICLE_LEFT).x);
-	float torso_width_right = 1.2 * length(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT).x - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_CLAVICLE_RIGHT).x);
-	float torso_above_sholders = 0.5* length(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT).y - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_NECK).y);
-	float arm_thickness = torso_above_sholders * 1.2;
-	float leg_thickness = std::max(torso_width_left, torso_width_right) * 0.4;
-	float foot_thickness = leg_thickness * 0.5;
-	float head_thickness = torso_above_sholders * 2.5;
+	float throat_width = 0.3 * throat_scale;
 
-	/*arm_thickness = torso_above_sholders * 0.6;
-	leg_thickness = max(torso_width_left, torso_width_right) * 0.7;
-	foot_thickness = leg_thickness * 0.8;
-	head_thickness = torso_above_sholders * 1.0;*/
+	float torso_width_left = torso_width_scale * length(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT).x - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_CLAVICLE_LEFT).x);
+	float torso_width_right = torso_width_scale * length(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT).x - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_CLAVICLE_RIGHT).x);
+	float torso_above_sholders = torso_height_scale * length(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT).y - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_NECK).y);
+	float arm_thickness = torso_above_sholders * arm_thickness_scale;
+	float leg_thickness = std::max(torso_width_left, torso_width_right) * leg_thickness_scale;
+	float foot_thickness = leg_thickness * foot_thickness_scale;
+	float head_thickness = torso_above_sholders * head_thickness_scale;
 
-	float chinstart = 0.5;
-	float sidechinstart = 0.75;
 	//torso
 	vec3 utl = normalize(
-		normalize((body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_CLAVICLE_LEFT)) - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT)) +
-		normalize(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_ELBOW_LEFT) - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT))) *
+		normalize((trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_CLAVICLE_LEFT)) - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT)) +
+		normalize(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_ELBOW_LEFT) - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT))) *
 		torso_above_sholders;
-	float s= sign(cross((body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_CLAVICLE_LEFT)) - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT),
-		body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_ELBOW_LEFT) - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT)).z);
+	float s = sign(cross((trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_CLAVICLE_LEFT)) - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT),
+		trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_ELBOW_LEFT) - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT)).z);
 	utl *= -s;
 	/*cout << s << endl;
 	cout << normalize(posi[JointType_SpineShoulder] - posi[JointType_ShoulderLeft]).x << ", " << normalize(posi[JointType_SpineShoulder] - posi[JointType_ShoulderLeft]).y << "... " <<
 		normalize(posi[JointType_ElbowLeft] - posi[JointType_ShoulderLeft]).x << ", " << normalize(posi[JointType_ElbowLeft] - posi[JointType_ShoulderLeft]).y << ", :: " << s << endl;*/
-	utl = utl + body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT);
+	utl = utl + trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT);
 
 	vec3 utr = normalize(
-		normalize((body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_CLAVICLE_RIGHT)) - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT)) +
-		normalize(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_ELBOW_RIGHT) - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT))) *
+		normalize((trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_CLAVICLE_RIGHT)) - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT)) +
+		normalize(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_ELBOW_RIGHT) - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT))) *
 		torso_above_sholders;
-	utr *= sign(cross((body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_CLAVICLE_RIGHT)) - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT),
-		body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_ELBOW_RIGHT) - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT)).z);
-	utr = utr + body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT);
+	utr *= sign(cross((trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_CLAVICLE_RIGHT)) - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT),
+		trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_ELBOW_RIGHT) - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT)).z);
+	utr = utr + trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT);
 	//utr -= vec3(0.5, 0, 0);
 	vec3 mtl = normalize(
-		normalize(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_HIP_LEFT) - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT)) +
-		normalize(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_ELBOW_LEFT) - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT))) *
+		normalize(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_HIP_LEFT) - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT)) +
+		normalize(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_ELBOW_LEFT) - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT))) *
 		torso_above_sholders;
-	mtl *= sign(cross(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_HIP_LEFT) - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT),
-		body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_ELBOW_LEFT) - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT)).z);
-	mtl = vec3(mtl.x + body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT).x, mtl.y + (body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT).y) * 0.85, (mtl.z + body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT).z));
+	mtl *= sign(cross(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_HIP_LEFT) - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT),
+		trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_ELBOW_LEFT) - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT)).z);
+	mtl = vec3(mtl.x + trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT).x, mtl.y + (trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT).y) * 0.85, (mtl.z + trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT).z));
 
 	vec3 mtr = normalize(
-		normalize(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_HIP_RIGHT) - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT)) +
-		normalize(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_ELBOW_RIGHT) - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT))) *
+		normalize(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_HIP_RIGHT) - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT)) +
+		normalize(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_ELBOW_RIGHT) - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT))) *
 		torso_above_sholders;
-	mtr *= -sign(cross(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_HIP_RIGHT) - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT),
-		body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_ELBOW_RIGHT) - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT)).z);
-	mtr = vec3(mtr.x + body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT).x, mtr.y + (body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT).y)*0.85, (mtr.z + body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT).z));
+	mtr *= -sign(cross(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_HIP_RIGHT) - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT),
+		trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_ELBOW_RIGHT) - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT)).z);
+	mtr = vec3(mtr.x + trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT).x, mtr.y + (trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT).y) * 0.85, (mtr.z + trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT).z));
 	//mtr -= vec3(1, 0, 0);
-	vec3 mll = body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_PELVIS) + normalize(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_HIP_LEFT) - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_PELVIS)) * torso_width_left;
-	vec3 mlr = body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_PELVIS) + normalize(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_HIP_RIGHT) - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_PELVIS)) * torso_width_right;
-	vec3 sll = body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_NECK) + normalize(utl - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_NECK)) * torso_width_left * throat_width;
-	vec3 slr = body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_NECK) + normalize(utr - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_NECK)) * torso_width_right * throat_width;
+	vec3 mll = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_PELVIS) + normalize(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_HIP_LEFT) - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_PELVIS)) * torso_width_left;
+	vec3 mlr = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_PELVIS) + normalize(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_HIP_RIGHT) - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_PELVIS)) * torso_width_right;
+	vec3 sll = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_NECK) + normalize(utl - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_NECK)) * torso_width_left * throat_width;
+	vec3 slr = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_NECK) + normalize(utr - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_NECK)) * torso_width_right * throat_width;
 	//vec3 mtc = (mtl + mtr) / (float)2.;
 	//construct torso:
-	pos->push_back(mll);
-	pos->push_back(mlr);
-	pos->push_back(mtl);
-	pos->push_back(mtr);
+	pos->push_back(mll); //0
+	pos->push_back(mlr); //1
+	pos->push_back(mtl); //2
+	pos->push_back(mtr); //3
 
-	pos->push_back(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT));
-	/*pos->push_back(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_CLAVICLE_LEFT));
-	pos->push_back(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_CLAVICLE_RIGHT));*/
-	pos->push_back(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_NECK));
-	pos->push_back(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT));
+	pos->push_back(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT)); //4
+	/*pos->push_back(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_CLAVICLE_LEFT));
+	pos->push_back(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_CLAVICLE_RIGHT));*/
+	pos->push_back(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_NECK)); //5
+	pos->push_back(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT)); //6
 
-	pos->push_back(utl);
-	pos->push_back(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_NECK));
-	pos->push_back(utr);
+	pos->push_back(utl); //7
+	pos->push_back(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_NECK)); //8
+	pos->push_back(utr); //9
 
-	pos->push_back(sll);
-	pos->push_back(slr);
+	pos->push_back(sll); //10
+	pos->push_back(slr); //11
 
 	//return;
-	
+
 	//arms:
 
 	vec3 a, b;
-	a = normalize(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT) - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_ELBOW_LEFT));
-	b = normalize(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_WRIST_LEFT) - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_ELBOW_LEFT));
+	a = normalize(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT) - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_ELBOW_LEFT));
+	b = normalize(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_WRIST_LEFT) - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_ELBOW_LEFT));
 
 	vec3 ell = normalize(a + b);
 	ell *= arm_thickness;
 	ell *= -sign(cross(posi[K4ABT_JOINT_SHOULDER_LEFT] - posi[K4ABT_JOINT_ELBOW_LEFT],
 		posi[K4ABT_JOINT_WRIST_LEFT] - posi[K4ABT_JOINT_ELBOW_LEFT]).z);
-	vec3 hll = body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_WRIST_LEFT) + ell;
-	vec3 hlr = body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_WRIST_LEFT)- ell;
-	vec3 elr = body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_ELBOW_LEFT) - ell;
-	ell = body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_ELBOW_LEFT) + ell;
+	vec3 hll = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_WRIST_LEFT) + ell;
+	vec3 hlr = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_WRIST_LEFT) - ell;
+	vec3 elr = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_ELBOW_LEFT) - ell;
+	ell = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_ELBOW_LEFT) + ell;
 
-	vec3 err = normalize(normalize(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT) - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_ELBOW_RIGHT)) +
-		normalize(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_WRIST_RIGHT) - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_ELBOW_RIGHT))) *
+	vec3 err = normalize(normalize(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT) - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_ELBOW_RIGHT)) +
+		normalize(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_WRIST_RIGHT) - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_ELBOW_RIGHT))) *
 		arm_thickness;
 
 	err *= sign(cross(posi[K4ABT_JOINT_SHOULDER_RIGHT] - posi[K4ABT_JOINT_ELBOW_RIGHT],
 		posi[K4ABT_JOINT_WRIST_RIGHT] - posi[K4ABT_JOINT_ELBOW_RIGHT]).z);
 
-	vec3 hrr = body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_WRIST_RIGHT) + err;
-	vec3 hrl = body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_WRIST_RIGHT) - err;
-	vec3 erl = body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_ELBOW_RIGHT) - err;
-	err = body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_ELBOW_RIGHT) + err;
+	vec3 hrr = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_WRIST_RIGHT) + err;
+	vec3 hrl = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_WRIST_RIGHT) - err;
+	vec3 erl = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_ELBOW_RIGHT) - err;
+	err = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_ELBOW_RIGHT) + err;
 
-	
+
 	//construct arms:
-	pos->push_back(hll);
-	pos->push_back(hlr);
-	pos->push_back(ell);
-	pos->push_back(elr);
+	pos->push_back(hll); //12
+	pos->push_back(hlr); //13
+	pos->push_back(ell); //14
+	pos->push_back(elr); //15
 
-	pos->push_back(hrl);
-	pos->push_back(hrr);
-	pos->push_back(erl);
-	pos->push_back(err);
+	pos->push_back(hrl); //16
+	pos->push_back(hrr); //17
+	pos->push_back(erl); //18
+	pos->push_back(err); //19
 
-	
+
 
 	//legs
-	vec3 fut = body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_PELVIS) +
-		normalize(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_PELVIS) - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_SPINE_NAVEL)) *	torso_above_sholders;
+	vec3 fut = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_PELVIS) +
+		normalize(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_PELVIS) - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_SPINE_NAVEL)) * torso_above_sholders;
 
 	vec3 kll = normalize(
-		normalize(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_HIP_LEFT) - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_KNEE_LEFT)) +
-		normalize(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_ANKLE_LEFT) - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_KNEE_LEFT))) *
+		normalize(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_HIP_LEFT) - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_KNEE_LEFT)) +
+		normalize(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_ANKLE_LEFT) - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_KNEE_LEFT))) *
 		leg_thickness;
 	kll *= -sign(cross(posi[K4ABT_JOINT_HIP_LEFT] - posi[K4ABT_JOINT_KNEE_LEFT],
 		posi[K4ABT_JOINT_ANKLE_LEFT] - posi[K4ABT_JOINT_KNEE_LEFT]).z);
-	vec3 klr = body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_KNEE_LEFT) - kll;
-	kll = body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_KNEE_LEFT) + kll;
+	vec3 klr = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_KNEE_LEFT) - kll;
+	kll = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_KNEE_LEFT) + kll;
 
 	vec3 krr = normalize(
-		normalize(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_HIP_RIGHT) - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_KNEE_RIGHT)) +
-		normalize(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_ANKLE_RIGHT) - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_KNEE_RIGHT))) *
+		normalize(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_HIP_RIGHT) - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_KNEE_RIGHT)) +
+		normalize(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_ANKLE_RIGHT) - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_KNEE_RIGHT))) *
 		leg_thickness;
 	krr *= -sign(cross(posi[K4ABT_JOINT_HIP_RIGHT] - posi[K4ABT_JOINT_KNEE_RIGHT],
 		posi[K4ABT_JOINT_ANKLE_RIGHT] - posi[K4ABT_JOINT_KNEE_RIGHT]).z);
-	vec3 krl = body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_KNEE_RIGHT) - krr;
-	krr = body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_KNEE_RIGHT) + krr;
+	vec3 krl = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_KNEE_RIGHT) - krr;
+	krr = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_KNEE_RIGHT) + krr;
 
 	vec3 all = normalize(
-		normalize(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_KNEE_LEFT) - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_ANKLE_LEFT)) +
-		normalize(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_FOOT_LEFT) - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_ANKLE_LEFT))) *
+		normalize(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_KNEE_LEFT) - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_ANKLE_LEFT)) +
+		normalize(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_FOOT_LEFT) - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_ANKLE_LEFT))) *
 		foot_thickness;
 	all *= -sign(cross(posi[K4ABT_JOINT_KNEE_LEFT] - posi[K4ABT_JOINT_ANKLE_LEFT],
 		posi[K4ABT_JOINT_FOOT_LEFT] - posi[K4ABT_JOINT_ANKLE_LEFT]).z);
-	vec3 fll = body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_FOOT_LEFT) + all;
-	vec3 flr = body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_FOOT_LEFT) - all;
-	vec3 alr = body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_ANKLE_LEFT) - all;
-	all = body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_ANKLE_LEFT) + all;
+	vec3 fll = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_FOOT_LEFT) + all;
+	vec3 flr = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_FOOT_LEFT) - all;
+	vec3 alr = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_ANKLE_LEFT) - all;
+	all = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_ANKLE_LEFT) + all;
 
 	vec3 arr = normalize(
-		normalize(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_KNEE_RIGHT) - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_ANKLE_RIGHT)) +
-		normalize(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_FOOT_RIGHT) - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_ANKLE_RIGHT))) *
+		normalize(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_KNEE_RIGHT) - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_ANKLE_RIGHT)) +
+		normalize(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_FOOT_RIGHT) - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_ANKLE_RIGHT))) *
 		foot_thickness;
 	arr *= -sign(cross(posi[K4ABT_JOINT_KNEE_RIGHT] - posi[K4ABT_JOINT_ANKLE_RIGHT],
 		posi[K4ABT_JOINT_FOOT_RIGHT] - posi[K4ABT_JOINT_ANKLE_RIGHT]).z);
-	vec3 frr = body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_FOOT_RIGHT) + arr;
-	vec3 frl = body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_FOOT_RIGHT) - arr;
-	vec3 arl = body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_ANKLE_RIGHT) - arr;
-	arr = body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_ANKLE_RIGHT) + arr;
+	vec3 frr = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_FOOT_RIGHT) + arr;
+	vec3 frl = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_FOOT_RIGHT) - arr;
+	vec3 arl = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_ANKLE_RIGHT) - arr;
+	arr = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_ANKLE_RIGHT) + arr;
 
-	
+
 	//construct legs
-	pos->push_back(fll);
-	pos->push_back(flr);
-	pos->push_back(all);
-	pos->push_back(alr);
-	pos->push_back(kll);
-	pos->push_back(klr);
+	pos->push_back(fll); //20
+	pos->push_back(flr); //21
+	pos->push_back(all); //22
+	pos->push_back(alr); //23
+	pos->push_back(kll); //24
+	pos->push_back(klr); //25
 
-	pos->push_back(fut);
+	pos->push_back(fut); //26
+	 
+	pos->push_back(frl); //27
+	pos->push_back(frr); //28
+	pos->push_back(arl); //29
+	pos->push_back(arr); //30
+	pos->push_back(krl); //31
+	pos->push_back(krr); //32
 
-	pos->push_back(frl);
-	pos->push_back(frr);
-	pos->push_back(arl);
-	pos->push_back(arr);
-	pos->push_back(krl);
-	pos->push_back(krr);
 
-	
 	//head/throat:
-	vec3 chin = body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_HEAD) + (body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_NOSE) - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_HEAD))*chinstart;
-	vec3 sidechincenter = body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_HEAD) + (body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_NOSE) - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_HEAD))*sidechinstart;
-	vec3 tophead = body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_NOSE) + (body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_NOSE) - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_HEAD))*chinstart;
+	vec3 chin = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_HEAD) + (trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_NOSE) - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_HEAD)) * chinstart;
+	vec3 sidechincenter = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_HEAD) + (trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_NOSE) - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_HEAD)) * sidechinstart;
+	vec3 tophead = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_NOSE) + (trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_NOSE) - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_HEAD)) * chinstart*5.0f;
 
 	vec3 gl = normalize(
-		normalize(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_NOSE) - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_HEAD)) +
-		normalize(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_NECK) - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_HEAD))) *
+		normalize(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_NOSE) - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_HEAD)) +
+		normalize(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_NECK) - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_HEAD))) *
 		head_thickness;
 	gl *= -sign(cross(posi[K4ABT_JOINT_NOSE] - posi[K4ABT_JOINT_HEAD],
 		posi[K4ABT_JOINT_NECK] - posi[K4ABT_JOINT_HEAD]).z);
@@ -383,85 +543,56 @@ void generate_body_vertices(new_body_ *body, vector<vec3> *pos)
 	vec3 gr = sidechincenter - gl;
 	gl = sidechincenter + gl;
 	//contruct head
-	pos->push_back(chin);
-	pos->push_back(gl);
-	pos->push_back(gr);
-	pos->push_back(hl);
-	pos->push_back(hr);
+	pos->push_back(chin); //33
+	pos->push_back(gl); //34
+	pos->push_back(gr); //35
+	pos->push_back(hl); //36
+	pos->push_back(hr); //37
 
-	
+
 
 	//hands
 
 
-	vec3 tll = normalize(
-		normalize(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_ELBOW_LEFT) - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_WRIST_LEFT)) +
-		normalize(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_HANDTIP_LEFT) - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_WRIST_LEFT))) *
-		foot_thickness;
-	tll *= sign(cross(posi[K4ABT_JOINT_ELBOW_LEFT] - posi[K4ABT_JOINT_WRIST_LEFT],
-				posi[K4ABT_JOINT_ELBOW_LEFT] - posi[K4ABT_JOINT_WRIST_LEFT]).z);
+	//vec3 tll = normalize(
+	//	normalize(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_ELBOW_LEFT) - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_WRIST_LEFT)) +
+	//	normalize(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_HANDTIP_LEFT) - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_WRIST_LEFT))) *
+	//	foot_thickness;
+	//tll *= sign(cross(posi[K4ABT_JOINT_ELBOW_LEFT] - posi[K4ABT_JOINT_WRIST_LEFT],
+	//	posi[K4ABT_JOINT_ELBOW_LEFT] - posi[K4ABT_JOINT_WRIST_LEFT]).z);
 
 
 
-	vec3 tlr = body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_HANDTIP_LEFT) - tll;
-	tll = body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_HANDTIP_LEFT) + tll;
+	//vec3 tlr = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_HANDTIP_LEFT) - tll;
+	//tll = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_HANDTIP_LEFT) + tll;
 
-	vec3 trr = normalize(
-		normalize(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_ELBOW_RIGHT)- body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_WRIST_RIGHT)) +
-		normalize(body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_HANDTIP_RIGHT) - body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_WRIST_RIGHT))) *
-		foot_thickness;
-	trr *= sign(cross(posi[K4ABT_JOINT_ELBOW_RIGHT] - posi[K4ABT_JOINT_WRIST_RIGHT],
-				posi[K4ABT_JOINT_HANDTIP_RIGHT] - posi[K4ABT_JOINT_WRIST_RIGHT]).z);
-	vec3 trl = body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_HANDTIP_RIGHT) - trr;
-	trr = body->trackedbody.get_joint(forecastfact, K4ABT_JOINT_HANDTIP_RIGHT) + trr;
-	pos->push_back(tll);
-	pos->push_back(tlr);
-	pos->push_back(trl);
-	pos->push_back(trr);
+	//if ((!trackedbody->jointTracked[K4ABT_JOINT_ELBOW_LEFT] || !trackedbody->jointTracked[K4ABT_JOINT_WRIST_LEFT] || !trackedbody->jointTracked[K4ABT_JOINT_HANDTIP_LEFT]) && !app_pos.empty()) 
+	//{
+	//	tll = app_pos[38];
+	//	tlr = app_pos[39];
+	//}
 
-	
-	//static int frame = 0;
-	//
-	//
-	//if (frame == 10)
-	//	{
-	//	
-	//		ofstream f;
-	//		f.open("texcoords.txt");
-	//		//find maximum distance from center:
+	//vec3 trr = normalize(
+	//	normalize(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_ELBOW_RIGHT) - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_WRIST_RIGHT)) +
+	//	normalize(trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_HANDTIP_RIGHT) - trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_WRIST_RIGHT))) *
+	//	foot_thickness;
+	//trr *= sign(cross(posi[K4ABT_JOINT_ELBOW_RIGHT] - posi[K4ABT_JOINT_WRIST_RIGHT],
+	//	posi[K4ABT_JOINT_HANDTIP_RIGHT] - posi[K4ABT_JOINT_WRIST_RIGHT]).z);
+	//vec3 trl = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_HANDTIP_RIGHT) - trr;
+	//trr = trackedbody->new_get_joint(forecastfact, K4ABT_JOINT_HANDTIP_RIGHT) + trr;
 
-	//		vec2 maxpos = vec2((*pos)[0]);
-	//		vec2 minpos = vec2((*pos)[0]);
-	//		
-	//		for (int ii = 0; ii < pos->size(); ii++)
-	//			{
-	//			if (vec2((*pos)[ii]).x > maxpos.x)		maxpos.x = vec2((*pos)[ii]).x;
-	//			if (vec2((*pos)[ii]).y > maxpos.y)		maxpos.y = vec2((*pos)[ii]).y;
-	//			if (vec2((*pos)[ii]).x < minpos.x)		minpos.x = vec2((*pos)[ii]).x;
-	//			if (vec2((*pos)[ii]).y < minpos.y)		minpos.y = vec2((*pos)[ii]).y;
-	//				
-	//			}
-	//		vec2 tomm = maxpos - minpos;
-	//		//maxp *= 1.3;//margin for animation
+	//if ((!trackedbody->jointTracked[K4ABT_JOINT_ELBOW_RIGHT] || !trackedbody->jointTracked[K4ABT_JOINT_WRIST_RIGHT] || !trackedbody->jointTracked[K4ABT_JOINT_HANDTIP_RIGHT]) && !app_pos.empty())
+	//{
+	//	trl = app_pos[40];
+	//	trr = app_pos[41];
+	//}
 
-	//		for (int ii = 0; ii < pos->size(); ii++)
-	//			{
-	//			float tx = ((*pos)[ii].x - minpos.x) / tomm.x;
-	//			float ty = ((*pos)[ii].y - minpos.y) / tomm.y;
-	//		/*	tx += 1.;
-	//			ty += 1.;
-	//			tx /= 2.;
-	//			ty /= 2.;*/
-	//			f << "tex.push_back(vec2(" << tx << ", " << ty << "));" << endl;
-	//			}
-	//		f.close();
-	//		int z;
-	//		z = 0;
+	//pos->push_back(tll); //38
+	//pos->push_back(tlr); //39
+	//pos->push_back(trl); //40
+	//pos->push_back(trr); //41
 
-	//	}
-	//frame++;
-
-	}
+}
 #define FURMAXTEX 7
 #ifdef RELEASEVERSION
 #define FURCHANGETIME 11.0
@@ -472,16 +603,25 @@ void generate_body_vertices(new_body_ *body, vector<vec3> *pos)
 
 #endif
 #define BUTTERFLYCOUNT 50
-	class butterfly_
-		{
-		public: 
-			float rotz;
-			float scale;
-			int iA, iB;
-			float rationAB;
-			float startanim;
-			vec3 red, green, blue;
-		};
+class butterfly_
+	{
+	public: 
+		float rotz;
+		float scale;
+		int iA, iB;
+		float rationAB;
+		float startanim;
+		vec3 red, green, blue;
+	};
+
+
+#define ssbo_size 1024
+
+class ssbo_data
+{
+public:
+	ivec4 positions_list[ssbo_size];
+};
 
 class Application : public EventCallbacks
 {
@@ -507,7 +647,7 @@ public:
 
 	bool animation = false;
 	// Our shader program
-	std::shared_ptr<Program> prog, postprog, progbut, screenproc, progbody;
+	std::shared_ptr<Program> prog, postprog, progbut, screenproc, progbody, computeprog;
 
 	// Contains vertex information for OpenGL
 	GLuint VertexArrayID;
@@ -520,6 +660,76 @@ public:
 	GLuint TextureButterfly, TextureArray, TextureAlpha;
 
 	GLuint VAO, vertexcount, VAOrect, VAObody, VBbody,body_size;
+
+	ssbo_data ssbo_CPUMEM;
+	GLuint ssbo_GPU_id;
+	GLuint computeProgram;
+	GLuint atomicsBuffer;
+
+	vector<vec3> app_posb;
+
+	/*Note that any gl calls must always happen after a GL state is initialized */
+	void init_atomic()
+	{
+		glGenBuffers(1, &atomicsBuffer);
+		// bind the buffer and define its initial storage capacity
+		glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomicsBuffer);
+		glBufferData(GL_ATOMIC_COUNTER_BUFFER, sizeof(GLuint) * 1, NULL, GL_DYNAMIC_DRAW);
+		// unbind the buffer 
+		glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
+	}
+	void reset_atomic()
+	{
+		GLuint* userCounters;
+		glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomicsBuffer);
+		// map the buffer, userCounters will point to the buffers data
+		userCounters = (GLuint*)glMapBufferRange(GL_ATOMIC_COUNTER_BUFFER,
+			0,
+			sizeof(GLuint),
+			GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT
+		);
+		// set the memory to zeros, resetting the values in the buffer
+		memset(userCounters, 0, sizeof(GLuint));
+		// unmap the buffer
+		glUnmapBuffer(GL_ATOMIC_COUNTER_BUFFER);
+	}
+	void read_atomic()
+	{
+		GLuint* userCounters;
+		glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomicsBuffer);
+		// again we map the buffer to userCounters, but this time for read-only access
+		userCounters = (GLuint*)glMapBufferRange(GL_ATOMIC_COUNTER_BUFFER,
+			0,
+			sizeof(GLuint),
+			GL_MAP_READ_BIT
+		);
+		// copy the values to other variables because...
+		//cout << endl << *userCounters << endl;
+		// ... as soon as we unmap the buffer
+		// the pointer userCounters becomes invalid.
+		glUnmapBuffer(GL_ATOMIC_COUNTER_BUFFER);
+	}
+
+	void create_SSBO() {
+		for (int i = 0; i < ssbo_size; i++) {
+			ssbo_CPUMEM.positions_list[i] = ivec4(i, 0, 0, 0);
+		}
+
+		glGenBuffers(1, &ssbo_GPU_id);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_GPU_id);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(ssbo_data), &ssbo_CPUMEM, GL_DYNAMIC_DRAW);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo_GPU_id);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
+	}
+
+	void get_SSBO_back() {
+		// Get SSBO back
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_GPU_id);
+		GLvoid* p = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
+		int siz = sizeof(ssbo_data);
+		memcpy(&ssbo_CPUMEM, p, siz);
+		glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+	}
 
 	
 	void roll_dice()
@@ -610,23 +820,61 @@ public:
 		
 		int trackedbodies = 0;
 #ifdef NOKINECT
-		get_record(body.trackedbody.joint_positions);
-		trackedbodies = 1;
+		get_record(&body, &body.trackedbody);
+		trackedbodies = body.trackedbody.size();
 #endif
 #ifndef NOKINECT
 		trackedbodies = body.Update(frametime);
 #endif
-		vector<vec3> posb;
-		vector<GLushort> indices;
-		generate_body_vertices(&body, &posb);
-		/*if (firstTime == true) {
-			for (int i = 0; i < posb.size(); i++) {
-				cout << posb.at(i).x << ",        " << posb.at(i).y << ",        " << posb.at(i).z << endl;
+		if (body.getNumBodies() > 0)
+		{
+			for (int i = 0; i < body.getDeviceCount(); i++) {
+				new_trackedbody_* tb = &body.trackedbody.at(i);
+				generate_joint_angles(&tb->jointAngleMap, *tb);
 			}
-			firstTime = false;
-		}*/
+			std::map<k4abt_joint_id_t, long double> avg_angles = average_all_joint_angles(body.trackedbody);
+			std::map < k4abt_joint_id_t, vector<k4abt_joint_id_t>> angleHierarchy;
+			angle_hierarchy(&angleHierarchy);
+			vec3 master_positions[K4ABT_JOINT_COUNT];
+			copy(begin(body.trackedbody.at(0).joint_positions), end(body.trackedbody.at(0).joint_positions), begin(master_positions));
+
+			std::cout << "Length of array = " << (sizeof(master_positions) / sizeof(*master_positions)) << std::endl;
+
+			for (pair< k4abt_joint_id_t, long double> element : avg_angles)
+			{
+				double theta = 0;
+
+				long double new_angle = avg_angles[element.first];
+				long double old_angle = body.trackedbody.at(0).jointAngleMap[element.first];
+
+				if (new_angle > old_angle)
+					theta = new_angle - old_angle;
+				else
+					theta = old_angle - new_angle;
+
+				k4abt_joint_id_t joint_for_angle = element.first;
+				k4abt_joint_id_t joint_for_position = element.first;
+
+				vec3 new_master_joint_position = vec3(coord_after_rotation(vec2(master_positions[joint_for_position].x, master_positions[joint_for_position].y), vec2(master_positions[joint_for_angle].x, master_positions[joint_for_angle].y), theta, new_angle), master_positions[joint_for_position].z);
+
+				vec3 change_in_joint_position = master_positions[joint_for_position] - new_master_joint_position;
+
+				for (k4abt_joint_id_t hierarchy_joints : angleHierarchy[element.first])
+				{
+					master_positions[hierarchy_joints] = master_positions[hierarchy_joints] - change_in_joint_position;
+				}
+
+			}
+			copy(begin(master_positions), end(master_positions), begin(body.trackedbody.at(0).joint_positions));
+		}
+		vector<vec3> temp_posb;
+
+		generate_body_vertices(&body.trackedbody.at(0), &temp_posb, app_posb);
+
+		app_posb = temp_posb;
+
 		glBindBuffer(GL_ARRAY_BUFFER, VBbody);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vec3) * posb.size(), posb.data());
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vec3) * temp_posb.size(), temp_posb.data());
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		return trackedbodies;
 		}
@@ -663,12 +911,12 @@ public:
 
 
 
-		if (key == GLFW_KEY_5 && action == GLFW_RELEASE)
+		if (key == GLFW_KEY_5 && action == GLFW_PRESS)
 		{
 			val = 0.006;
 			mul = 1.05;
 		}
-		if (key == GLFW_KEY_4 && action == GLFW_RELEASE)
+		if (key == GLFW_KEY_4 && action == GLFW_PRESS)
 		{
 			val = 0.05;
 			mul = 1.2;
@@ -689,13 +937,58 @@ public:
 			{
 			correctmode = CORR_SCEWSCALEDOWN;
 			}*/
+
+
+		if (key == GLFW_KEY_Z && action == GLFW_PRESS)
+		{
+			correctmode = SCALE_TORSO_WIDTH;
+		}
+		if (key == GLFW_KEY_X && action == GLFW_PRESS)
+		{
+			correctmode = SCALE_TORSO_HEIGHT;
+		}
+		
+		if (key == GLFW_KEY_C && action == GLFW_RELEASE)
+		{
+			correctmode = SCALE_ARM;
+		}
+		if (key == GLFW_KEY_V && action == GLFW_RELEASE)
+		{
+			correctmode = SCALE_LEG;
+		}
+		if (key == GLFW_KEY_B && action == GLFW_RELEASE)
+		{
+			correctmode = SCALE_FOOT;
+		}
+		if (key == GLFW_KEY_N && action == GLFW_PRESS)
+		{
+			correctmode = SCALE_HEAD;
+		}
+		if (key == GLFW_KEY_H && action == GLFW_PRESS)
+		{
+			correctmode = SHIFT_CHIN;
+		}
+		if (key == GLFW_KEY_J && action == GLFW_RELEASE)
+		{
+			correctmode = SHIFT_SIDE_CHIN;
+		}
+
+
 		if (key == GLFW_KEY_UP && action == GLFW_PRESS)
 			{
 			switch (correctmode)
 			{
 			default:
-			case CORR_SHIFT:	modelpos.y += val;	break;
-			case CORR_SCALE:	modelscale.y += val; break;
+			case CORR_SHIFT:			modelpos.y += val;	break;
+			case CORR_SCALE:			modelscale.y += val; break;
+			case SCALE_TORSO_WIDTH:		torso_width_scale += val;	break;
+			case SCALE_TORSO_HEIGHT:	torso_height_scale += val; break;
+			case SCALE_ARM:				arm_thickness_scale += val;	break;
+			case SCALE_LEG:				leg_thickness_scale += val; break;
+			case SCALE_FOOT:			foot_thickness_scale += val;	break;
+			case SCALE_HEAD:			head_thickness_scale += val; break;
+			case SHIFT_CHIN:			chinstart+= val;	break;
+			case SHIFT_SIDE_CHIN:		sidechinstart += val; break;
 			}
 			}
 		if (key == GLFW_KEY_DOWN && action == GLFW_PRESS)
@@ -703,8 +996,16 @@ public:
 			switch (correctmode)
 			{
 			default:
-			case CORR_SHIFT:	modelpos.y -= val;	break;
-			case CORR_SCALE:	modelscale.y -= val; break;
+			case CORR_SHIFT:			modelpos.y -= val;	break;
+			case CORR_SCALE:			modelscale.y -= val; break;
+			case SCALE_TORSO_WIDTH:		torso_width_scale -= val;	break;
+			case SCALE_TORSO_HEIGHT:	torso_height_scale -= val; break;
+			case SCALE_ARM:				arm_thickness_scale -= val;	break;
+			case SCALE_LEG:				leg_thickness_scale -= val; break;
+			case SCALE_FOOT:			foot_thickness_scale -= val;	break;
+			case SCALE_HEAD:			head_thickness_scale -= val; break;
+			case SHIFT_CHIN:			chinstart -= val;	break;
+			case SHIFT_SIDE_CHIN:		sidechinstart -= val; break;
 			}
 			}
 		if (key == GLFW_KEY_LEFT && action == GLFW_PRESS)
@@ -834,41 +1135,80 @@ public:
 			record();
 		}
 		if (key == GLFW_KEY_L && action == GLFW_RELEASE)
-			{
+		{
 			animation = true;
+		}
+		if (key == GLFW_KEY_M && action == GLFW_RELEASE)
+		{
+			cout << "OLD DEVICE COUNT: " << body.getDeviceCount() << endl;
+
+			if (body.getDeviceCount() != 1)
+				body.setDeviceCount(1);
+			else
+			{
+#ifdef NOKINECT
+				ifstream f("anim.txt");
+				if (f.is_open() == false)return;
+				static uint32_t deviceCount;
+				f >> deviceCount;
+				body.setDeviceCount(deviceCount);
+				f.close();
+#endif
+#ifndef NOKINECT
+				body.setDeviceCount(k4a_device_get_installed_count());
+#endif
 			}
+			cout << "NEW DEVICE COUNT: " << body.getDeviceCount() << endl;
+		}
 	}
 	void record()
 	{
 		ofstream f;
 		f.open("anim.txt");
+		f << body.getDeviceCount()<<'\n';
 		for (int ii = 0; ii < K4ABT_JOINT_COUNT; ii++)
 		{
-			vec3 t = body.trackedbody.get_joint(FORECASTFACT,ii);
-			f << t.x << t.y << t.z;
+			for (int i = 0; i < body.getDeviceCount(); i++) {
+				vec3 t = body.trackedbody.at(i).new_get_joint(FORECASTFACT, ii);
+				f << t.x << t.y << t.z;
+			}
 		}
 		f.close();
 	}
-	void get_record(vec3 *dst)
+	void get_record(new_body_ *body, vector<new_trackedbody_> *tracked_body)
 	{
-		static vec3 pos[K4ABT_JOINT_COUNT];
+		static vector<vec3> pos;
+		static uint32_t deviceCount;
 		static bool first = true;
 		if (first)
 		{
 			ifstream f("anim.txt");
 			if (f.is_open() == false)return;
 			first = false;
-			for (int ii = 0; ii < K4ABT_JOINT_COUNT; ii++)
+			f >> deviceCount;
+			body->setDeviceCount(deviceCount);
+			for (uint32_t tracked_count = 0; tracked_count < deviceCount; tracked_count++) {
+				tracked_body->push_back(new_trackedbody_());
+			}
+			for (uint32_t ii = 0; ii < K4ABT_JOINT_COUNT*deviceCount; ii++)
 			{
-				f >> pos[ii].x;
-				f >> pos[ii].y;
-				f >> pos[ii].z;
+				vec3 file_vec;
+				f >> file_vec.x;
+				f >> file_vec.y;
+				f >> file_vec.z;
+				pos.push_back(file_vec);
 			}
 			f.close();
 		}
 
-		for (int ii = 0; ii < K4ABT_JOINT_COUNT; ii++)
-			dst[ii] = pos[ii];
+		for (uint32_t ii = 0; ii < K4ABT_JOINT_COUNT; ii++)
+		{
+			for (uint32_t i = 0; i < deviceCount; i++)
+			{
+				int pos_index = (2 * ii) + i;
+				tracked_body->at(i).joint_positions[ii] = pos.at(pos_index);
+			}
+		}
 
 	/*	static float w = 0.0;
 		static float wi = 0.01;
@@ -1001,7 +1341,6 @@ public:
 #ifndef NOKINECT
 		body.InitializeDefaultSensor();
 #endif
-		vector<vec3> posb;
 		vector<GLushort> indices;
 
 		/***BODY WITHOUT CLAVICLES***/
@@ -1052,10 +1391,10 @@ public:
 		indices.push_back(34);	indices.push_back(37);	indices.push_back(35);
 		//continue from 38
 		//hands
-		indices.push_back(38);	indices.push_back(12);	indices.push_back(13);
-		indices.push_back(38);	indices.push_back(13);	indices.push_back(39);
-		indices.push_back(40);	indices.push_back(16);	indices.push_back(41);
-		indices.push_back(16);	indices.push_back(17);	indices.push_back(41);
+		//indices.push_back(38);	indices.push_back(12);	indices.push_back(13);
+		//indices.push_back(38);	indices.push_back(13);	indices.push_back(39);
+		//indices.push_back(40);	indices.push_back(16);	indices.push_back(41);
+		//indices.push_back(16);	indices.push_back(17);	indices.push_back(41);
 
 
 		/***BODY INDICES WITH CLAVICLES***/
@@ -1155,21 +1494,21 @@ public:
 		tex.push_back(vec2(1, 0.962063));
 		tex.push_back(vec2(0.913081, 0.986313));
 
-		generate_body_vertices(&body, &posb);
 		
+		vector<vec3> temp_posb;
+		generate_body_vertices(&body.trackedbody.at(0), &temp_posb, app_posb);
+		app_posb = temp_posb;
 
 
 		GLuint VB;
 
-		
-		
 		glGenVertexArrays(1, &VAObody);
 		glBindVertexArray(VAObody);
 
 		glGenBuffers(1, &VBbody);
 		glBindBuffer(GL_ARRAY_BUFFER, VBbody);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * posb.size(), posb.data(), GL_DYNAMIC_DRAW);
-		vertexcount = posb.size();
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * temp_posb.size(), temp_posb.data(), GL_DYNAMIC_DRAW);
+		vertexcount = temp_posb.size();
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 		glGenBuffers(1, &VB);
@@ -1381,6 +1720,9 @@ public:
 		glEnableVertexAttribArray(1);
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
 		glBindVertexArray(0);
+
+		//make an SSBO
+		create_SSBO();
 	}
 
 	void update_postproc_rect()
@@ -1503,7 +1845,50 @@ public:
 		screenproc->addAttribute("vertPos");
 		screenproc->addAttribute("vertTex");
 		
+		//load the compute shader
+		std::string ShaderString = readFileAsString(resourceDirectory + "/compute.glsl");
+		const char* shader = ShaderString.c_str();
+		GLuint computeShader = glCreateShader(GL_COMPUTE_SHADER);
+		glShaderSource(computeShader, 1, &shader, nullptr);
+
+		GLint rc;
+		CHECKED_GL_CALL(glCompileShader(computeShader));
+		CHECKED_GL_CALL(glGetShaderiv(computeShader, GL_COMPILE_STATUS, &rc));
+		if (!rc)	//error compiling the shader file
+		{
+			GLSL::printShaderInfoLog(computeShader);
+			std::cout << "Error compiling fragment shader " << std::endl;
+			exit(1);
+		}
+
+		computeProgram = glCreateProgram();
+		glAttachShader(computeProgram, computeShader);
+		glLinkProgram(computeProgram);
+		glUseProgram(computeProgram);
+
+		GLuint block_index = 0;
+		block_index = glGetProgramResourceIndex(computeProgram, GL_SHADER_STORAGE_BLOCK, "shader_data");
+		GLuint ssbo_binding_point_index = 2;
+		glShaderStorageBlockBinding(computeProgram, block_index, ssbo_binding_point_index);
+
 		
+	}
+
+	void compute()
+	{
+		GLuint block_index = 0;
+		block_index = glGetProgramResourceIndex(computeProgram, GL_SHADER_STORAGE_BLOCK, "shader_data");
+		GLuint ssbo_binding_point_index = 0;
+		glShaderStorageBlockBinding(computeProgram, block_index, ssbo_binding_point_index);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo_GPU_id);
+		glUseProgram(computeProgram);
+		//activate atomic counter
+		glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomicsBuffer);
+		glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, atomicsBuffer);
+
+		glDispatchCompute((GLuint)2, (GLuint)1, 1);				//start compute shader
+		//glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, 0);
 	}
 	//***************************************************************************
 	int render_render_fire_to_screen_FBO(double frametime, mat4 P, mat4 V)
@@ -1725,8 +2110,8 @@ public:
 					int tx = (int)tileprogress % 4;
 					int ty = (int)tileprogress / 4;
 					vec4 texoff = vec4(4, 4, tx, ty);
-					vec3 a= body.trackedbody.get_joint(FORECASTFACT, K4ABT_JOINT_SHOULDER_LEFT);
-					vec3 b = body.trackedbody.get_joint(FORECASTFACT, K4ABT_JOINT_SPINE_CHEST);
+					vec3 a= body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SHOULDER_LEFT);
+					vec3 b = body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SPINE_CHEST);
 					vec3 pos;
 					pos.x = a.x * 0.2 + b.x * 0.8;
 					pos.y = a.y *0.7 + b.y * 0.3;
@@ -1734,7 +2119,9 @@ public:
 					mat4 MrectHeart = translate(mat4(1), pos) * rotate(mat4(1), 3.14159265f, vec3(0, 1, 0)) * scale(mat4(1), vec3(0.4, 0.4, 0.4));
 					render_rect(P, V, TexHeart, MrectHeart, texoff);
 
-					mat4 MrectHead = translate(mat4(1), body.trackedbody.get_joint(FORECASTFACT, K4ABT_JOINT_NOSE)*0.6f+ body.trackedbody.get_joint(FORECASTFACT, K4ABT_JOINT_HEAD)*0.6f) * scale(mat4(1), vec3(0.61, 0.61, 0.61));
+
+
+					mat4 MrectHead = translate(mat4(1), body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_NOSE)*0.6f+ body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_HEAD)*0.6f) * scale(mat4(1), vec3(0.61, 0.61, 0.61));
 					texoff = vec4(1, 1, 0, 0);
 					render_rect(P, V, TextureSkeletonHead, MrectHead, texoff);
 					redtone = vec3(1, 0, 0);
@@ -1835,7 +2222,7 @@ public:
 #ifndef RELEASEVERSION
 			for (int ii = 0; ii < K4ABT_JOINT_COUNT; ii++)
 				{
-				mat4 Mrect = translate(mat4(1), body.trackedbody.get_joint(FORECASTFACT, ii)) * scale(mat4(1), vec3(0.05, 0.05, 0.05));
+				mat4 Mrect = translate(mat4(1), body.trackedbody.at(0).new_get_joint(FORECASTFACT, ii)) * scale(mat4(1), vec3(0.05, 0.05, 0.05));
 				vec4 texoff = vec4(1, 1, 0, 0);
 				render_rect(P, V, TexRed, Mrect, texoff);
 				}
@@ -1861,10 +2248,10 @@ public:
 
 			for (int ii = 0; ii < butterflyactual; ii++)
 				{
-				vec3 pos = mix(body.trackedbody.get_joint(forecastfact,butterfly[ii].iA), body.trackedbody.get_joint(forecastfact,butterfly[ii].iB), butterfly[ii].rationAB);
+				vec3 pos = mix(body.trackedbody.at(0).new_get_joint(forecastfact,butterfly[ii].iA), body.trackedbody.at(0).new_get_joint(forecastfact,butterfly[ii].iB), butterfly[ii].rationAB);
 				mat4 Sc = scale(mat4(1), vec3(butterfly[ii].scale));
 				mat4 Rz = rotate(mat4(1), butterfly[ii].rotz, vec3(0, 0, 1));
-				vec3 t = body.trackedbody.get_joint(forecastfact,ii);
+				vec3 t = body.trackedbody.at(0).new_get_joint(forecastfact,ii);
 				if (butterfly[ii].startanim >= (-1))
 					butterfly[ii].startanim -= frametime;
 				vec4 texoff = vec4(4, 4, 0, 0);
@@ -1976,6 +2363,10 @@ int main(int argc, char **argv)
 	}
 	srand(time(0));
 	Application *application = new Application();
+#ifdef NOKINECT
+	application->get_record(&application->body, &application->body.trackedbody);
+#endif // NOKINECT
+
 
 	/* your main will always include a similar set up to establish your window
 		and GL context, etc. */
@@ -1989,6 +2380,7 @@ int main(int argc, char **argv)
 	// Initialize scene.
 	application->init(resourceDir);
 	application->initGeom();
+	application->init_atomic();
 
 	// Loop until the user closes the window.
 	mat4 V, P;
@@ -2001,7 +2393,6 @@ int main(int argc, char **argv)
 	double time_since_last_body_tracked = 0;
 	double countfps = 0;
 	int frame = 0;
-	fullscreen = false;
 	windowManager->SetFullScreen(fullscreen);
 
 	//app nicht 2 mal oder oefter ausfuehren
@@ -2067,6 +2458,7 @@ int main(int argc, char **argv)
 			//cout << application->body.trackedbody.joint_positions[K4ABT_JOINT_SPINE_CHEST].x << endl;
 			application->render_body_to_FBO(frametime, P, V);
 			application->render_render_fire_to_screen_FBO(frametime, P, V);
+			application->compute();
 			time_since_last_body_tracked = 0;
 			//if (firstTime == true) 
 			//	{
@@ -2084,6 +2476,9 @@ int main(int argc, char **argv)
 			black = true;
 			}
 		application->render_to_screen(black);
+		application->get_SSBO_back();
+		application->read_atomic();
+		//system("pause");
 		// Swap front and back buffers.
 		glfwSwapBuffers(windowManager->getHandle());
 		// Poll for and process events.
@@ -2092,7 +2487,9 @@ int main(int argc, char **argv)
 
 	// Quit program.
 	windowManager->shutdown();
-
+#ifndef NOKINECT
 	application->Close_Kinect();
+#endif
+
 	return 0;
 }
