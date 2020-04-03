@@ -11,3 +11,4 @@ dnn_model_2_0.onnx
 *.vcxproj
 *.vcxproj.filters
 *.vcxproj.user
+src/*.props
