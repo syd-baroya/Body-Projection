@@ -8,7 +8,6 @@ x64/
 packages/
 dnn_model_2_0.onnx
 *.sln
-*.vcxproj
-*.vcxproj.filters
-*.vcxproj.user
-src/*.props
+src/*.vcxproj
+src/*.vcxproj.filters
+src/*.vcxproj.user
