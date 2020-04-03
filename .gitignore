@@ -1,3 +1,4 @@
+ext/
 build/
 .vs/
 Debug/
@@ -6,12 +7,9 @@ x64/
 .travis.yml
 .DS_Store
 packages/
-dnn_model_2_0.onnx
-*.vcxproj
-*.vcxproj.filters
-*.user
-*.suo
-*.ncb
-ipch/
-*.sdf
-*.opensdf
+src/dnn_model_2_0.onnx
+*.sln
+src/*.vcxproj
+src/*.vcxproj.filters
+src/*.vcxproj.user
+src/*.props

@@ -92,6 +92,7 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="PropertySheet.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -125,11 +126,11 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\sbaroya\source\repos\Body-Projection\ext\glad\include;C:\Users\sbaroya\source\repos\Body-Projection\src\helper_includes;C:\OpenGL\glm-0.9.9.7\glm;C:\OpenGL\glfw-3.3.2\include;C:\Users\sbaroya\source\repos\Body-Projection\packages\Microsoft.Azure.Kinect.Sensor.1.4.0\build\native\include;C:\Users\sbaroya\source\repos\Body-Projection\packages\Microsoft.Azure.Kinect.BodyTracking.1.0.1\build\native\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(PROJECT_DIR)\src\helper_includes;$(PROJECT_DIR)\ext\glad\include;$(GLM_DIR);$(GLFW_DIR);$(PROJECT_DIR)\packages\$(CURR_MAK_SENSOR)$(PACK_BUILD_PATH);$(PROJECT_DIR)\packages\$(CURR_MAK_BT)$(PACK_BUILD_PATH);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalDependencies>glfw3.lib;k4a.lib;k4abt.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\OpenGL\glfw-3.3.2.bin.WIN64\glfw-3.3.2.bin.WIN64\lib-vc2019;C:\Users\sbaroya\source\repos\Body-Projection\packages\Microsoft.Azure.Kinect.Sensor.1.4.0\lib\native\amd64\release;C:\Users\sbaroya\source\repos\Body-Projection\packages\Microsoft.Azure.Kinect.BodyTracking.1.0.1\lib\native\amd64\release;C:\Users\sbaroya\source\repos\Body-Projection\packages\Microsoft.Azure.Kinect.BodyTracking.Dependencies.cuDNN.0.9.1\lib\native\amd64\release;C:\Users\sbaroya\source\repos\Body-Projection\packages\Microsoft.Azure.Kinect.BodyTracking.Dependencies.0.9.1\lib\native\amd64\release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(GLFW_64_DIR);$(PROJECT_DIR)\packages\$(CURR_MAK_SENSOR)$(PACK_LIB_PATH);$(PROJECT_DIR)\packages\$(CURR_MAK_BT)$(PACK_LIB_PATH);$(PROJECT_DIR)\packages\$(CURR_MAK_CUDNN)$(PACK_LIB_PATH);$(PROJECT_DIR)\packages\$(CURR_MAK_DEP)$(PACK_LIB_PATH);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
