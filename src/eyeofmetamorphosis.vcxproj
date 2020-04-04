@@ -20,6 +20,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\ext\glad\src\glad.c" />
+    <ClCompile Include="application.cpp" />
+    <ClCompile Include="camera.cpp" />
     <ClCompile Include="GLSL.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MatrixStack.cpp" />
@@ -29,6 +31,8 @@
     <ClCompile Include="WindowManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="application.h" />
+    <ClInclude Include="camera.h" />
     <ClInclude Include="GLSL.h" />
     <ClInclude Include="helper_includes\BodyTrackingHelpers.h" />
     <ClInclude Include="helper_includes\Utilities.h" />

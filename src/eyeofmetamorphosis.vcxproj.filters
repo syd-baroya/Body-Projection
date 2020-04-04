@@ -11,6 +11,8 @@
     <ClCompile Include="MatrixStack.cpp" />
     <ClCompile Include="Shape.cpp" />
     <ClCompile Include="new_body.cpp" />
+    <ClCompile Include="application.cpp" />
+    <ClCompile Include="camera.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Program.h" />
@@ -28,6 +30,8 @@
     <ClInclude Include="helper_includes\Utilities.h">
       <Filter>helpers</Filter>
     </ClInclude>
+    <ClInclude Include="application.h" />
+    <ClInclude Include="camera.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ext">
@@ -76,6 +80,7 @@
     <None Include="..\resources\compute.glsl">
       <Filter>shader</Filter>
     </None>
+    <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />
     <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />
     <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />
     <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />
