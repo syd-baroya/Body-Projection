@@ -1,37 +1,86 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="Program.cpp" />
     <ClCompile Include="..\ext\glad\src\glad.c">
       <Filter>ext</Filter>
     </ClCompile>
-    <ClCompile Include="GLSL.cpp" />
-    <ClCompile Include="WindowManager.cpp" />
-    <ClCompile Include="MatrixStack.cpp" />
-    <ClCompile Include="Shape.cpp" />
-    <ClCompile Include="new_body.cpp" />
-    <ClCompile Include="application.cpp" />
-    <ClCompile Include="camera.cpp" />
+    <ClCompile Include="Application.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="camera.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="GLSL.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="MatrixStack.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="new_body.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Program.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Shape.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowManager.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="new_Application.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="new_main.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Program.h" />
-    <ClInclude Include="GLSL.h" />
-    <ClInclude Include="WindowManager.h" />
-    <ClInclude Include="MatrixStack.h" />
-    <ClInclude Include="Shape.h" />
-    <ClInclude Include="tiny_obj_loader.h" />
-    <ClInclude Include="stb_image.h" />
-    <ClInclude Include="stb_image_write.h" />
-    <ClInclude Include="new_body.h" />
     <ClInclude Include="helper_includes\BodyTrackingHelpers.h">
       <Filter>helpers</Filter>
     </ClInclude>
     <ClInclude Include="helper_includes\Utilities.h">
       <Filter>helpers</Filter>
     </ClInclude>
-    <ClInclude Include="application.h" />
-    <ClInclude Include="camera.h" />
+    <ClInclude Include="Application.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="camera.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="GLSL.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="MatrixStack.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="new_body.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Program.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Shape.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="stb_image.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="stb_image_write.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="tiny_obj_loader.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowManager.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="new_Application.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ext">
@@ -42,6 +91,12 @@
     </Filter>
     <Filter Include="helpers">
       <UniqueIdentifier>{5ab6e23f-36de-4e9c-bff3-c09e0d6df686}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source">
+      <UniqueIdentifier>{151f9ef3-8b77-43ab-9c77-e19912c4b39c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers">
+      <UniqueIdentifier>{8c693596-7fce-4c97-a93e-830db8e08a1b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -80,6 +135,7 @@
     <None Include="..\resources\compute.glsl">
       <Filter>shader</Filter>
     </None>
+    <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />
     <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />
     <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />
     <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />

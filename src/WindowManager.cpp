@@ -108,6 +108,7 @@ bool WindowManager::init(int const width, int const height)
 
 void WindowManager::shutdown()
 {
+	glfwHideWindow(windowHandle);
 	glfwDestroyWindow(windowHandle);
 	glfwTerminate();
 }
