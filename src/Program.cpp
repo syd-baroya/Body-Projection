@@ -7,10 +7,10 @@
 #include "GLSL.h"
 
 
-std::string readFileAsString(const std::string &fileName)
+std::string readFile(std::istream& fileHandle)
 {
 	std::string result;
-	std::ifstream fileHandle(fileName);
+	//std::ifstream fileHandle(fileName);
 
 	fileHandle.seekg(0, std::ios::end);
 	result.reserve((size_t) fileHandle.tellg());
@@ -21,13 +21,48 @@ std::string readFileAsString(const std::string &fileName)
 	return result;
 }
 
-void Program::setShaderNames(const std::string &v, const std::string &f)
+Program::Program() :
+	pid(0),
+	verbose(true)
 {
-	vShaderName = v;
-	fShaderName = f;
 }
 
-bool Program::init()
+
+Program::Program(const std::string& vpath, const std::string& fpath)
+{
+	std::ifstream vertex = std::ifstream(vpath);
+	std::ifstream fragment = std::ifstream(fpath);
+	if (!vertex.is_open()) {
+		fprintf(stderr, "Warning!: Couldn't open given shader file: ");
+		std::cerr << vpath << std::endl;
+	}
+	else if (!fragment.is_open()) {
+		fprintf(stderr, "Warning!: Couldn't open given shader file: ");
+		std::cerr << fpath << std::endl;
+	}
+	if (!buildProgram(vertex, fragment)) {
+		fprintf(stderr, "Warning!: Failed building VsFs program given in constructor.\n");
+		return;
+	}
+	buildSuccess = true;
+}
+
+Program::Program(const std::string& cpath)
+{
+	std::ifstream compute = std::ifstream(cpath);
+	if (!compute.is_open()) {
+		fprintf(stderr, "Warning!: Couldn't open given shader file: ");
+		std::cerr << cpath << std::endl;
+	}
+	if (!buildProgram(compute)) {
+		fprintf(stderr, "Warning!: Failed building Cs program given in constructor.\n");
+		return;
+	}
+	buildSuccess = true;
+}
+
+
+bool Program::buildProgram(std::istream& vertex, std::istream& fragment)
 {
 	GLint rc;
 
@@ -36,55 +71,52 @@ bool Program::init()
 	GLuint FS = glCreateShader(GL_FRAGMENT_SHADER);
 
 	// Read shader sources
-	std::string vShaderString = readFileAsString(vShaderName);
-	std::string fShaderString = readFileAsString(fShaderName);
-	const char *vshader = vShaderString.c_str();
-	const char *fshader = fShaderString.c_str();
+	std::string vShaderString = readFile(vertex);
+	std::string fShaderString = readFile(fragment);
+	const char* vshader = vShaderString.c_str();
+	const char* fshader = fShaderString.c_str();
 	CHECKED_GL_CALL(glShaderSource(VS, 1, &vshader, NULL));
 	CHECKED_GL_CALL(glShaderSource(FS, 1, &fshader, NULL));
 
-	// Compile vertex shader
-	CHECKED_GL_CALL(glCompileShader(VS));
-	CHECKED_GL_CALL(glGetShaderiv(VS, GL_COMPILE_STATUS, &rc));
-	if (!rc)
-	{
-		if (isVerbose())
-		{
-			GLSL::printShaderInfoLog(VS);
-			std::cout << "Error compiling vertex shader " << vShaderName << std::endl;
-		}
-		return false;
+	// Compile shaders
+	if (!GLSL::compileAndCheck(VS, verbose)) {
+		fprintf(stderr, "Compiling vertex shader %s failed!\n", vshader);
+		return(false);
 	}
-
-	// Compile fragment shader
-	CHECKED_GL_CALL(glCompileShader(FS));
-	CHECKED_GL_CALL(glGetShaderiv(FS, GL_COMPILE_STATUS, &rc));
-	if (!rc)
-	{
-		if (isVerbose())
-		{
-			GLSL::printShaderInfoLog(FS);
-			std::cout << "Error compiling fragment shader " << fShaderName << std::endl;
-		}
-		return false;
+	if (!GLSL::compileAndCheck(FS, verbose)) {
+		fprintf(stderr, "Compiling fragment shader %s failed!\n", fshader);
+		return(false);
 	}
 
 	// Create the program and link
 	pid = glCreateProgram();
 	CHECKED_GL_CALL(glAttachShader(pid, VS));
 	CHECKED_GL_CALL(glAttachShader(pid, FS));
-	CHECKED_GL_CALL(glLinkProgram(pid));
-	CHECKED_GL_CALL(glGetProgramiv(pid, GL_LINK_STATUS, &rc));
-	if (!rc)
-	{
-		if (isVerbose())
-		{
-			GLSL::printProgramInfoLog(pid);
-			std::cout << "Error linking shaders " << vShaderName << " and " << fShaderName << std::endl;
-		}
-		return false;
+	if (!GLSL::linkAndCheck(pid, verbose)) {
+		fprintf(stderr, "Linking shaders %s and %s failed!\n", vshader, fshader);
+		return(false);
 	}
 
+	GLSL::checkError(GET_FILE_LINE);
+	return true;
+}
+
+bool Program::buildProgram(std::istream& compute)
+{
+	//load the compute shader
+	std::string cShaderString = readFile(compute);
+	const char* cshader = cShaderString.c_str();
+	GLuint CS = glCreateShader(GL_COMPUTE_SHADER);
+	glShaderSource(CS, 1, &cshader, nullptr);
+
+	if (!GLSL::compileAndCheck(CS, verbose)) {
+		fprintf(stderr, "Compiling vertex shader %s failed!\n", cshader);
+		return(false);
+	}
+
+	pid = glCreateProgram();
+	glAttachShader(pid, CS);
+	GLSL::linkAndCheck(pid, (GLuint)2);
 	return true;
 }
 

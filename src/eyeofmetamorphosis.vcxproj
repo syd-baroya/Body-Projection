@@ -29,6 +29,7 @@
     <ClCompile Include="new_body.cpp" />
     <ClCompile Include="new_main.cpp" />
     <ClCompile Include="Program.cpp" />
+    <ClCompile Include="ShaderLibrary.cpp" />
     <ClCompile Include="Shape.cpp" />
     <ClCompile Include="WindowManager.cpp" />
   </ItemGroup>
@@ -42,6 +43,7 @@
     <ClInclude Include="new_Application.h" />
     <ClInclude Include="new_body.h" />
     <ClInclude Include="Program.h" />
+    <ClInclude Include="ShaderLibrary.hpp" />
     <ClInclude Include="Shape.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="stb_image_write.h" />

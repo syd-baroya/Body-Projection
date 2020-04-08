@@ -167,4 +167,44 @@ void vertexAttribPointer(const GLint handle, GLint size, GLenum type, GLboolean 
 	}
 }
 
+bool compileAndCheck(GLuint shader, bool verbose) {
+	GLint rc;
+
+	CHECKED_GL_CALL(glCompileShader(shader));
+	CHECKED_GL_CALL(glGetShaderiv(shader, GL_COMPILE_STATUS, &rc));
+	if (!rc) {
+		if (verbose) {
+			GLSL::printShaderInfoLog(shader);
+		}
+		return(false);
+	}
+	return(true);
+}
+
+bool linkAndCheck(GLuint program, bool verbose) {
+	GLint rc;
+
+	CHECKED_GL_CALL(glLinkProgram(program));
+	CHECKED_GL_CALL(glGetProgramiv(program, GL_LINK_STATUS, &rc));
+	if (!rc) {
+		if (verbose) {
+			GLSL::printProgramInfoLog(program);
+			std::cerr << "Error linking shaders " << std::endl;
+		}
+		return(false);
+	}
+	return(true);
+
+}
+
+void linkAndCheck(GLuint program, GLuint ssbo_binding_point_index) {
+	glLinkProgram(program);
+	glUseProgram(program);
+
+	GLuint block_index = 0;
+	block_index = glGetProgramResourceIndex(program, GL_SHADER_STORAGE_BLOCK, "shader_data");
+	glShaderStorageBlockBinding(program, block_index, ssbo_binding_point_index);
+}
+
+
 }

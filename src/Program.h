@@ -8,20 +8,28 @@
 #include <string>
 
 #include <glad/glad.h>
+#include <istream>
 
 
-std::string readFileAsString(const std::string &fileName);
+std::string readFile(std::istream& fileHandle);
 
 class Program
 {
 
 public:
 
+	Program();
+	Program(const std::string& vpath, const std::string& fpath);
+	Program(const std::string& cpath);
+
 	void setVerbose(const bool v) { verbose = v; }
 	bool isVerbose() const { return verbose; }
+	GLuint getPID() const { return(pid); }
+	bool wasBuildSuccessful() { return(buildSuccess); }
 
-	void setShaderNames(const std::string &v, const std::string &f);
-	virtual bool init();
+	bool buildProgram(std::istream& vertex, std::istream& fragment);
+	bool buildProgram(std::istream& compute);
+
 	virtual void bind();
 	virtual void unbind();
 
@@ -34,14 +42,15 @@ protected:
 
 	std::string vShaderName;
 	std::string fShaderName;
+	std::string cShaderName;
 
 private:
 
-	
+	GLuint pid;
 	std::map<std::string, GLint> attributes;
 	std::map<std::string, GLint> uniforms;
-	bool verbose = true;
-
+	bool verbose;
+	bool buildSuccess = false;
 };
 
 #endif // LAB471_PROGRAM_H_INCLUDED

@@ -11,6 +11,21 @@
 #include <glad/glad.h>
 #include <string>
 
+///////////////////////////////////////////////////////////////////////////////
+// For printing out the current file and line number                         //
+///////////////////////////////////////////////////////////////////////////////
+#include <sstream>
+
+template <typename T>
+std::string NumberToString(T x)
+{
+	std::ostringstream ss;
+	ss << x;
+	return ss.str();
+}
+
+#define GET_FILE_LINE (std::string(__FILE__) + ":" + NumberToString(__LINE__)).c_str()
+///////////////////////////////////////////////////////////////////////////////
 
 namespace GLSL
 {
@@ -25,6 +40,9 @@ namespace GLSL
 	void enableVertexAttribArray(const GLint handle);
 	void disableVertexAttribArray(const GLint handle);
 	void vertexAttribPointer(const GLint handle, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid *pointer);
+	bool compileAndCheck(GLuint shader, bool verbose);
+	bool linkAndCheck(GLuint program, bool verbose);
+	void linkAndCheck(GLuint program, GLuint ssbo_binding_point_index);
 }
 
 

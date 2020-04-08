@@ -1077,8 +1077,7 @@ void init(const std::string& resourceDirectory)
 	// Initialize the GLSL program.
 	prog = std::make_shared<Program>();
 	prog->setVerbose(true);
-	prog->setShaderNames(resourceDirectory + "/shader_vertex.glsl", resourceDirectory + "/shader_fragment.glsl");
-	if (!prog->init())
+	if (!prog->buildProgram(resourceDirectory + "/shader_vertex.glsl", resourceDirectory + "/shader_fragment.glsl"))
 	{
 		std::cerr << "One or more shaders failed to compile... exiting!" << std::endl;
 		exit(1);
@@ -1094,8 +1093,7 @@ void init(const std::string& resourceDirectory)
 
 	progbut = std::make_shared<Program>();
 	progbut->setVerbose(true);
-	progbut->setShaderNames(resourceDirectory + "/but_vertex.glsl", resourceDirectory + "/but_fragment.glsl");
-	if (!progbut->init())
+	if (!progbut->buildProgram(resourceDirectory + "/but_vertex.glsl", resourceDirectory + "/but_fragment.glsl"))
 	{
 		std::cerr << "One or more shaders failed to compile... exiting!" << std::endl;
 		exit(1);
@@ -1114,8 +1112,7 @@ void init(const std::string& resourceDirectory)
 
 	progbody = std::make_shared<Program>();
 	progbody->setVerbose(true);
-	progbody->setShaderNames(resourceDirectory + "/but_vertex.glsl", resourceDirectory + "/shader_body.glsl");
-	if (!progbody->init())
+	if (!progbody->buildProgram(resourceDirectory + "/but_vertex.glsl", resourceDirectory + "/shader_body.glsl"))
 	{
 		std::cerr << "One or more shaders failed to compile... exiting!" << std::endl;
 		exit(1);
@@ -1135,8 +1132,7 @@ void init(const std::string& resourceDirectory)
 
 	postprog = std::make_shared<Program>();
 	postprog->setVerbose(true);
-	postprog->setShaderNames(resourceDirectory + "/vert.glsl", resourceDirectory + "/frag.glsl");
-	if (!postprog->init())
+	if (!postprog->buildProgram(resourceDirectory + "/vert.glsl", resourceDirectory + "/frag.glsl"))
 	{
 		std::cerr << "One or more shaders failed to compile... exiting!" << std::endl;
 		exit(1);
@@ -1146,8 +1142,7 @@ void init(const std::string& resourceDirectory)
 
 	screenproc = std::make_shared<Program>();
 	screenproc->setVerbose(true);
-	screenproc->setShaderNames(resourceDirectory + "/vert.glsl", resourceDirectory + "/fragscreen.glsl");
-	if (!screenproc->init())
+	if (!screenproc->buildProgram(resourceDirectory + "/vert.glsl", resourceDirectory + "/fragscreen.glsl"))
 	{
 		std::cerr << "One or more shaders failed to compile... exiting!" << std::endl;
 		exit(1);

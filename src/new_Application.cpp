@@ -1,11 +1,7 @@
 #include "new_Application.h"
 #include <glad/glad.h>
 #include <iostream>
-
-static void error_callback(int error, const char* description) { std::cerr << "glfw error: " << description << std::endl; };
-static void key_callback(GLFWwindow* _window, int key, int scancode, int action, int mods) { };
-static void mouse_callback(GLFWwindow* window, int button, int action, int mods) { };
-static void resize_callback(GLFWwindow* window, int in_width, int in_height) { };
+#include "ShaderLibrary.hpp"
 
 
 void Application::init(int argc, char** argv)
@@ -84,6 +80,7 @@ void Application::initGLFW()
 
 void Application::initShaders()
 {
+	ShaderLibrary::getInstance().loadFromShaderCollection("/shaders.txt");
 }
 
 void Application::initScene()
@@ -156,3 +153,10 @@ std::vector<std::string>::iterator StartupState::parseInput(std::vector<std::str
 	input_paths.push_back(*carg);
 	return std::next(carg);
 }
+
+
+static void error_callback(int error, const char* description) { std::cerr << "glfw error: " << description << std::endl; };
+static void key_callback(GLFWwindow* _window, int key, int scancode, int action, int mods) { };
+
+static void mouse_callback(GLFWwindow* window, int button, int action, int mods) { };
+static void resize_callback(GLFWwindow* window, int in_width, int in_height) { };
