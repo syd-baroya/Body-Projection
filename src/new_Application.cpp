@@ -119,6 +119,14 @@ void Application::setFullScreen(bool fullscreen)
 
 }
 
+glm::ivec2 Application::getCurrScreenSize()
+{
+	int width, height;
+	glfwGetFramebufferSize(_window, &width, &height);
+
+	return glm::ivec2(width, height);
+}
+
 StartupState::StartupState(int argc, char** argv)
 {
 	if (argc > 1) {

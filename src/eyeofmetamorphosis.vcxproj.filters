@@ -40,6 +40,13 @@
     <ClCompile Include="ShaderLibrary.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="Framebuffer.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="Renderbuffer.cpp" />
+    <ClCompile Include="VertexArrayObject.cpp" />
+    <ClCompile Include="Buffers.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="helper_includes\BodyTrackingHelpers.h">
@@ -85,6 +92,24 @@
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="ShaderLibrary.hpp">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Framebuffer.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="HelperFunctions.h">
+      <Filter>helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderbuffer.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexArrayObject.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Buffers.h">
       <Filter>Headers</Filter>
     </ClInclude>
   </ItemGroup>
@@ -141,6 +166,7 @@
     <None Include="..\resources\compute.glsl">
       <Filter>shader</Filter>
     </None>
+    <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />
     <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />
     <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />
     <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />

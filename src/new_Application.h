@@ -3,6 +3,7 @@
 #define BODY_PROJECTION_APPLICATION_H
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
 #include <vector>
 #include <string>
 #include <array>
@@ -49,6 +50,8 @@ public:
 
     bool isFullscreen();
     void setFullScreen(bool fullscreen);
+
+    glm::ivec2 getCurrScreenSize();
 
     std::array< int, 2 > _wndPos{ 0, 0 };
     std::array< int, 2 > _wndSize{ 0, 0 };

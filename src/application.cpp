@@ -1341,7 +1341,8 @@ void render_rect(mat4 P, mat4 V, GLuint texture, mat4 Mrect, vec4 animation = ve
 	glUniform1f(progbut->getUniform("totaltime"), phaseprogresstotaltime);
 	glUniformMatrix4fv(progbut->getUniform("P"), 1, GL_FALSE, &P[0][0]);
 	glUniformMatrix4fv(progbut->getUniform("V"), 1, GL_FALSE, &V[0][0]);
-	glActiveTexture(GL_TEXTURE0);		glBindTexture(GL_TEXTURE_2D, texture);
+	glActiveTexture(GL_TEXTURE0);		
+	glBindTexture(GL_TEXTURE_2D, texture);
 	glBindVertexArray(VAO_rect);
 	mat4 M = glm::translate(glm::mat4(1.0f), modelpos) * glm::scale(glm::mat4(1.0f), modelscale);
 
