@@ -27,7 +27,7 @@ public:
 	void setWrap(GLushort wrap_) { wrap_ = wrap; initParams(); }
 	void setMinFilter(GLushort filter) { filter = minfilter; initParams(); }
 	void setMagFilter(GLushort filter) { filter = magfilter; initParams(); }
-
+	void deleteTexture() { glDeleteTextures(1, &textureID); }
 protected:
 	GLuint textureID;
 	GLushort colortype = GL_RGBA8;

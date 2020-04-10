@@ -28,6 +28,7 @@ public:
 	void attach(FramebufferObject& fbo, GLenum attachment, int level);
 	void setDrawBuffers(int num_buffers);
 	void writeToDrawBuffers();
+	void deleteBuffer();
 
 private:
 	GLuint fbID;

@@ -11,11 +11,12 @@ public:
 
 	virtual void bind() { glBindBuffer(buffer_type, id); }
 	virtual void unbind() { glBindBuffer(buffer_type, 0); }
-
+	virtual void addData(GLsizeiptr size, const void* data, GLenum usage);
 	virtual void bufferData(GLsizeiptr size, const void* data, GLenum usage);
 	virtual void bufferSubData(GLintptr offset, GLsizeiptr size, const void* data);
 	inline GLenum getBufferType() const { return(buffer_type); }
 	inline GLuint getID() const { return(id); }
+	virtual void deleteBuffer() {	glDeleteBuffers(1, &id);	}
 private:
 	GLenum buffer_type = GL_INVALID_ENUM;
 	GLuint id;
@@ -27,7 +28,8 @@ public:
 	auto* mapBufferRange(GLintptr offset, GLsizeiptr length, GLbitfield access);
 	GLvoid* mapBuffer(GLenum access);
 	void unMapBuffer();
-	void bindBufferBase(GLuint buffer);
+	void bindBufferBase(GLuint index);
+	void unbindBufferBase(GLuint index);
 };
 
 class ArrayBuffer : public SimpleBuffer {

@@ -7,16 +7,16 @@
 class Renderbuffer{
 public:
 	Renderbuffer() {
-		glGenRenderbuffers(1, &textureID);
+		glGenRenderbuffers(1, &rbID);
 	}
 
 	void initParams();
-	const GLuint getTextureID() { return(textureID); }
+	const GLuint getID() { return(rbID); }
 	const int getWidth() { return(width); }
 	const int getHeight() { return(height); }
-
+	void deleteBuffer() { glDeleteRenderbuffers(1, &rbID); }
 private:
-	GLuint textureID;
+	GLuint rbID;
 	int width = 0;
 	int height = 0;
 };

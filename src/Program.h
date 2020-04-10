@@ -9,6 +9,7 @@
 
 #include <glad/glad.h>
 #include <istream>
+#include "Buffers.h"
 
 
 std::string readFile(std::istream& fileHandle);
@@ -28,7 +29,6 @@ public:
 	bool wasBuildSuccessful() { return(buildSuccess); }
 
 	bool buildProgram(std::istream& vertex, std::istream& fragment);
-	bool buildProgram(std::istream& compute);
 
 	virtual void bind();
 	virtual void unbind();
@@ -37,20 +37,30 @@ public:
 	void addUniform(const std::string &name);
 	GLint getAttribute(const std::string &name) const;
 	GLint getUniform(const std::string &name) const;
-	GLuint pid = 0;
-protected:
 
-	std::string vShaderName;
-	std::string fShaderName;
-	std::string cShaderName;
+protected:
+	GLuint pid = 0;
 
 private:
 
-	GLuint pid;
 	std::map<std::string, GLint> attributes;
 	std::map<std::string, GLint> uniforms;
 	bool verbose;
 	bool buildSuccess = false;
+	std::string vShaderName;
+	std::string fShaderName;
+};
+
+class ComputeProgram : public Program {
+public:
+	bool buildProgram(std::istream& compute);
+	void dispatch(AtomicCounterBuffer acbo, ShaderStorageBuffer ssbo);
+private:
+	std::string cShaderName;
+	GLuint num_groups_x;
+	GLuint num_groups_y;
+	GLuint num_groups_z;
+
 };
 
 #endif // LAB471_PROGRAM_H_INCLUDED

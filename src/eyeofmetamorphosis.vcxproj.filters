@@ -43,10 +43,18 @@
     <ClCompile Include="Framebuffer.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="Texture.cpp" />
-    <ClCompile Include="Renderbuffer.cpp" />
-    <ClCompile Include="VertexArrayObject.cpp" />
-    <ClCompile Include="Buffers.cpp" />
+    <ClCompile Include="Buffers.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderbuffer.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="VertexArrayObject.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="helper_includes\BodyTrackingHelpers.h">
@@ -166,6 +174,7 @@
     <None Include="..\resources\compute.glsl">
       <Filter>shader</Filter>
     </None>
+    <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />
     <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />
     <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />
     <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />

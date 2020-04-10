@@ -26,3 +26,13 @@ void VertexArrayObject::setVertexAttribPointer(GLuint index, GLint size, GLenum 
 	glVertexAttribPointer(index, size, type, normalized, stride, pointer);
 
 }
+
+void VertexArrayObject::addBuffer(SimpleBuffer buffer)
+{
+	buffer_objects.emplace(buffer.getID(), buffer);
+}
+
+void VertexArrayObject::deleteVAO()
+{
+	glDeleteVertexArrays(1, &id);
+}

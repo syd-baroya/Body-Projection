@@ -1,10 +1,16 @@
 #include "Buffers.h"
 #include <vcruntime_string.h>
 
+void SimpleBuffer::addData(GLsizeiptr size, const void* data, GLenum usage)
+{
+	bind();
+	bufferData(size, data, usage);
+}
+
 void SimpleBuffer::bufferData(GLsizeiptr size, const void* data, GLenum usage)
 {
 	bind();
-	glBufferData(GL_ARRAY_BUFFER, size, data, usage);
+	glBufferData(buffer_type, size, data, usage);
 	unbind();
 }
 
@@ -36,6 +42,11 @@ void ComplexBuffer::unMapBuffer()
 void ComplexBuffer::bindBufferBase(GLuint index)
 {
 	glBindBufferBase(getBufferType(), index, getID());
+}
+
+void ComplexBuffer::unbindBufferBase(GLuint index)
+{
+	glBindBufferBase(getBufferType(), index, 0);
 }
 
 void AtomicCounterBuffer::reset_atomic()

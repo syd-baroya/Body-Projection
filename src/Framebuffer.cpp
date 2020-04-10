@@ -6,7 +6,7 @@ void Framebuffer::attach(Renderbuffer& rb, GLenum attachment)
 {
 	//Attach depth buffer to FBO
 	depth_attachment = rb;
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachment, GL_RENDERBUFFER, rb.getTextureID());
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachment, GL_RENDERBUFFER, rb.getID());
 }
 
 void Framebuffer::attach(FramebufferObject& fbo, GLenum attachment, int level)
@@ -41,4 +41,9 @@ void Framebuffer::writeToDrawBuffers()
 		glBindTexture(GL_TEXTURE_2D, (attachment.second).getTextureID());
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
+}
+
+void Framebuffer::deleteBuffer()
+{
+	glDeleteFramebuffers(1, &fbID);
 }
