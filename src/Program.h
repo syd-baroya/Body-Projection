@@ -21,7 +21,6 @@ public:
 
 	Program();
 	Program(const std::string& vpath, const std::string& fpath);
-	Program(const std::string& cpath);
 
 	void setVerbose(const bool v) { verbose = v; }
 	bool isVerbose() const { return verbose; }
@@ -40,19 +39,25 @@ public:
 
 protected:
 	GLuint pid = 0;
-
+	bool verbose;
+	bool buildSuccess = false;
 private:
 
 	std::map<std::string, GLint> attributes;
 	std::map<std::string, GLint> uniforms;
-	bool verbose;
-	bool buildSuccess = false;
 	std::string vShaderName;
 	std::string fShaderName;
 };
 
 class ComputeProgram : public Program {
 public:
+	ComputeProgram(GLuint x, GLuint y, GLuint z) : Program() {
+		num_groups_x = x;
+		num_groups_y = y;
+		num_groups_z = z;
+	}
+	ComputeProgram(GLuint x, GLuint y, GLuint z, const std::string& cpath);
+
 	bool buildProgram(std::istream& compute);
 	void dispatch(AtomicCounterBuffer acbo, ShaderStorageBuffer ssbo);
 private:

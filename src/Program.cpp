@@ -47,7 +47,7 @@ Program::Program(const std::string& vpath, const std::string& fpath)
 	buildSuccess = true;
 }
 
-Program::Program(const std::string& cpath)
+ComputeProgram::ComputeProgram(GLuint x, GLuint y, GLuint z, const std::string& cpath)
 {
 	std::ifstream compute = std::ifstream(cpath);
 	if (!compute.is_open()) {
@@ -58,6 +58,9 @@ Program::Program(const std::string& cpath)
 		fprintf(stderr, "Warning!: Failed building Cs program given in constructor.\n");
 		return;
 	}
+	num_groups_x = x;
+	num_groups_y = y;
+	num_groups_z = z;
 	buildSuccess = true;
 }
 
