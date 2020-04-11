@@ -10,7 +10,7 @@ uuid_t generate_uuid() {
 	unsigned long ns_base = static_cast<unsigned long>(now_tp.count());
 	std::random_device rd;
 	std::mt19937 generator(rd());
-	std::uniform_int_distribution distribution(0, (1 << 16) - 1);
+	std::uniform_int_distribution<int> distribution(0, (1 << 16) - 1);
 
 	uuid_t result_uuid = 0;
 	size_t count16 = sizeof(uuid_t) / 2;

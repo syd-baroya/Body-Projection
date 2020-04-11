@@ -66,7 +66,7 @@ void KinectSystem::InitializeDefaultSensor()
 
 			this->devices.push_back(new_device);
 			this->trackers.push_back(new_tracker);
-			this->trackedbody.push_back(new_trackedbody_());
+			//this->trackedbody.push_back(new_trackedbody_());
 		}
 	}
 	if (add_master_at_end) {
@@ -82,12 +82,12 @@ void KinectSystem::InitializeDefaultSensor()
 
 		this->devices.insert(this->devices.begin(), master_device);
 		this->trackers.insert(this->trackers.begin(), master_tracker);
-		this->trackedbody.insert(this->trackedbody.begin(), new_trackedbody_());
+		//this->trackedbody.insert(this->trackedbody.begin(), new_trackedbody_());
 
 	}
 }
 
-int KinectSystem::process(float frametime)
+int KinectSystem::process(float frametime, TrackedBodyEntity* tracked_body)
 {
 	int trackedbodies = 0;
 	for (uint32_t deviceIndex = 0; deviceIndex < this->device_count; deviceIndex++) {
@@ -129,7 +129,7 @@ int KinectSystem::process(float frametime)
 			// Successfully popped the body tracking result. Start your processing
 
 			uint64_t nTime = k4abt_frame_get_device_timestamp_usec(body_frame);
-			new_bodypack_ bodypack;
+			bodypack_ bodypack;
 
 
 			this->num_bodies = k4abt_frame_get_num_bodies(body_frame);
@@ -157,16 +157,19 @@ int KinectSystem::process(float frametime)
 
 			if (trackedbodies > 0) {
 
-				processEntity(frametime, nTime, this->num_bodies, &bodypack, deviceIndex);
+				processEntity(frametime, nTime, this->num_bodies, tracked_body, &bodypack, deviceIndex);
 
 			}
 			else
-				trackedbody.at(deviceIndex).time_till_last_tracked += frametime;
+				//trackedbody.at(deviceIndex).time_till_last_tracked += frametime;
+				tracked_body->time_till_last_tracked += frametime;
 
 			k4abt_frame_release(body_frame); // Remember to release the body frame once you finish using it
 
-			if (trackedbody.at(deviceIndex).time_till_last_tracked > BODY_LOST_TIME)
-				trackedbody.at(deviceIndex).reset();
+			/*if (trackedbody.at(deviceIndex).time_till_last_tracked > BODY_LOST_TIME)
+				trackedbody.at(deviceIndex).reset();*/
+			if (tracked_body->time_till_last_tracked > BODY_LOST_TIME)
+				tracked_body->reset();
 
 		}
 		else if (pop_frame_result == K4A_WAIT_RESULT_TIMEOUT)
@@ -185,7 +188,7 @@ int KinectSystem::process(float frametime)
 	return trackedbodies;
 }
 
-bool KinectSystem::processEntity(float frametime, uint64_t nTime, int nBodyCount, new_bodypack_* bodypack, uint32_t deviceIndex)
+bool KinectSystem::processEntity(float frametime, uint64_t nTime, int nBodyCount, TrackedBodyEntity* tracked_body, bodypack_* bodypack, uint32_t deviceIndex)
 {
 	k4abt_body_t* p_closest_Body_to_track = NULL;
 	float closest = -1;
@@ -206,36 +209,50 @@ bool KinectSystem::processEntity(float frametime, uint64_t nTime, int nBodyCount
 
 	if (!p_closest_Body_to_track)
 	{
-		trackedbody.at(deviceIndex).time_till_last_tracked += frametime;
+		//tracked_body.at(deviceIndex).time_till_last_tracked += frametime;
+		tracked_body->time_till_last_tracked += frametime;
 		return false;
 	}
 	k4abt_joint_t* joints = NULL;
 	joints = p_closest_Body_to_track->skeleton.joints;
-	trackedbody.at(deviceIndex).init_tracked = true;
-	trackedbody.at(deviceIndex).time_till_last_tracked = 0;
+	//trackedbody.at(deviceIndex).init_tracked = true;
+	//trackedbody.at(deviceIndex).time_till_last_tracked = 0;
+	tracked_body->init_tracked = true;
+	tracked_body->time_till_last_tracked = 0;
 	if (joints != NULL) {
 		for (int j = 0; j < static_cast<int>(K4ABT_JOINT_COUNT); j++)
 		{
 			if (joints[j].confidence_level == K4ABT_JOINT_CONFIDENCE_NONE)
 			{
-				trackedbody.at(deviceIndex).jointTracked[j] = false;
-				trackedbody.at(deviceIndex).time_till_last_joint_tracked[j] += frametime;
+				/*trackedbody.at(deviceIndex).jointTracked[j] = false;
+				trackedbody.at(deviceIndex).time_till_last_joint_tracked[j] += frametime;*/
+				tracked_body->joint_tracked[j] = false;
+				tracked_body->time_till_last_joint_tracked[j] += frametime;
 				std::cout << "lost track on joint: " << j << ", on device: " << deviceIndex << std::endl;
 			}
 			else
 			{
 
-				trackedbody.at(deviceIndex).jointTracked[j] = true;
+				/*trackedbody.at(deviceIndex).jointTracked[j] = true;
 				trackedbody.at(deviceIndex).time_till_last_joint_tracked[j] = 0;
 				trackedbody.at(deviceIndex).joint_positions[j].x = joints[j].position.xyz.x * MillimeterToMeter;
 				trackedbody.at(deviceIndex).joint_positions[j].y = -joints[j].position.xyz.y * MillimeterToMeter;
-				trackedbody.at(deviceIndex).joint_positions[j].z = -joints[j].position.xyz.z * MillimeterToMeter;
+				trackedbody.at(deviceIndex).joint_positions[j].z = -joints[j].position.xyz.z * MillimeterToMeter;*/
+				tracked_body->joint_tracked[j] = true;
+				tracked_body->time_till_last_joint_tracked[j] = 0;
+				tracked_body->joint_positions[j].x = joints[j].position.xyz.x * MillimeterToMeter;
+				tracked_body->joint_positions[j].y = -joints[j].position.xyz.y * MillimeterToMeter;
+				tracked_body->joint_positions[j].z = -joints[j].position.xyz.z * MillimeterToMeter;
 			}
 		}
-		trackedbody.at(deviceIndex).cascade();
+		//trackedbody.at(deviceIndex).cascade();
+		tracked_body->cascade();
+
 	}
 	else
-		trackedbody.at(deviceIndex).time_till_last_tracked += frametime;
+		//trackedbody.at(deviceIndex).time_till_last_tracked += frametime;
+		tracked_body->time_till_last_tracked += frametime;
+
 	return true;
 
 }

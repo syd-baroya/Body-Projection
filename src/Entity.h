@@ -17,6 +17,9 @@ public:
 	Entity() : uuid(generate_uuid()) {}
 	Entity(const std::string& name) : uuid(generate_uuid()), _name(name) {}
 
+	std::string getName() { return(_name); }
+	uuid_t getUUID() { return(uuid); }
+
 protected:
 	std::string _name;
 

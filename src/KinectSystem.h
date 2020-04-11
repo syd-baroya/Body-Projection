@@ -4,24 +4,32 @@
 #define KINECT_SYSTEM_HPP
 
 #include <vector>
+#include "TrackedBodyEntity.h"
 
 const float MillimeterToMeter = 0.001f;
 #define BODY_LOST_TIME 0.1
+#define BODY_COUNT 6
+
+class bodypack_
+{
+public:
+	k4abt_body_t ppBodies[BODY_COUNT] = {};
+	bool bTracked[BODY_COUNT];
+	bodypack_()
+	{
+		for (int ii = 0; ii < BODY_COUNT; ii++)
+		{
+			bTracked[ii] = false;
+		}
+	}
+
+};
 
 class KinectSystem
 {
-private:
-	bool processEntity(float frametime, uint64_t nTime, int nBodyCount, new_bodypack_* bodypack, uint32_t deviceIndex);
-	std::vector<k4a_device_t> devices;
-	k4a_device_configuration_t deviceConfig;
-	std::vector<k4abt_tracker_t> trackers;
-	k4abt_tracker_configuration_t tracker_config;
-	uint32_t device_count;
-	size_t num_bodies;
-
 public:
-	std::vector<new_trackedbody_> trackedbody;
-	int process(float frametime);
+
+	int process(float frametime, TrackedBodyEntity* tracked_body);
 	void InitializeDefaultSensor();
 	void CloseSensor();
 	uint32_t getDeviceCount();
@@ -37,6 +45,16 @@ public:
 		tracker_config = K4ABT_TRACKER_CONFIG_DEFAULT;
 		tracker_config.processing_mode = K4ABT_TRACKER_PROCESSING_MODE_GPU;
 	}
+
+private:
+	bool processEntity(float frametime, uint64_t nTime, int nBodyCount, TrackedBodyEntity* tracked_body, bodypack_* bodypack, uint32_t deviceIndex);
+	std::vector<k4a_device_t> devices;
+	k4a_device_configuration_t deviceConfig;
+	std::vector<k4abt_tracker_t> trackers;
+	k4abt_tracker_configuration_t tracker_config;
+	uint32_t device_count;
+	size_t num_bodies;
+
 };
 
 #endif
