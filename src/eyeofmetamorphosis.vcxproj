@@ -23,8 +23,10 @@
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="Buffers.cpp" />
     <ClCompile Include="camera.cpp" />
+    <ClCompile Include="Entity.cpp" />
     <ClCompile Include="Framebuffer.cpp" />
     <ClCompile Include="GLSL.cpp" />
+    <ClCompile Include="KinectSystem.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MatrixStack.cpp" />
     <ClCompile Include="new_Application.cpp" />
@@ -35,29 +37,35 @@
     <ClCompile Include="ShaderLibrary.cpp" />
     <ClCompile Include="Shape.cpp" />
     <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="TrackedBodyEntity.cpp" />
     <ClCompile Include="VertexArrayObject.cpp" />
     <ClCompile Include="WindowManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Animation.h" />
     <ClInclude Include="Application.h" />
     <ClInclude Include="Buffers.h" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="Entity.h" />
     <ClInclude Include="Framebuffer.h" />
     <ClInclude Include="GLSL.h" />
     <ClInclude Include="HelperFunctions.h" />
     <ClInclude Include="helper_includes\BodyTrackingHelpers.h" />
     <ClInclude Include="helper_includes\Utilities.h" />
+    <ClInclude Include="KinectSystem.h" />
     <ClInclude Include="MatrixStack.h" />
     <ClInclude Include="new_Application.h" />
     <ClInclude Include="new_body.h" />
     <ClInclude Include="Program.h" />
     <ClInclude Include="Renderbuffer.h" />
+    <ClInclude Include="Scene.h" />
     <ClInclude Include="ShaderLibrary.hpp" />
     <ClInclude Include="Shape.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="stb_image_write.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="tiny_obj_loader.h" />
+    <ClInclude Include="TrackedBodyEntity.h" />
     <ClInclude Include="VertexArrayObject.h" />
     <ClInclude Include="WindowManager.h" />
   </ItemGroup>

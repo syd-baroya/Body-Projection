@@ -204,6 +204,7 @@ void linkAndCheck(GLuint program, GLuint ssbo_binding_point_index) {
 	GLuint block_index = 0;
 	block_index = glGetProgramResourceIndex(program, GL_SHADER_STORAGE_BLOCK, "shader_data");
 	glShaderStorageBlockBinding(program, block_index, ssbo_binding_point_index);
+	
 }
 
 
