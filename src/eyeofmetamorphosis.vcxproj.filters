@@ -64,6 +64,9 @@
     <ClCompile Include="TrackedBodyEntity.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="helper_includes\BodyTrackingHelpers.h">

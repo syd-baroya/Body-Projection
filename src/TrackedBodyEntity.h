@@ -29,9 +29,8 @@ public:
 	long double calculateJointAngles(vec3 a, vec3 b, vec3 c);
 
 	std::map< k4abt_joint_id_t, long double> averageJointAngles(vector<TrackedBodyEntity> tracked_body);
-	void generateJointAngles(std::map<k4abt_joint_id_t, long double>* joint_angles, TrackedBodyEntity tracked_body);
-	void angleHierarchy(std::map <k4abt_joint_id_t, vector<k4abt_joint_id_t>>* angle_heirarchy);
-	void generateBodyVertices(TrackedBodyEntity* tracked_body, vector<vec3>* pos, vector<vec3> app_pos);
+
+	void generateBodyVertices(vector<vec3>* pos, vector<vec3> app_pos);
 
 	void reset();
 
@@ -61,8 +60,9 @@ public:
 	float chinstart = 0.5;
 	float sidechinstart = 1.35;
 
-
-
+private:
+	void generateJointAngles(std::map<k4abt_joint_id_t, long double>* joint_angles);
+	void angleHierarchy(std::map <k4abt_joint_id_t, vector<k4abt_joint_id_t>>* angle_heirarchy);
 };
 
 

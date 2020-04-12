@@ -150,9 +150,8 @@ void StartupState::parseArgs(int argc, char** argv)
 
 std::vector<std::string>::iterator StartupState::parseOption(std::vector<std::string>::iterator carg, const std::vector<std::string>& args)
 {
-	if (*carg == "-dev" || *carg == "--developer") {
+	if (*carg == "-dev" || *carg == "--developer") 
 		this->developer_mode = true;
-	}
 	return std::next(carg);
 }
 

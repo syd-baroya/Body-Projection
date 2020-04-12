@@ -22,7 +22,9 @@ public:
 
 protected:
 	std::string _name;
-
+	std::vector<vec3> vertex_coords;
+	std::vector<vec3> tex_coords;
+	std::vector<vec3> indices;
 private:
 	uuid_t uuid;
 };

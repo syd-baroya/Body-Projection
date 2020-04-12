@@ -34,6 +34,7 @@
     <ClCompile Include="new_main.cpp" />
     <ClCompile Include="Program.cpp" />
     <ClCompile Include="Renderbuffer.cpp" />
+    <ClCompile Include="Scene.cpp" />
     <ClCompile Include="ShaderLibrary.cpp" />
     <ClCompile Include="Shape.cpp" />
     <ClCompile Include="Texture.cpp" />
