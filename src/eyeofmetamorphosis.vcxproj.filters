@@ -55,16 +55,28 @@
     <ClCompile Include="VertexArrayObject.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="Entity.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="KinectSystem.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="TrackedBodyEntity.cpp">
+    <ClCompile Include="AnimationSystem.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="Scene.cpp">
+    <ClCompile Include="RenderSystem.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="TexturedMeshEntity.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneComponent.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="AnimationComponent.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Component.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="GeometryComponent.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
@@ -138,13 +150,31 @@
     <ClInclude Include="KinectSystem.h">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="TrackedBodyEntity.h">
+    <ClInclude Include="RenderSystem.h">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="Scene.h">
+    <ClInclude Include="AnimationSystem.h">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="Animation.h">
+    <ClInclude Include="CameraEntity.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Component.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="TexturedMeshEntity.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneComponent.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimationComponent.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshEntity.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="GeometryComponent.h">
       <Filter>Headers</Filter>
     </ClInclude>
   </ItemGroup>
@@ -201,6 +231,7 @@
     <None Include="..\resources\compute.glsl">
       <Filter>shader</Filter>
     </None>
+    <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />
     <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />
     <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />
     <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />

@@ -3,14 +3,9 @@
 #define ENTITY_H
 
 #include <cstdint>
-#include <string>
-
-
-typedef uintmax_t uuid_t;
-
-uuid_t generate_uuid();
-
-std::string uuid_to_string(uuid_t uuid);
+#include <glm/glm.hpp>
+#include "Component.h"
+#include <unordered_map>
 
 class Entity {
 public:
@@ -20,13 +15,20 @@ public:
 	std::string getName() { return(_name); }
 	uuid_t getUUID() { return(uuid); }
 
+	virtual void update() {}
+	virtual void draw() {}
+	bool isActive() { return active; }
+	void setActive(bool a) { active = a; }
+	void addComponent(Component c) { components.emplace(c.getUUID(), c); }
+
 protected:
 	std::string _name;
-	std::vector<vec3> vertex_coords;
-	std::vector<vec3> tex_coords;
-	std::vector<vec3> indices;
+
 private:
 	uuid_t uuid;
+	bool active = true;
+	std::unordered_map<uuid_t, Component> components;
+	bool active = true;
 };
 
 #endif

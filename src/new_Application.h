@@ -7,6 +7,7 @@
 #include <vector>
 #include <string>
 #include <array>
+#include "Scene.h"
 
 /**
  * Application.h adapted from Kolton Yager's Application.hpp
@@ -67,7 +68,7 @@ protected:
     void initShaders();
     void initScene();
 
-    //std::vector<Scene> art_scenes;
+    std::vector<SceneComponent> art_scenes;
 
     struct Configuration {
         StartupState startup_state;

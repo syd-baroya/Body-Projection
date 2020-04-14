@@ -1,21 +1,20 @@
 #include "Buffers.h"
 #include <vcruntime_string.h>
 
-void SimpleBuffer::addData(GLsizeiptr size, const void* data, GLenum usage)
-{
-	bind();
-	bufferData(size, data, usage);
-}
 
-void SimpleBuffer::bufferData(GLsizeiptr size, const void* data, GLenum usage)
+void SimpleBuffer::bufferData(GLuint npe, GLenum type, GLsizeiptr size, const void* data)
 {
+	num_per_elem = npe;
+	elem_type = type;
 	bind();
-	glBufferData(buffer_type, size, data, usage);
+	glBufferData(buffer_type, size, data, draw_type);
 	unbind();
 }
 
-void SimpleBuffer::bufferSubData(GLintptr offset, GLsizeiptr size, const void* data)
+void SimpleBuffer::bufferSubData(GLuint npe, GLenum type, GLintptr offset, GLsizeiptr size, const void* data)
 {
+	num_per_elem = npe;
+	elem_type = type;
 	bind();
 	glBufferSubData(buffer_type, offset, size, data);
 	unbind();
@@ -98,5 +97,3 @@ void ShaderStorageBuffer::get_SSBO_back(T& ssbo_data)
 	memcpy(&ssbo_data, p, siz);
 	unMapBuffer();
 }
-
-

@@ -5,38 +5,34 @@
 #include <glm/glm.hpp>
 #include <map>
 #include <k4abttypes.h>
+#include <vector>
 #include "Entity.h"
-#include <glm/glm.hpp>
 
 using namespace glm;
+using namespace std;
 
 #define CASCADE 5
 #define RECOVER_JOINT_POSITION_TIME 1.0
 #define FORECASTFACT 1.7 //0.1
 
-class TrackedBodyEntity : public Entity
+class TexturedMeshEntity : public Entity
 {
 
 public:
-	TrackedBodyEntity() : Entity() { reset();  }
-	TrackedBodyEntity(const std::string& name) : Entity(name) { reset();  }
+	TexturedMeshEntity() : Entity() { reset();  }
+	TexturedMeshEntity(const std::string& name) : Entity(name) { reset();  }
+
 
 	glm::vec3 getJoint(float forecast_fact, int j);
 
-	//glm::vec3 new_get_joint(float forecast_fact, int j);
 
-
-	long double calculateJointAngles(vec3 a, vec3 b, vec3 c);
-
-	std::map< k4abt_joint_id_t, long double> averageJointAngles(vector<TrackedBodyEntity> tracked_body);
-
-	void generateBodyVertices(vector<vec3>* pos, vector<vec3> app_pos);
+	void generateBodyVertices();
 
 	void reset();
 
 	void cascade();
 
-
+	
 
 	int cascade_count[K4ABT_JOINT_COUNT];
 	glm::vec3 old_joint_positions[K4ABT_JOINT_COUNT][CASCADE];
@@ -63,6 +59,11 @@ public:
 private:
 	void generateJointAngles(std::map<k4abt_joint_id_t, long double>* joint_angles);
 	void angleHierarchy(std::map <k4abt_joint_id_t, vector<k4abt_joint_id_t>>* angle_heirarchy);
+
+	long double calculateJointAngles(vec3 a, vec3 b, vec3 c);
+
+	std::map< k4abt_joint_id_t, long double> averageJointAngles(vector<TexturedMeshEntity> tracked_body);
+
 };
 
 

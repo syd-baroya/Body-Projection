@@ -1,4 +1,4 @@
-#include "TrackedBodyEntity.h"
+#include "TexturedMeshEntity.h"
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include "HelperFunctions.h"
@@ -7,7 +7,7 @@
 using namespace std;
 
 
-glm::vec3 TrackedBodyEntity::getJoint(float forecast_fact, int j)
+glm::vec3 TexturedMeshEntity::getJoint(float forecast_fact, int j)
 {
 	float cur_time = glfwGetTime();
 	float future_time = glfwGetTime() + +0.000000001f;
@@ -20,7 +20,7 @@ glm::vec3 TrackedBodyEntity::getJoint(float forecast_fact, int j)
 	return joint_positions[j];// -oldv * forecast_fact;// -joint_speed[0] * forecast_fact;
 }
 
-void TrackedBodyEntity::reset()
+void TexturedMeshEntity::reset()
 {
 	std::cout << "body resetted" << std::endl;
 	init_tracked = false;
@@ -38,7 +38,7 @@ void TrackedBodyEntity::reset()
 
 }
 
-void TrackedBodyEntity::cascade()
+void TexturedMeshEntity::cascade()
 {
 	bool stepcascade = false;
 
@@ -97,7 +97,7 @@ void TrackedBodyEntity::cascade()
 	}
 }
 
-long double TrackedBodyEntity::calculateJointAngles(vec3 a, vec3 b, vec3 c)
+long double TexturedMeshEntity::calculateJointAngles(vec3 a, vec3 b, vec3 c)
 {
 	vec3 vec_ab = points_to_vector(a, b);
 	vec3 vec_bc = points_to_vector(b, c);
@@ -107,7 +107,7 @@ long double TrackedBodyEntity::calculateJointAngles(vec3 a, vec3 b, vec3 c)
 }
 
 
-void TrackedBodyEntity::generateJointAngles(std::map<k4abt_joint_id_t, long double>* jointAngles)
+void TexturedMeshEntity::generateJointAngles(std::map<k4abt_joint_id_t, long double>* jointAngles)
 {
 	float forecastfact = FORECASTFACT;
 
@@ -148,7 +148,7 @@ void TrackedBodyEntity::generateJointAngles(std::map<k4abt_joint_id_t, long doub
 
 }
 
-void TrackedBodyEntity::angleHierarchy(std::map <k4abt_joint_id_t, vector<k4abt_joint_id_t>>* angle_hierarchy)
+void TexturedMeshEntity::angleHierarchy(std::map <k4abt_joint_id_t, vector<k4abt_joint_id_t>>* angle_hierarchy)
 {
 	vector<k4abt_joint_id_t> shoulder_right;
 	shoulder_right.push_back(K4ABT_JOINT_SHOULDER_RIGHT);
@@ -211,7 +211,7 @@ void TrackedBodyEntity::angleHierarchy(std::map <k4abt_joint_id_t, vector<k4abt_
 	angle_hierarchy->insert(make_pair(K4ABT_JOINT_SHOULDER_LEFT, ankle_left));
 }
 
-void TrackedBodyEntity::generateBodyVertices(vector<vec3>* pos, vector<vec3> app_pos)
+void TexturedMeshEntity::generateBodyVertices()
 {
 
 
@@ -282,23 +282,23 @@ void TrackedBodyEntity::generateBodyVertices(vector<vec3>* pos, vector<vec3> app
 	vec3 slr = getJoint(forecastfact, K4ABT_JOINT_NECK) + normalize(utr - getJoint(forecastfact, K4ABT_JOINT_NECK)) * torso_width_right * throat_width;
 	//vec3 mtc = (mtl + mtr) / (float)2.;
 	//construct torso:
-	pos->push_back(mll); //0
-	pos->push_back(mlr); //1
-	pos->push_back(mtl); //2
-	pos->push_back(mtr); //3
+	vertex_coords.push_back(mll); //0
+	vertex_coords.push_back(mlr); //1
+	vertex_coords.push_back(mtl); //2
+	vertex_coords.push_back(mtr); //3
 
-	pos->push_back(getJoint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT)); //4
-	/*pos->push_back(getJoint(forecastfact, K4ABT_JOINT_CLAVICLE_LEFT));
-	pos->push_back(getJoint(forecastfact, K4ABT_JOINT_CLAVICLE_RIGHT));*/
-	pos->push_back(getJoint(forecastfact, K4ABT_JOINT_NECK)); //5
-	pos->push_back(getJoint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT)); //6
+	vertex_coords.push_back(getJoint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT)); //4
+	/*vertex_coords.push_back(getJoint(forecastfact, K4ABT_JOINT_CLAVICLE_LEFT));
+	vertex_coords.push_back(getJoint(forecastfact, K4ABT_JOINT_CLAVICLE_RIGHT));*/
+	vertex_coords.push_back(getJoint(forecastfact, K4ABT_JOINT_NECK)); //5
+	vertex_coords.push_back(getJoint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT)); //6
 
-	pos->push_back(utl); //7
-	pos->push_back(getJoint(forecastfact, K4ABT_JOINT_NECK)); //8
-	pos->push_back(utr); //9
+	vertex_coords.push_back(utl); //7
+	vertex_coords.push_back(getJoint(forecastfact, K4ABT_JOINT_NECK)); //8
+	vertex_coords.push_back(utr); //9
 
-	pos->push_back(sll); //10
-	pos->push_back(slr); //11
+	vertex_coords.push_back(sll); //10
+	vertex_coords.push_back(slr); //11
 
 	//return;
 
@@ -331,15 +331,15 @@ void TrackedBodyEntity::generateBodyVertices(vector<vec3>* pos, vector<vec3> app
 
 
 	//construct arms:
-	pos->push_back(hll); //12
-	pos->push_back(hlr); //13
-	pos->push_back(ell); //14
-	pos->push_back(elr); //15
+	vertex_coords.push_back(hll); //12
+	vertex_coords.push_back(hlr); //13
+	vertex_coords.push_back(ell); //14
+	vertex_coords.push_back(elr); //15
 
-	pos->push_back(hrl); //16
-	pos->push_back(hrr); //17
-	pos->push_back(erl); //18
-	pos->push_back(err); //19
+	vertex_coords.push_back(hrl); //16
+	vertex_coords.push_back(hrr); //17
+	vertex_coords.push_back(erl); //18
+	vertex_coords.push_back(err); //19
 
 
 
@@ -389,21 +389,21 @@ void TrackedBodyEntity::generateBodyVertices(vector<vec3>* pos, vector<vec3> app
 
 
 	//construct legs
-	pos->push_back(fll); //20
-	pos->push_back(flr); //21
-	pos->push_back(all); //22
-	pos->push_back(alr); //23
-	pos->push_back(kll); //24
-	pos->push_back(klr); //25
+	vertex_coords.push_back(fll); //20
+	vertex_coords.push_back(flr); //21
+	vertex_coords.push_back(all); //22
+	vertex_coords.push_back(alr); //23
+	vertex_coords.push_back(kll); //24
+	vertex_coords.push_back(klr); //25
 
-	pos->push_back(fut); //26
+	vertex_coords.push_back(fut); //26
 
-	pos->push_back(frl); //27
-	pos->push_back(frr); //28
-	pos->push_back(arl); //29
-	pos->push_back(arr); //30
-	pos->push_back(krl); //31
-	pos->push_back(krr); //32
+	vertex_coords.push_back(frl); //27
+	vertex_coords.push_back(frr); //28
+	vertex_coords.push_back(arl); //29
+	vertex_coords.push_back(arr); //30
+	vertex_coords.push_back(krl); //31
+	vertex_coords.push_back(krr); //32
 
 
 	//head/throat:
@@ -423,11 +423,11 @@ void TrackedBodyEntity::generateBodyVertices(vector<vec3>* pos, vector<vec3> app
 	vec3 gr = sidechincenter - gl;
 	gl = sidechincenter + gl;
 	//contruct head
-	pos->push_back(chin); //33
-	pos->push_back(gl); //34
-	pos->push_back(gr); //35
-	pos->push_back(hl); //36
-	pos->push_back(hr); //37
+	vertex_coords.push_back(chin); //33
+	vertex_coords.push_back(gl); //34
+	vertex_coords.push_back(gr); //35
+	vertex_coords.push_back(hl); //36
+	vertex_coords.push_back(hr); //37
 
 
 
@@ -446,11 +446,7 @@ void TrackedBodyEntity::generateBodyVertices(vector<vec3>* pos, vector<vec3> app
 	vec3 tlr = getJoint(forecastfact, K4ABT_JOINT_HANDTIP_LEFT) - tll;
 	tll = getJoint(forecastfact, K4ABT_JOINT_HANDTIP_LEFT) + tll;
 
-	if ((!joint_tracked[K4ABT_JOINT_ELBOW_LEFT] || !joint_tracked[K4ABT_JOINT_WRIST_LEFT] || !joint_tracked[K4ABT_JOINT_HANDTIP_LEFT]) && !app_pos.empty())
-	{
-		tll = app_pos[38];
-		tlr = app_pos[39];
-	}
+
 
 	vec3 trr = normalize(
 		normalize(getJoint(forecastfact, K4ABT_JOINT_ELBOW_RIGHT) - getJoint(forecastfact, K4ABT_JOINT_WRIST_RIGHT)) +
@@ -461,17 +457,79 @@ void TrackedBodyEntity::generateBodyVertices(vector<vec3>* pos, vector<vec3> app
 	vec3 trl = getJoint(forecastfact, K4ABT_JOINT_HANDTIP_RIGHT) - trr;
 	trr = getJoint(forecastfact, K4ABT_JOINT_HANDTIP_RIGHT) + trr;
 
-	if ((!joint_tracked[K4ABT_JOINT_ELBOW_RIGHT] || !joint_tracked[K4ABT_JOINT_WRIST_RIGHT] || !joint_tracked[K4ABT_JOINT_HANDTIP_RIGHT]) && !app_pos.empty())
-	{
-		trl = app_pos[40];
-		trr = app_pos[41];
-	}
 
-	pos->push_back(tll); //38
-	pos->push_back(tlr); //39
-	pos->push_back(trl); //40
-	pos->push_back(trr); //41
+	vertex_coords.push_back(tll); //38
+	vertex_coords.push_back(tlr); //39
+	vertex_coords.push_back(trl); //40
+	vertex_coords.push_back(trr); //41
 
 }
 
-
+//void SceneComponent::updateEntities()
+//{
+//	if (body.getNumBodies() > 0)
+//	{
+//		for (int i = 0; i < body.getDeviceCount(); i++) {
+//			new_trackedbody_* tb = &body.trackedbody.at(i);
+//			generate_joint_angles(&tb->jointAngleMap, *tb);
+//		}
+//		std::map<k4abt_joint_id_t, long double> avg_angles = average_all_joint_angles(body.trackedbody);
+//		std::map < k4abt_joint_id_t, vector<k4abt_joint_id_t>> angleHierarchy;
+//		angle_hierarchy(&angleHierarchy);
+//		vec3 master_positions[K4ABT_JOINT_COUNT];
+//		copy(begin(body.trackedbody.at(0).joint_positions), end(body.trackedbody.at(0).joint_positions), begin(master_positions));
+//
+//		std::cout << "Length of array = " << (sizeof(master_positions) / sizeof(*master_positions)) << std::endl;
+//
+//		for (pair< k4abt_joint_id_t, long double> element : avg_angles)
+//		{
+//			double theta = 0;
+//
+//			long double new_angle = avg_angles[element.first];
+//			long double old_angle = body.trackedbody.at(0).jointAngleMap[element.first];
+//
+//			if (new_angle > old_angle)
+//				theta = new_angle - old_angle;
+//			else
+//				theta = old_angle - new_angle;
+//
+//			k4abt_joint_id_t joint_for_angle = element.first;
+//			k4abt_joint_id_t joint_for_position = element.first;
+//
+//			vec3 new_master_joint_position = vec3(coord_after_rotation(vec2(master_positions[joint_for_position].x, master_positions[joint_for_position].y), vec2(master_positions[joint_for_angle].x, master_positions[joint_for_angle].y), theta, new_angle), master_positions[joint_for_position].z);
+//
+//			vec3 change_in_joint_position = master_positions[joint_for_position] - new_master_joint_position;
+//
+//			for (k4abt_joint_id_t hierarchy_joints : angleHierarchy[element.first])
+//			{
+//				master_positions[hierarchy_joints] = master_positions[hierarchy_joints] - change_in_joint_position;
+//			}
+//
+//		}
+//		copy(begin(master_positions), end(master_positions), begin(body.trackedbody.at(0).joint_positions));
+//	}
+//	vector<vec3> temp_posb;
+//
+//	generate_body_vertices(&body.trackedbody.at(0), &temp_posb, app_posb);
+//}
+//
+//std::map< k4abt_joint_id_t, long double> SceneComponent::averageJointAngles(vector<Entity> tracked_body)
+//{
+//	std::map< k4abt_joint_id_t, long double> angleAverages;
+//	for (int i = 0; i < tracked_body.size(); i++)
+//	{
+//		for (pair<k4abt_joint_id_t, long double> element : tracked_body.at(i).joint_angle_map)
+//		{
+//
+//			angleAverages[element.first] += element.second;
+//			cout << endl << "DEVICE " << i << ": " << "JOINT " << g_jointNames.at(element.first) << "ANGLE " << element.second << endl;
+//		}
+//	}
+//	for (pair< k4abt_joint_id_t, long double> element : angleAverages)
+//	{
+//		angleAverages[element.first] = element.second / tracked_body.size();
+//		cout << endl << "JOINT " << g_jointNames.at(element.first) << "ANGLE AVERAGES " << angleAverages[element.first] << endl;
+//	}
+//	return angleAverages;
+//}
+//

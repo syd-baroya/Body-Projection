@@ -15,13 +15,20 @@ public:
 	void unbind();
 	void enableVertexAttribArray(GLuint index);
 	void disableVertexAttribArray(GLuint index);
+	void disableAllVertAttribArr();
 	void setVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid* pointer);
-	void addBuffer(SimpleBuffer buffer);
+	void addBuffer(ArrayBuffer buffer);
+	void addBuffer(ElementArrayBuffer buffer);
 	void deleteVAO();
+
+	void setupBuffersToDraw();
+	void disableBuffersAfterDraw();
+
 
 private:
 	GLuint id;
-	std::map<GLuint, SimpleBuffer> buffer_objects;
+	std::map<GLuint, ArrayBuffer> array_buffer_objects;
+	ElementArrayBuffer element_buffer;
 };
 
 #endif

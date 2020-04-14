@@ -11,15 +11,19 @@ public:
 
 	virtual void bind() { glBindBuffer(buffer_type, id); }
 	virtual void unbind() { glBindBuffer(buffer_type, 0); }
-	virtual void addData(GLsizeiptr size, const void* data, GLenum usage);
-	virtual void bufferData(GLsizeiptr size, const void* data, GLenum usage);
-	virtual void bufferSubData(GLintptr offset, GLsizeiptr size, const void* data);
+	virtual void bufferData(GLuint npe, GLenum type, GLsizeiptr size, const void* data);
+	virtual void bufferSubData(GLuint npe, GLenum type, GLintptr offset, GLsizeiptr size, const void* data);
 	inline GLenum getBufferType() const { return(buffer_type); }
 	inline GLuint getID() const { return(id); }
 	virtual void deleteBuffer() {	glDeleteBuffers(1, &id);	}
+	inline GLuint getNumPerElem() { return(num_per_elem); }
+	inline GLenum getElemType() { return(elem_type); }
 private:
+	GLuint num_per_elem;
+	GLenum elem_type;
 	GLenum buffer_type = GL_INVALID_ENUM;
 	GLuint id;
+	GLenum draw_type = GL_INVALID_ENUM;
 };
 
 class ComplexBuffer : public SimpleBuffer {
@@ -35,6 +39,7 @@ public:
 class ArrayBuffer : public SimpleBuffer {
 public:
 	ArrayBuffer() : SimpleBuffer(GL_ARRAY_BUFFER) {}
+
 };
 
 class AtomicCounterBuffer : public ComplexBuffer {
