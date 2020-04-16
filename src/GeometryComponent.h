@@ -20,13 +20,22 @@ public:
 		vertex_array_object.addBuffer(vertex_elements_buffer);
 	}
 
+	
+	std::vector<glm::vec3>& getMutableVertices() { return(cpu_vertices); }
+	std::vector<glm::vec3> getVertices() const { return(cpu_vertices); }
+	std::vector<GLuint>& getMutableElements() { return(cpu_elements); }
+	std::vector<GLuint> getElements() const { return(cpu_elements); }
+
 	void setupForDraw();
 	void cleanupAfterDraw();
-	void uploadData();
+	void update(double frametime) override;
 	void startGPUUpload();
 	void finishGPUUpload();
 
 protected:
+	void uploadToGPU();
+	virtual void uploadData();
+
 	VertexArrayObject vertex_array_object;
 	ArrayBuffer vertex_pos_buffer;
 	ElementArrayBuffer vertex_elements_buffer;
@@ -34,7 +43,7 @@ protected:
 private:
 	std::vector<glm::vec3> cpu_vertices;
 	std::vector<GLuint> cpu_elements;
-	GLenum draw_type = GL_STATIC_DRAW;
+	//GLenum draw_type = GL_STATIC_DRAW;
 };
 
 class TexturedGeomComponent : public GeometryComponent {
@@ -46,8 +55,9 @@ public:
 	TexturedGeomComponent(const std::vector<glm::vec3>& vertices, const std::vector<GLuint>& elements, 
 		std::vector<glm::vec3>& normals, std::vector<glm::vec2>& tex_coords);
 
-	void uploadData();
 protected:
+	void uploadData() override;
+
 	ArrayBuffer vertex_normals_buffer;
 	ArrayBuffer vertex_texture_buffer;
 

@@ -5,11 +5,11 @@ void AnimationComponent::init()
 {
 }
 
-void AnimationComponent::update()
+void AnimationComponent::update(double frametime)
 {
 }
 
-void AnimationComponent::draw()
+void AnimationComponent::draw(Program* prog)
 {
 }
 

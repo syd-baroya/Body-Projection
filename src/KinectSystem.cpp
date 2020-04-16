@@ -88,7 +88,7 @@ void KinectSystem::InitializeDefaultSensor()
 }
 
 
-int KinectSystem::process(float frametime, TexturedMeshEntity* tracked_body)
+int KinectSystem::process(float frametime, TrackedBodyEntity* tracked_body)
 {
 	int trackedbodies = 0;
 	for (uint32_t deviceIndex = 0; deviceIndex < this->device_count; deviceIndex++) {
@@ -189,7 +189,7 @@ int KinectSystem::process(float frametime, TexturedMeshEntity* tracked_body)
 	return trackedbodies;
 }
 
-bool KinectSystem::processEntity(float frametime, uint64_t nTime, int nBodyCount, TexturedMeshEntity* tracked_body, bodypack_* bodypack, uint32_t deviceIndex)
+bool KinectSystem::processEntity(float frametime, uint64_t nTime, int nBodyCount, TrackedBodyEntity* tracked_body, bodypack_* bodypack, uint32_t deviceIndex)
 {
 	k4abt_body_t* p_closest_Body_to_track = NULL;
 	float closest = -1;

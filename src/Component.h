@@ -2,6 +2,7 @@
 #ifndef COMPONENT_H
 #define COMPONENT_H
 #include <string>
+#include "Program.h"
 
 
 typedef uintmax_t uuid_t;
@@ -15,8 +16,8 @@ class Component {
 public:
 	Component() : uuid(generate_uuid()) {}
 	virtual void init() {}
-	virtual void update() {}
-	virtual void draw() {}
+	virtual void update(double frametime) {}
+	virtual void draw(Program* prog) {}
 	uuid_t getUUID() { return(uuid); }
 
 

@@ -4,7 +4,7 @@
 #define KINECT_SYSTEM_HPP
 
 #include <vector>
-#include "TrackedBodyEntity.h"
+#include "TexturedMeshEntity.h"
 
 const float MillimeterToMeter = 0.001f;
 #define BODY_LOST_TIME 0.1
@@ -29,7 +29,7 @@ class KinectSystem
 {
 public:
 
-	int process(float frametime, TexturedMeshEntity* tracked_body);
+	int process(float frametime, TrackedBodyEntity* tracked_body);
 	void InitializeDefaultSensor();
 	void CloseSensor();
 	uint32_t getDeviceCount();
@@ -47,7 +47,7 @@ public:
 	}
 
 private:
-	bool processEntity(float frametime, uint64_t nTime, int nBodyCount, TexturedMeshEntity* tracked_body, bodypack_* bodypack, uint32_t deviceIndex);
+	bool processEntity(float frametime, uint64_t nTime, int nBodyCount, TrackedBodyEntity* tracked_body, bodypack_* bodypack, uint32_t deviceIndex);
 	std::vector<k4a_device_t> devices;
 	k4a_device_configuration_t deviceConfig;
 	std::vector<k4abt_tracker_t> trackers;

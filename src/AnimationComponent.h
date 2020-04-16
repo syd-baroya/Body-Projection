@@ -9,11 +9,12 @@
 class AnimationComponent : public Component {
 
 public:
+	AnimationComponent(){}
 	AnimationComponent(Texture tex) : animation_texture(tex) {}
 
 	void init() override;
-	void update() override;
-	void draw() override;
+	void update(double frametime) override;
+	void draw(Program* prog) override;
 
 	float getStartTime() { return(start_time); }
 	float getCoolDownTime() { return(cooldown_time); }

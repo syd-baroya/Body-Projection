@@ -3,7 +3,12 @@
 
 class SimpleBuffer {
 public:
-	SimpleBuffer(GLenum buffer_type) : buffer_type(buffer_type) {
+	SimpleBuffer(){
+		glGenBuffers(1, &id);
+		bind();
+		unbind();
+	}
+	SimpleBuffer(GLenum buffer_type, GLenum draw_type) : buffer_type(buffer_type), draw_type(draw_type) {
 		glGenBuffers(1, &id);
 		bind();
 		unbind();
@@ -28,7 +33,8 @@ private:
 
 class ComplexBuffer : public SimpleBuffer {
 public:
-	ComplexBuffer(GLenum buffer_type) : SimpleBuffer(buffer_type) {}
+	ComplexBuffer() : SimpleBuffer(){}
+	ComplexBuffer(GLenum buffer_type, GLenum draw_type) : SimpleBuffer(buffer_type, draw_type) {}
 	auto* mapBufferRange(GLintptr offset, GLsizeiptr length, GLbitfield access);
 	GLvoid* mapBuffer(GLenum access);
 	void unMapBuffer();
@@ -38,13 +44,15 @@ public:
 
 class ArrayBuffer : public SimpleBuffer {
 public:
-	ArrayBuffer() : SimpleBuffer(GL_ARRAY_BUFFER) {}
+	ArrayBuffer() : SimpleBuffer() {}
+
+	ArrayBuffer(GLenum draw_type) : SimpleBuffer(GL_ARRAY_BUFFER, draw_type) {}
 
 };
 
 class AtomicCounterBuffer : public ComplexBuffer {
 public:
-	AtomicCounterBuffer() : ComplexBuffer(GL_ATOMIC_COUNTER_BUFFER){}
+	AtomicCounterBuffer() : ComplexBuffer(GL_ATOMIC_COUNTER_BUFFER, GL_DYNAMIC_DRAW){}
 	/*void init_atomic(); ------> bufferData()*/
 	void reset_atomic();
 	void read_atomic();
@@ -53,13 +61,14 @@ public:
 
 class ElementArrayBuffer : public SimpleBuffer {
 public:
-	ElementArrayBuffer() : SimpleBuffer(GL_ELEMENT_ARRAY_BUFFER){}
+	ElementArrayBuffer() : SimpleBuffer() {}
+	ElementArrayBuffer(GLenum draw_type) : SimpleBuffer(GL_ELEMENT_ARRAY_BUFFER, draw_type){}
 };
 
 
 class ShaderStorageBuffer : public ComplexBuffer {
 public:
-	ShaderStorageBuffer() : ComplexBuffer(GL_SHADER_STORAGE_BUFFER) {}
+	ShaderStorageBuffer() : ComplexBuffer(GL_SHADER_STORAGE_BUFFER, GL_DYNAMIC_DRAW) {}
 	template <typename T>
 	void create_SSBO(T& ssbo_data);
 	template <typename T>

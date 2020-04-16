@@ -1,7 +1,6 @@
 #pragma once
 #include <vector>
 #include <glm/glm.hpp>
-#include <GLFW\glfw3.h>
 
 using namespace glm;
 
@@ -66,14 +65,7 @@ float frand()
 {
 	return (float)rand() / 32768.0;
 }
-double get_last_elapsed_time()
-{
-	static double lasttime = glfwGetTime();
-	double actualtime = glfwGetTime();
-	double difference = actualtime - lasttime;
-	lasttime = actualtime;
-	return difference;
-}
+
 
 
 

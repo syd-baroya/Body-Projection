@@ -27,7 +27,8 @@ void ShaderLibrary::add(const string &name, Program* prog){
 bool ShaderLibrary::loadFromShaderCollection(string path, bool silent) {
 	ifstream shaderfile = ifstream(path);
 	if (!shaderfile.is_open()) {
-		fprintf(stderr, "Failed to open shaders json file!\n");
+		fprintf(stderr, "Failed to open shaders file!\n");
+		fprintf(stderr, "Failed to open shaders file!\n");
 		exit(3);
 	}
 

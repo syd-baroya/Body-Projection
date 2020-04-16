@@ -7,6 +7,9 @@
 #include <k4abttypes.h>
 #include <vector>
 #include "Entity.h"
+#include "GeometryComponent.h"
+#include "SceneComponent.h"
+#include "AnimationComponent.h"
 
 using namespace glm;
 using namespace std;
@@ -15,12 +18,26 @@ using namespace std;
 #define RECOVER_JOINT_POSITION_TIME 1.0
 #define FORECASTFACT 1.7 //0.1
 
-class TexturedMeshEntity : public Entity
+class MeshEntity : public Entity {
+public:
+	MeshEntity(){}
+
+private:
+	GeometryComponent geometry;
+};
+
+class TexturedMeshEntity : public MeshEntity {
+public:
+	TexturedMeshEntity(){}
+protected:
+	TexturedGeomComponent geometry;
+};
+
+class TrackedBodyEntity : public TexturedMeshEntity
 {
 
 public:
-	TexturedMeshEntity() : Entity() { reset();  }
-	TexturedMeshEntity(const std::string& name) : Entity(name) { reset();  }
+	TrackedBodyEntity() : TexturedMeshEntity() { reset();  }
 
 
 	glm::vec3 getJoint(float forecast_fact, int j);
@@ -56,14 +73,21 @@ public:
 	float chinstart = 0.5;
 	float sidechinstart = 1.35;
 
+	glm::vec3 modelpos = glm::vec3(0);
+	glm::vec3 modelscale = glm::vec3(1);
+	float forecastfact = FORECASTFACT;
+
 private:
 	void generateJointAngles(std::map<k4abt_joint_id_t, long double>* joint_angles);
 	void angleHierarchy(std::map <k4abt_joint_id_t, vector<k4abt_joint_id_t>>* angle_heirarchy);
 
 	long double calculateJointAngles(vec3 a, vec3 b, vec3 c);
 
-	std::map< k4abt_joint_id_t, long double> averageJointAngles(vector<TexturedMeshEntity> tracked_body);
+	std::map< k4abt_joint_id_t, long double> averageJointAngles(vector<TrackedBodyEntity> tracked_body);
 
+
+	SceneComponent scene;
+	AnimationComponent animation;
 };
 
 

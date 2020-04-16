@@ -11,40 +11,37 @@
 #include <map>
 #include <k4abt.h>
 #include <glm/glm.hpp>
+#include "HelperFunctions.h"
+#include "GeometryComponent.h"
+#include "TrackedBodyEntity.h"
 
 using namespace glm;
 
-float frand()
-{
-	return (float)rand() / 32768.0;
-}
 
 class SceneComponent : public Component {
 public:
-	SceneComponent(Texture tex) : scene_texture(tex) {
-		red_tone = normalize(vec3(frand(), frand(), frand()));
-		green_tone = normalize(vec3(frand(), frand(), frand()));
-		blue_tone = normalize(vec3(frand(), frand(), frand()));
+	SceneComponent(){}
+	SceneComponent(Texture tex, float total_time) : scene_texture(tex), effect_time(total_time) {}
 
-		color_scaling = normalize(vec3(frand(), frand(), frand()));
-		red_tone *= color_scaling.x;
-		green_tone *= color_scaling.y;
-		blue_tone *= color_scaling.z;
-	}
+	virtual void init() override;
+	virtual void update(double frametime) override;
+	void startDraw(Program* prog, GeometryComponent* geometry, Entity* entity);
+	void finishDraw(Program* prog, GeometryComponent* geometry);
+	virtual void draw(Program* prog, GeometryComponent* geometry, Entity* entity, double frametime);
 
-	void init() override;
-	void update() override;
-	void draw() override;
+	virtual void activateTexture();
 
 	void pauseAll();
 	void unpauseAll();
 	void reset();
+	float getTotalEffectTime() { return(effect_time); }
 
 protected:
 
 	float effect_time = 0;
 
 	bool add_tones = false;
+	bool is_paused = false;
 
 	vec3 red_tone;
 	vec3 green_tone;
@@ -56,6 +53,37 @@ protected:
 
 
 
+};
+
+#define BUTTERFLYCOUNT 50
+
+
+class butterfly_
+{
+public:
+	float rotz;
+	float scale;
+	int iA, iB;
+	float rationAB;
+	float startanim;
+	vec3 red, green, blue;
+};
+
+class ButterflyScene : public SceneComponent {
+public:
+	ButterflyScene(Texture tex, float total_time) : SceneComponent(tex, total_time) {}
+
+	butterfly_* getButterfly() { return(butterfly); }
+	void updateCurrButterfly() { curr_butterfly++; }
+
+	void init() override;
+	void update(double frametime) override;
+	void draw(Program* prog, GeometryComponent* geometry, Entity* entity, double frametime) override;
+
+private:
+	butterfly_ butterfly[BUTTERFLYCOUNT];
+	int curr_butterfly = 0;
+	int actual_butterfly_size = 0;
 };
 
 #endif

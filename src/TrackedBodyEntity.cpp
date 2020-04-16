@@ -1,4 +1,4 @@
-#include "TexturedMeshEntity.h"
+#include "TrackedBodyEntity.h"
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include "HelperFunctions.h"
@@ -7,7 +7,7 @@
 using namespace std;
 
 
-glm::vec3 TexturedMeshEntity::getJoint(float forecast_fact, int j)
+glm::vec3 TrackedBodyEntity::getJoint(float forecast_fact, int j)
 {
 	float cur_time = glfwGetTime();
 	float future_time = glfwGetTime() + +0.000000001f;
@@ -20,7 +20,7 @@ glm::vec3 TexturedMeshEntity::getJoint(float forecast_fact, int j)
 	return joint_positions[j];// -oldv * forecast_fact;// -joint_speed[0] * forecast_fact;
 }
 
-void TexturedMeshEntity::reset()
+void TrackedBodyEntity::reset()
 {
 	std::cout << "body resetted" << std::endl;
 	init_tracked = false;
@@ -38,7 +38,7 @@ void TexturedMeshEntity::reset()
 
 }
 
-void TexturedMeshEntity::cascade()
+void TrackedBodyEntity::cascade()
 {
 	bool stepcascade = false;
 
@@ -97,7 +97,7 @@ void TexturedMeshEntity::cascade()
 	}
 }
 
-long double TexturedMeshEntity::calculateJointAngles(vec3 a, vec3 b, vec3 c)
+long double TrackedBodyEntity::calculateJointAngles(vec3 a, vec3 b, vec3 c)
 {
 	vec3 vec_ab = points_to_vector(a, b);
 	vec3 vec_bc = points_to_vector(b, c);
@@ -107,7 +107,7 @@ long double TexturedMeshEntity::calculateJointAngles(vec3 a, vec3 b, vec3 c)
 }
 
 
-void TexturedMeshEntity::generateJointAngles(std::map<k4abt_joint_id_t, long double>* jointAngles)
+void TrackedBodyEntity::generateJointAngles(std::map<k4abt_joint_id_t, long double>* jointAngles)
 {
 	float forecastfact = FORECASTFACT;
 
@@ -148,7 +148,7 @@ void TexturedMeshEntity::generateJointAngles(std::map<k4abt_joint_id_t, long dou
 
 }
 
-void TexturedMeshEntity::angleHierarchy(std::map <k4abt_joint_id_t, vector<k4abt_joint_id_t>>* angle_hierarchy)
+void TrackedBodyEntity::angleHierarchy(std::map <k4abt_joint_id_t, vector<k4abt_joint_id_t>>* angle_hierarchy)
 {
 	vector<k4abt_joint_id_t> shoulder_right;
 	shoulder_right.push_back(K4ABT_JOINT_SHOULDER_RIGHT);
@@ -211,10 +211,10 @@ void TexturedMeshEntity::angleHierarchy(std::map <k4abt_joint_id_t, vector<k4abt
 	angle_hierarchy->insert(make_pair(K4ABT_JOINT_SHOULDER_LEFT, ankle_left));
 }
 
-void TexturedMeshEntity::generateBodyVertices()
+void TrackedBodyEntity::generateBodyVertices()
 {
 
-
+	std::vector<glm::vec3>* vertex_coords = this->geometry.getMutableVertices;
 
 	float forecastfact = FORECASTFACT;
 	float z_base = getJoint(forecastfact, 0).z;
@@ -282,23 +282,23 @@ void TexturedMeshEntity::generateBodyVertices()
 	vec3 slr = getJoint(forecastfact, K4ABT_JOINT_NECK) + normalize(utr - getJoint(forecastfact, K4ABT_JOINT_NECK)) * torso_width_right * throat_width;
 	//vec3 mtc = (mtl + mtr) / (float)2.;
 	//construct torso:
-	vertex_coords.push_back(mll); //0
-	vertex_coords.push_back(mlr); //1
-	vertex_coords.push_back(mtl); //2
-	vertex_coords.push_back(mtr); //3
+	vertex_coords->push_back(mll); //0
+	vertex_coords->push_back(mlr); //1
+	vertex_coords->push_back(mtl); //2
+	vertex_coords->push_back(mtr); //3
 
-	vertex_coords.push_back(getJoint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT)); //4
-	/*vertex_coords.push_back(getJoint(forecastfact, K4ABT_JOINT_CLAVICLE_LEFT));
-	vertex_coords.push_back(getJoint(forecastfact, K4ABT_JOINT_CLAVICLE_RIGHT));*/
-	vertex_coords.push_back(getJoint(forecastfact, K4ABT_JOINT_NECK)); //5
-	vertex_coords.push_back(getJoint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT)); //6
+	vertex_coords->push_back(getJoint(forecastfact, K4ABT_JOINT_SHOULDER_LEFT)); //4
+	/*vertex_coords->push_back(getJoint(forecastfact, K4ABT_JOINT_CLAVICLE_LEFT));
+	vertex_coords->push_back(getJoint(forecastfact, K4ABT_JOINT_CLAVICLE_RIGHT));*/
+	vertex_coords->push_back(getJoint(forecastfact, K4ABT_JOINT_NECK)); //5
+	vertex_coords->push_back(getJoint(forecastfact, K4ABT_JOINT_SHOULDER_RIGHT)); //6
 
-	vertex_coords.push_back(utl); //7
-	vertex_coords.push_back(getJoint(forecastfact, K4ABT_JOINT_NECK)); //8
-	vertex_coords.push_back(utr); //9
+	vertex_coords->push_back(utl); //7
+	vertex_coords->push_back(getJoint(forecastfact, K4ABT_JOINT_NECK)); //8
+	vertex_coords->push_back(utr); //9
 
-	vertex_coords.push_back(sll); //10
-	vertex_coords.push_back(slr); //11
+	vertex_coords->push_back(sll); //10
+	vertex_coords->push_back(slr); //11
 
 	//return;
 
@@ -331,15 +331,15 @@ void TexturedMeshEntity::generateBodyVertices()
 
 
 	//construct arms:
-	vertex_coords.push_back(hll); //12
-	vertex_coords.push_back(hlr); //13
-	vertex_coords.push_back(ell); //14
-	vertex_coords.push_back(elr); //15
+	vertex_coords->push_back(hll); //12
+	vertex_coords->push_back(hlr); //13
+	vertex_coords->push_back(ell); //14
+	vertex_coords->push_back(elr); //15
 
-	vertex_coords.push_back(hrl); //16
-	vertex_coords.push_back(hrr); //17
-	vertex_coords.push_back(erl); //18
-	vertex_coords.push_back(err); //19
+	vertex_coords->push_back(hrl); //16
+	vertex_coords->push_back(hrr); //17
+	vertex_coords->push_back(erl); //18
+	vertex_coords->push_back(err); //19
 
 
 
@@ -389,21 +389,21 @@ void TexturedMeshEntity::generateBodyVertices()
 
 
 	//construct legs
-	vertex_coords.push_back(fll); //20
-	vertex_coords.push_back(flr); //21
-	vertex_coords.push_back(all); //22
-	vertex_coords.push_back(alr); //23
-	vertex_coords.push_back(kll); //24
-	vertex_coords.push_back(klr); //25
+	vertex_coords->push_back(fll); //20
+	vertex_coords->push_back(flr); //21
+	vertex_coords->push_back(all); //22
+	vertex_coords->push_back(alr); //23
+	vertex_coords->push_back(kll); //24
+	vertex_coords->push_back(klr); //25
 
-	vertex_coords.push_back(fut); //26
+	vertex_coords->push_back(fut); //26
 
-	vertex_coords.push_back(frl); //27
-	vertex_coords.push_back(frr); //28
-	vertex_coords.push_back(arl); //29
-	vertex_coords.push_back(arr); //30
-	vertex_coords.push_back(krl); //31
-	vertex_coords.push_back(krr); //32
+	vertex_coords->push_back(frl); //27
+	vertex_coords->push_back(frr); //28
+	vertex_coords->push_back(arl); //29
+	vertex_coords->push_back(arr); //30
+	vertex_coords->push_back(krl); //31
+	vertex_coords->push_back(krr); //32
 
 
 	//head/throat:
@@ -423,11 +423,11 @@ void TexturedMeshEntity::generateBodyVertices()
 	vec3 gr = sidechincenter - gl;
 	gl = sidechincenter + gl;
 	//contruct head
-	vertex_coords.push_back(chin); //33
-	vertex_coords.push_back(gl); //34
-	vertex_coords.push_back(gr); //35
-	vertex_coords.push_back(hl); //36
-	vertex_coords.push_back(hr); //37
+	vertex_coords->push_back(chin); //33
+	vertex_coords->push_back(gl); //34
+	vertex_coords->push_back(gr); //35
+	vertex_coords->push_back(hl); //36
+	vertex_coords->push_back(hr); //37
 
 
 
@@ -458,10 +458,10 @@ void TexturedMeshEntity::generateBodyVertices()
 	trr = getJoint(forecastfact, K4ABT_JOINT_HANDTIP_RIGHT) + trr;
 
 
-	vertex_coords.push_back(tll); //38
-	vertex_coords.push_back(tlr); //39
-	vertex_coords.push_back(trl); //40
-	vertex_coords.push_back(trr); //41
+	vertex_coords->push_back(tll); //38
+	vertex_coords->push_back(tlr); //39
+	vertex_coords->push_back(trl); //40
+	vertex_coords->push_back(trr); //41
 
 }
 

@@ -42,7 +42,7 @@
     <ClCompile Include="ShaderLibrary.cpp" />
     <ClCompile Include="Shape.cpp" />
     <ClCompile Include="Texture.cpp" />
-    <ClCompile Include="TexturedMeshEntity.cpp" />
+    <ClCompile Include="TrackedBodyEntity.cpp" />
     <ClCompile Include="VertexArrayObject.cpp" />
     <ClCompile Include="WindowManager.cpp" />
   </ItemGroup>
@@ -75,8 +75,9 @@
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="stb_image_write.h" />
     <ClInclude Include="Texture.h" />
+    <ClInclude Include="Time.h" />
     <ClInclude Include="tiny_obj_loader.h" />
-    <ClInclude Include="TexturedMeshEntity.h" />
+    <ClInclude Include="TrackedBodyEntity.h" />
     <ClInclude Include="VertexArrayObject.h" />
     <ClInclude Include="WindowManager.h" />
   </ItemGroup>

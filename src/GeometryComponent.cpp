@@ -15,6 +15,18 @@ void GeometryComponent::cleanupAfterDraw()
 	vertex_array_object.disableBuffersAfterDraw();
 }
 
+void GeometryComponent::update(double frametime)
+{
+	this->uploadToGPU();
+}
+
+void GeometryComponent::uploadToGPU()
+{
+	this->startGPUUpload();
+	this->uploadData();
+	this->finishGPUUpload();
+}
+
 void GeometryComponent::uploadData() {
     vertex_pos_buffer.bufferData(3, GL_FLOAT, cpu_vertices.size() * sizeof(glm::vec3), cpu_vertices.data());
 	if(cpu_elements.size()>0)

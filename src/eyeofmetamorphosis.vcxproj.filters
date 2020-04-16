@@ -64,9 +64,6 @@
     <ClCompile Include="RenderSystem.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="TexturedMeshEntity.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="SceneComponent.cpp">
       <Filter>Source</Filter>
     </ClCompile>
@@ -77,6 +74,9 @@
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="GeometryComponent.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="TrackedBodyEntity.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
@@ -162,9 +162,6 @@
     <ClInclude Include="Component.h">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="TexturedMeshEntity.h">
-      <Filter>Headers</Filter>
-    </ClInclude>
     <ClInclude Include="SceneComponent.h">
       <Filter>Headers</Filter>
     </ClInclude>
@@ -175,6 +172,12 @@
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="GeometryComponent.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Time.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="TrackedBodyEntity.h">
       <Filter>Headers</Filter>
     </ClInclude>
   </ItemGroup>
@@ -231,6 +234,7 @@
     <None Include="..\resources\compute.glsl">
       <Filter>shader</Filter>
     </None>
+    <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />
     <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />
     <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />
     <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />

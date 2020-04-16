@@ -51,3 +51,9 @@ void TextureArray::initSubImageParams() {
 			data);
 	}
 }
+
+void SimpleTexture2D::uploadToGPU(GLuint pid, int location_num)
+{
+	GLuint TexLoc = glGetUniformLocation(pid, tex_name);
+	glUniform1i(TexLoc,location_num);
+}

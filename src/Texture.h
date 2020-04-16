@@ -43,20 +43,25 @@ protected:
 
 class SimpleTexture2D : public Texture {
 public:
+	SimpleTexture2D(){}
 	SimpleTexture2D(std::string resource_dir, std::string file) : Texture() {
 		file_name = resource_dir + file;
 		data = stbi_load(file_name.c_str(), &width, &height, &channels, 4);
 		wrap = GL_REPEAT;
 	}
 	void setFile(std::string file) { file_name = file; data = stbi_load(file_name.c_str(), &width, &height, &channels, 4); initParams(); }
+	void uploadToGPU(GLuint pid, int location_num);
 
 private:
 	std::string file_name = "default.png";
 	int channels;
+	const GLchar* tex_name = "tex";
 };
 
 class TextureArray : public Texture {
 public:
+	
+	TextureArray() {}
 	TextureArray(std::string resource_dir, std::string file) : Texture() {
 		file_name = resource_dir + file;
 		minfilter = GL_LINEAR;
