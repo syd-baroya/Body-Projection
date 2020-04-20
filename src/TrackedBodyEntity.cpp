@@ -533,3 +533,13 @@ void TrackedBodyEntity::generateBodyVertices()
 //	return angleAverages;
 //}
 //
+
+void TexturedMeshEntity::draw(Program* prog)
+{
+	MeshEntity::draw(prog);
+	SceneComponent sc = this->getComponent<SceneComponent>();
+	GeometryComponent gc = this->getComponent<GeometryComponent>();
+	sc.draw(prog);
+	gc.draw(prog);
+
+}

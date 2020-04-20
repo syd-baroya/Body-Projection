@@ -79,6 +79,9 @@
     <ClCompile Include="TrackedBodyEntity.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="CameraEntity.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="helper_includes\BodyTrackingHelpers.h">
@@ -168,9 +171,6 @@
     <ClInclude Include="AnimationComponent.h">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="MeshEntity.h">
-      <Filter>Headers</Filter>
-    </ClInclude>
     <ClInclude Include="GeometryComponent.h">
       <Filter>Headers</Filter>
     </ClInclude>
@@ -178,6 +178,9 @@
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="TrackedBodyEntity.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="DrawableComponent.h">
       <Filter>Headers</Filter>
     </ClInclude>
   </ItemGroup>
@@ -234,6 +237,7 @@
     <None Include="..\resources\compute.glsl">
       <Filter>shader</Filter>
     </None>
+    <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />
     <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />
     <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />
     <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />

@@ -9,10 +9,11 @@
 class CameraEntity : public Entity {
 public:
 
-	CameraEntity() : fov(45.0f), near_plane(.01f), far_plane(100.0f), position(glm::vec3(0.0f)) {}
-	CameraEntity(float fov, const glm::vec3& loc) : fov(fov), near_plane(.01f), far_plane(100.0f), position(loc) {}
-	CameraEntity(float fov, const glm::vec3& loc, float near_plane, float far_plane) : fov(fov), near_plane(near_plane), far_plane(far_plane), position(loc) {}
-
+	CameraEntity() : Entity(), fov(45.0f), near_plane(.01f), far_plane(100.0f), position(glm::vec3(0.0f)) {}
+	CameraEntity(float fov, const glm::vec3& loc) : Entity(), fov(fov), near_plane(.01f), far_plane(100.0f), position(loc) {}
+	CameraEntity(float fov, const glm::vec3& loc, float near_plane, float far_plane) : Entity(), fov(fov), near_plane(near_plane), far_plane(far_plane), position(loc) {}
+	
+	void update();
 	void updatePostion(glm::vec3 pos) { position += pos;  }
 	void updateRotation(glm::vec3 rot) { rotation += rot; }
 	virtual glm::mat4 getPerspective(float aspect) const {
@@ -29,8 +30,8 @@ public:
 
 	virtual glm::mat4 getView() const;
 	virtual glm::vec3 getViewDir() const;
-	virtual glm::vec3 getViewDir(const Pose& aPoseOverride) const;
-	virtual glm::mat4 getView(const Pose& aPoseOverride) const;
+	//virtual glm::vec3 getViewDir(const Pose& aPoseOverride) const;
+	//virtual glm::mat4 getView(const Pose& aPoseOverride) const;
 
 	virtual void setNearPlane(float near_plane) { this->near_plane = near_plane; }
 	virtual void setFarPlane(float far_plane) { this->far_plane = far_plane; }

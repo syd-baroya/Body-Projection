@@ -2,6 +2,7 @@
 #include <glad/glad.h>
 #include <iostream>
 #include "ShaderLibrary.hpp"
+#include "RenderSystem.h"
 
 
 void Application::init(int argc, char** argv)
@@ -15,6 +16,43 @@ void Application::init(int argc, char** argv)
 
 void Application::run()
 {
+	RenderSystem& render_system = RenderSystem::getInstance();
+
+	//CollisionSystem& collision_system = CollisionSystem::getInstance();
+
+
+
+	render_system.init(_window);
+
+	//std::vector<Entity*> new_entities(entities);
+
+	//new_entities.push_back(&camera);
+
+	// Loop until the user closes the window.
+
+	while (!glfwWindowShouldClose(_window))
+
+	{
+
+		//for (Entity* e : new_entities)
+
+		//	e->update();
+
+		//collision_system.process(new_entities);
+
+		render_system.process(entities);
+
+
+
+		// Swap front and back buffers.
+
+		glfwSwapBuffers(_window);
+
+		// Poll for and process events.
+
+		glfwPollEvents();
+
+	}
 }
 
 void Application::cleanup()

@@ -10,6 +10,7 @@
 #include "GeometryComponent.h"
 #include "SceneComponent.h"
 #include "AnimationComponent.h"
+#include "DrawableComponent.h"
 
 using namespace glm;
 using namespace std;
@@ -22,6 +23,15 @@ class MeshEntity : public Entity {
 public:
 	MeshEntity(){}
 
+	virtual void draw(Program* prog)
+	{
+		DrawableComponent dc = this->getComponent<DrawableComponent>();
+		const MVPSet* MVP = dc.getMVP();
+		glUniformMatrix4fv(prog->getUniform("P"), 1, GL_FALSE, &MVP->P[0][0]);
+		glUniformMatrix4fv(prog->getUniform("V"), 1, GL_FALSE, &MVP->V[0][0]);
+		glUniformMatrix4fv(prog->getUniform("M"), 1, GL_FALSE, &MVP->M[0][0]);
+	}
+
 private:
 	GeometryComponent geometry;
 };
@@ -29,6 +39,7 @@ private:
 class TexturedMeshEntity : public MeshEntity {
 public:
 	TexturedMeshEntity(){}
+	void draw(Program* prog);
 protected:
 	TexturedGeomComponent geometry;
 };
@@ -85,9 +96,9 @@ private:
 
 	std::map< k4abt_joint_id_t, long double> averageJointAngles(vector<TrackedBodyEntity> tracked_body);
 
+	//	M = glm::translate(glm::mat4(1.0f), tracked_body_entity->modelpos) * glm::scale(glm::mat4(1.0f), tracked_body_entity->modelscale);
 
-	SceneComponent scene;
-	AnimationComponent animation;
+
 };
 
 

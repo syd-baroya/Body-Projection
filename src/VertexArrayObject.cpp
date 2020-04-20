@@ -25,7 +25,7 @@ void VertexArrayObject::disableAllVertAttribArr()
 {
 	this->bind();
 	for (size_t i = 0; i < this->array_buffer_objects.size(); i++) {
-		glDisableVertexAttribArray(i);
+		disableVertexAttribArray(i);
 	}
 	this->unbind();
 }

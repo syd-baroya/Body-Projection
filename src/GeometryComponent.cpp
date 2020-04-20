@@ -5,6 +5,18 @@ void GeometryComponent::startGPUUpload() {
 	vertex_array_object.bind();
 }
 
+void GeometryComponent::init()
+{
+	this->uploadToGPU();
+	this->setupForDraw();
+}
+
+void GeometryComponent::draw(Program* prog)
+{
+	glDrawElements(GL_TRIANGLES, (int)cpu_elements.size(), GL_UNSIGNED_SHORT, (const void*)0);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+}
+
 void GeometryComponent::setupForDraw()
 {
 	vertex_array_object.setupBuffersToDraw();
@@ -17,7 +29,7 @@ void GeometryComponent::cleanupAfterDraw()
 
 void GeometryComponent::update(double frametime)
 {
-	this->uploadToGPU();
+
 }
 
 void GeometryComponent::uploadToGPU()

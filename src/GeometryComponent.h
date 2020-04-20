@@ -26,6 +26,8 @@ public:
 	std::vector<GLuint>& getMutableElements() { return(cpu_elements); }
 	std::vector<GLuint> getElements() const { return(cpu_elements); }
 
+	void init() override;
+	void draw(Program* prog);
 	void setupForDraw();
 	void cleanupAfterDraw();
 	void update(double frametime) override;
