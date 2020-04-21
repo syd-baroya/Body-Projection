@@ -39,9 +39,8 @@ private:
 class TexturedMeshEntity : public MeshEntity {
 public:
 	TexturedMeshEntity(){}
-	void draw(Program* prog);
-protected:
-	TexturedGeomComponent geometry;
+	void draw(Program* prog) override;
+
 };
 
 class TrackedBodyEntity : public TexturedMeshEntity
@@ -50,6 +49,7 @@ class TrackedBodyEntity : public TexturedMeshEntity
 public:
 	TrackedBodyEntity() : TexturedMeshEntity() { reset();  }
 
+	void update(double frametime) override;
 
 	glm::vec3 getJoint(float forecast_fact, int j);
 

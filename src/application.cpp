@@ -2,152 +2,152 @@
 
 
 
-/*Note that any gl calls must always happen after a GL state is initialized */
-void init_atomic()
-{
-	glGenBuffers(1, &atomicsBuffer);
-	// bind the buffer and define its initial storage capacity
-	glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomicsBuffer);
-	glBufferData(GL_ATOMIC_COUNTER_BUFFER, sizeof(GLuint) * 1, NULL, GL_DYNAMIC_DRAW);
-	// unbind the buffer 
-	glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
-}
-void reset_atomic()
-{
-	GLuint* userCounters;
-	glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomicsBuffer);
-	// map the buffer, userCounters will point to the buffers data
-	userCounters = (GLuint*)glMapBufferRange(GL_ATOMIC_COUNTER_BUFFER,
-		0,
-		sizeof(GLuint),
-		GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT
-	);
-	// set the memory to zeros, resetting the values in the buffer
-	memset(userCounters, 0, sizeof(GLuint));
-	// unmap the buffer
-	glUnmapBuffer(GL_ATOMIC_COUNTER_BUFFER);
-}
-void read_atomic()
-{
-	GLuint* userCounters;
-	glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomicsBuffer);
-	// again we map the buffer to userCounters, but this time for read-only access
-	userCounters = (GLuint*)glMapBufferRange(GL_ATOMIC_COUNTER_BUFFER,
-		0,
-		sizeof(GLuint),
-		GL_MAP_READ_BIT
-	);
-	// copy the values to other variables because...
-	//cout << endl << *userCounters << endl;
-	// ... as soon as we unmap the buffer
-	// the pointer userCounters becomes invalid.
-	glUnmapBuffer(GL_ATOMIC_COUNTER_BUFFER);
-}
+					/*Note that any gl calls must always happen after a GL state is initialized */
+					void init_atomic()
+					{
+						glGenBuffers(1, &atomicsBuffer);
+						// bind the buffer and define its initial storage capacity
+						glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomicsBuffer);
+						glBufferData(GL_ATOMIC_COUNTER_BUFFER, sizeof(GLuint) * 1, NULL, GL_DYNAMIC_DRAW);
+						// unbind the buffer 
+						glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
+					}
+					void reset_atomic()
+					{
+						GLuint* userCounters;
+						glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomicsBuffer);
+						// map the buffer, userCounters will point to the buffers data
+						userCounters = (GLuint*)glMapBufferRange(GL_ATOMIC_COUNTER_BUFFER,
+							0,
+							sizeof(GLuint),
+							GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT
+						);
+						// set the memory to zeros, resetting the values in the buffer
+						memset(userCounters, 0, sizeof(GLuint));
+						// unmap the buffer
+						glUnmapBuffer(GL_ATOMIC_COUNTER_BUFFER);
+					}
+					void read_atomic()
+					{
+						GLuint* userCounters;
+						glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomicsBuffer);
+						// again we map the buffer to userCounters, but this time for read-only access
+						userCounters = (GLuint*)glMapBufferRange(GL_ATOMIC_COUNTER_BUFFER,
+							0,
+							sizeof(GLuint),
+							GL_MAP_READ_BIT
+						);
+						// copy the values to other variables because...
+						//cout << endl << *userCounters << endl;
+						// ... as soon as we unmap the buffer
+						// the pointer userCounters becomes invalid.
+						glUnmapBuffer(GL_ATOMIC_COUNTER_BUFFER);
+					}
 
-void create_SSBO() {
-	for (int i = 0; i < ssbo_size; i++) {
-		ssbo_CPUMEM.positions_list[i] = ivec4(i, 0, 0, 0);
-	}
+					void create_SSBO() {
+						for (int i = 0; i < ssbo_size; i++) {
+							ssbo_CPUMEM.positions_list[i] = ivec4(i, 0, 0, 0);
+						}
 
-	glGenBuffers(1, &ssbo_GPU_id);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_GPU_id);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(ssbo_data), &ssbo_CPUMEM, GL_DYNAMIC_DRAW);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo_GPU_id);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
-}
+						glGenBuffers(1, &ssbo_GPU_id);
+						glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_GPU_id);
+						glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(ssbo_data), &ssbo_CPUMEM, GL_DYNAMIC_DRAW);
+						glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo_GPU_id);
+						glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
+					}
 
-void get_SSBO_back() {
-	// Get SSBO back
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_GPU_id);
-	GLvoid* p = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
-	int siz = sizeof(ssbo_data);
-	memcpy(&ssbo_CPUMEM, p, siz);
-	glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-}
-
-
-void roll_dice()
-{
-
-	int scenerand = rand() % 3;
-	if (scenerand == 0)scenemode = SCENE_BUTTERFLY;
-	if (scenerand == 1)scenemode = SCENE_SCELETONHEART;
-	if (scenerand == 2)scenemode = SCENE_FUR;
+					void get_SSBO_back() {
+						// Get SSBO back
+						glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_GPU_id);
+						GLvoid* p = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
+						int siz = sizeof(ssbo_data);
+						memcpy(&ssbo_CPUMEM, p, siz);
+						glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+					}
 
 
+					void roll_dice()
+					{
 
-	animation = false;
-	fur_phase_total_time = 0;
-	phaseprogresstotaltime = 0;
+						int scenerand = rand() % 3;
+						if (scenerand == 0)scenemode = SCENE_BUTTERFLY;
+						if (scenerand == 1)scenemode = SCENE_SCELETONHEART;
+						if (scenerand == 2)scenemode = SCENE_FUR;
 
-	redtone = normalize(vec3(frand(), frand(), frand()));
-	greentone = normalize(vec3(frand(), frand(), frand()));
-	bluetone = normalize(vec3(frand(), frand(), frand()));
 
-	vec3 colorscaling = normalize(vec3(frand(), frand(), frand()));
-	redtone *= colorscaling.x;
-	greentone *= colorscaling.y;
-	bluetone *= colorscaling.z;
 
-	for (int ii = 0; ii < BUTTERFLYCOUNT; ii++)
-	{
-		butterfly[ii].rotz = frand() * 3.1415926 * 2.0;
-		butterfly[ii].scale = frand() * 0.05;
-		butterfly[ii].red = vec3(frand(), frand(), frand());
-		butterfly[ii].green = vec3(frand(), frand(), frand());
-		butterfly[ii].blue = vec3(frand(), frand(), frand());
-		butterfly[ii].startanim = 1 + frand() * 4;
-	}
+						animation = false;
+						fur_phase_total_time = 0;
+						phaseprogresstotaltime = 0;
 
-	//torso
-	int c = 13;
-	butterfly[c].iA = 20;		butterfly[c].iB = 12;		butterfly[c].scale += 0.13;		butterfly[c].rationAB = 0.6; c++;
-	butterfly[c].iA = 1;		butterfly[c].iB = 8;		butterfly[c].scale += 0.07;		butterfly[c].rationAB = 0.3; c++;
-	butterfly[c].iA = 1;		butterfly[c].iB = 8;		butterfly[c].scale += 0.05;		butterfly[c].rationAB = 0.9; c++;
-	butterfly[c].iA = 20;		butterfly[c].iB = 8;		butterfly[c].scale += 0.03;		butterfly[c].rationAB = 0.2; c++;
-	butterfly[c].iA = 4;		butterfly[c].iB = 1;		butterfly[c].scale += 0.06;		butterfly[c].rationAB = 0.7; c++;
-	butterfly[c].iA = 4;		butterfly[c].iB = 20;		butterfly[c].scale += 0.03;		butterfly[c].rationAB = 0.5; c++;
-	//head:
-	butterfly[c].iA = 3;		butterfly[c].iB = 2;		butterfly[c].scale += 0.06;		butterfly[c].rationAB = 0.4; c++;
-	//hip
-	butterfly[c].iA = 16;		butterfly[c].iB = 16;		butterfly[c].scale += 0.04;		butterfly[c].rationAB = 0.5; c++;
-	//rightleg
-	butterfly[c].iA = 16;		butterfly[c].iB = 17;		butterfly[c].scale += 0.07;		butterfly[c].rationAB = 0.5; c++;
-	butterfly[c].iA = 17;		butterfly[c].iB = 18;		butterfly[c].scale += 0.04;		butterfly[c].rationAB = 0.2; c++;
-	butterfly[c].iA = 17;		butterfly[c].iB = 18;		butterfly[c].scale += 0.05;		butterfly[c].rationAB = 0.5; c++;
-	butterfly[c].iA = 17;		butterfly[c].iB = 18;		butterfly[c].scale += 0.03;		butterfly[c].rationAB = 0.9; c++;
-	butterfly[c].iA = 18;		butterfly[c].iB = 19;		butterfly[c].scale += 0.04;		butterfly[c].rationAB = 0.5; c++;
+						redtone = normalize(vec3(frand(), frand(), frand()));
+						greentone = normalize(vec3(frand(), frand(), frand()));
+						bluetone = normalize(vec3(frand(), frand(), frand()));
 
-	//leftleg
-	butterfly[c].iA = 12;		butterfly[c].iB = 13;		butterfly[c].scale += 0.06;		butterfly[c].rationAB = 0.6; c++;
-	butterfly[c].iA = 12;		butterfly[c].iB = 13;		butterfly[c].scale += 0.05;		butterfly[c].rationAB = 0.2; c++;
-	butterfly[c].iA = 13;		butterfly[c].iB = 14;		butterfly[c].scale += 0.05;		butterfly[c].rationAB = 0.2;	c++;
-	butterfly[c].iA = 13;		butterfly[c].iB = 14;		butterfly[c].scale += 0.05;		butterfly[c].rationAB = 0.5;	c++;
-	butterfly[c].iA = 14;		butterfly[c].iB = 15;		butterfly[c].scale += 0.02;		butterfly[c].rationAB = 0.8;	c++;
-	butterfly[c].iA = 14;		butterfly[c].iB = 15;		butterfly[c].scale += 0.02;		butterfly[c].rationAB = 0.2;	c++;
-	//0-20 till here:21
+						vec3 colorscaling = normalize(vec3(frand(), frand(), frand()));
+						redtone *= colorscaling.x;
+						greentone *= colorscaling.y;
+						bluetone *= colorscaling.z;
 
-	//right hand
-	butterfly[c].iA = 8;		butterfly[c].iB = 9;		butterfly[c].scale += 0.03;		butterfly[c].rationAB = 0.4;	c++;
-	butterfly[c].iA = 8;		butterfly[c].iB = 9;		butterfly[c].scale += 0.03;		butterfly[c].rationAB = 0.2;	c++;
-	butterfly[c].iA = 8;		butterfly[c].iB = 9;		butterfly[c].scale += 0.03;		butterfly[c].rationAB = 0.9;	c++;
-	butterfly[c].iA = 9;		butterfly[c].iB = 10;		butterfly[c].scale += 0.02;		butterfly[c].rationAB = 0.5;	c++;
-	butterfly[c].iA = 10;		butterfly[c].iB = 10;		butterfly[c].scale += 0.03;		butterfly[c].rationAB = 0.0;	c++;
-	butterfly[c].iA = 10;		butterfly[c].iB = 11;		butterfly[c].scale += 0.02;		butterfly[c].rationAB = 0.5;	c++;
+						for (int ii = 0; ii < BUTTERFLYCOUNT; ii++)
+						{
+							butterfly[ii].rotz = frand() * 3.1415926 * 2.0;
+							butterfly[ii].scale = frand() * 0.05;
+							butterfly[ii].red = vec3(frand(), frand(), frand());
+							butterfly[ii].green = vec3(frand(), frand(), frand());
+							butterfly[ii].blue = vec3(frand(), frand(), frand());
+							butterfly[ii].startanim = 1 + frand() * 4;
+						}
 
-	//left hand
-	butterfly[c].iA = 4;		butterfly[c].iB = 5;		butterfly[c].scale += 0.03;		butterfly[c].rationAB = 0.6;	c++;
-	butterfly[c].iA = 5;		butterfly[c].iB = 6;		butterfly[c].scale += 0.03;		butterfly[c].rationAB = 0.3;	c++;
-	butterfly[c].iA = 5;		butterfly[c].iB = 6;		butterfly[c].scale += 0.03;		butterfly[c].rationAB = 0.5;	c++;
-	butterfly[c].iA = 6;		butterfly[c].iB = 7;		butterfly[c].scale += 0.02;		butterfly[c].rationAB = 0.5;	c++;
-	//here 31
-	butterflyactual = c;
-}
+						//torso
+						int c = 13;
+						butterfly[c].iA = 20;		butterfly[c].iB = 12;		butterfly[c].scale += 0.13;		butterfly[c].rationAB = 0.6; c++;
+						butterfly[c].iA = 1;		butterfly[c].iB = 8;		butterfly[c].scale += 0.07;		butterfly[c].rationAB = 0.3; c++;
+						butterfly[c].iA = 1;		butterfly[c].iB = 8;		butterfly[c].scale += 0.05;		butterfly[c].rationAB = 0.9; c++;
+						butterfly[c].iA = 20;		butterfly[c].iB = 8;		butterfly[c].scale += 0.03;		butterfly[c].rationAB = 0.2; c++;
+						butterfly[c].iA = 4;		butterfly[c].iB = 1;		butterfly[c].scale += 0.06;		butterfly[c].rationAB = 0.7; c++;
+						butterfly[c].iA = 4;		butterfly[c].iB = 20;		butterfly[c].scale += 0.03;		butterfly[c].rationAB = 0.5; c++;
+						//head:
+						butterfly[c].iA = 3;		butterfly[c].iB = 2;		butterfly[c].scale += 0.06;		butterfly[c].rationAB = 0.4; c++;
+						//hip
+						butterfly[c].iA = 16;		butterfly[c].iB = 16;		butterfly[c].scale += 0.04;		butterfly[c].rationAB = 0.5; c++;
+						//rightleg
+						butterfly[c].iA = 16;		butterfly[c].iB = 17;		butterfly[c].scale += 0.07;		butterfly[c].rationAB = 0.5; c++;
+						butterfly[c].iA = 17;		butterfly[c].iB = 18;		butterfly[c].scale += 0.04;		butterfly[c].rationAB = 0.2; c++;
+						butterfly[c].iA = 17;		butterfly[c].iB = 18;		butterfly[c].scale += 0.05;		butterfly[c].rationAB = 0.5; c++;
+						butterfly[c].iA = 17;		butterfly[c].iB = 18;		butterfly[c].scale += 0.03;		butterfly[c].rationAB = 0.9; c++;
+						butterfly[c].iA = 18;		butterfly[c].iB = 19;		butterfly[c].scale += 0.04;		butterfly[c].rationAB = 0.5; c++;
 
-void Close_Kinect()
-{
-	body.CloseSensor();
-}
+						//leftleg
+						butterfly[c].iA = 12;		butterfly[c].iB = 13;		butterfly[c].scale += 0.06;		butterfly[c].rationAB = 0.6; c++;
+						butterfly[c].iA = 12;		butterfly[c].iB = 13;		butterfly[c].scale += 0.05;		butterfly[c].rationAB = 0.2; c++;
+						butterfly[c].iA = 13;		butterfly[c].iB = 14;		butterfly[c].scale += 0.05;		butterfly[c].rationAB = 0.2;	c++;
+						butterfly[c].iA = 13;		butterfly[c].iB = 14;		butterfly[c].scale += 0.05;		butterfly[c].rationAB = 0.5;	c++;
+						butterfly[c].iA = 14;		butterfly[c].iB = 15;		butterfly[c].scale += 0.02;		butterfly[c].rationAB = 0.8;	c++;
+						butterfly[c].iA = 14;		butterfly[c].iB = 15;		butterfly[c].scale += 0.02;		butterfly[c].rationAB = 0.2;	c++;
+						//0-20 till here:21
+
+						//right hand
+						butterfly[c].iA = 8;		butterfly[c].iB = 9;		butterfly[c].scale += 0.03;		butterfly[c].rationAB = 0.4;	c++;
+						butterfly[c].iA = 8;		butterfly[c].iB = 9;		butterfly[c].scale += 0.03;		butterfly[c].rationAB = 0.2;	c++;
+						butterfly[c].iA = 8;		butterfly[c].iB = 9;		butterfly[c].scale += 0.03;		butterfly[c].rationAB = 0.9;	c++;
+						butterfly[c].iA = 9;		butterfly[c].iB = 10;		butterfly[c].scale += 0.02;		butterfly[c].rationAB = 0.5;	c++;
+						butterfly[c].iA = 10;		butterfly[c].iB = 10;		butterfly[c].scale += 0.03;		butterfly[c].rationAB = 0.0;	c++;
+						butterfly[c].iA = 10;		butterfly[c].iB = 11;		butterfly[c].scale += 0.02;		butterfly[c].rationAB = 0.5;	c++;
+
+						//left hand
+						butterfly[c].iA = 4;		butterfly[c].iB = 5;		butterfly[c].scale += 0.03;		butterfly[c].rationAB = 0.6;	c++;
+						butterfly[c].iA = 5;		butterfly[c].iB = 6;		butterfly[c].scale += 0.03;		butterfly[c].rationAB = 0.3;	c++;
+						butterfly[c].iA = 5;		butterfly[c].iB = 6;		butterfly[c].scale += 0.03;		butterfly[c].rationAB = 0.5;	c++;
+						butterfly[c].iA = 6;		butterfly[c].iB = 7;		butterfly[c].scale += 0.02;		butterfly[c].rationAB = 0.5;	c++;
+						//here 31
+						butterflyactual = c;
+					}
+
+					void Close_Kinect()
+					{
+						body.CloseSensor();
+					}
 
 bool Update_Kinect(float frametime)
 {
@@ -647,297 +647,297 @@ void generate_framebuffers()
 //////////////////////////
 void initGeom()
 {
-	roll_dice();
-#ifndef NOKINECT
-	body.InitializeDefaultSensor();
-#endif
-	vector<GLushort> indices;
+						roll_dice();
+					#ifndef NOKINECT
+						body.InitializeDefaultSensor();
+					#endif
+						vector<GLushort> indices;
 
-	/***BODY WITHOUT CLAVICLES***/
-	//torso w/o clavicles
-	indices.push_back(0);	indices.push_back(2);	indices.push_back(3);
-	indices.push_back(0);	indices.push_back(3);	indices.push_back(1);
-	indices.push_back(2);	indices.push_back(4);	indices.push_back(5);
-	indices.push_back(2);	indices.push_back(5);	indices.push_back(3);
-	indices.push_back(5);	indices.push_back(6);	indices.push_back(3);
-	indices.push_back(4);	indices.push_back(7);	indices.push_back(10);
-	indices.push_back(4);	indices.push_back(10);	indices.push_back(5);
-	indices.push_back(10);	indices.push_back(8);	indices.push_back(5);
-	indices.push_back(8);	indices.push_back(11);	indices.push_back(5);
-	indices.push_back(5);	indices.push_back(11);	indices.push_back(6);
-	indices.push_back(6);	indices.push_back(11);	indices.push_back(9);
-	indices.push_back(12);	indices.push_back(14);	indices.push_back(13);
-	indices.push_back(14);	indices.push_back(15);	indices.push_back(13);
-	indices.push_back(14);	indices.push_back(7);	indices.push_back(4);
-	indices.push_back(14);	indices.push_back(4);	indices.push_back(15);
-	//arms
-	indices.push_back(4);	indices.push_back(2);	indices.push_back(15);
-	indices.push_back(16);	indices.push_back(18);	indices.push_back(19);
-	indices.push_back(16);	indices.push_back(19);	indices.push_back(17);
-	indices.push_back(18);	indices.push_back(3);	indices.push_back(6);
-	indices.push_back(18);	indices.push_back(6);	indices.push_back(19);
-	indices.push_back(6);	indices.push_back(9);	indices.push_back(19);
-	indices.push_back(20);	indices.push_back(22);	indices.push_back(21);
-	indices.push_back(22);	indices.push_back(23);	indices.push_back(21);
-	//legs
-	indices.push_back(22);	indices.push_back(24);	indices.push_back(23);
-	indices.push_back(24);	indices.push_back(25);	indices.push_back(23);
-	indices.push_back(24);	indices.push_back(0);	indices.push_back(25);
-	indices.push_back(0);	indices.push_back(26);	indices.push_back(25);
-	indices.push_back(0);	indices.push_back(1);	indices.push_back(26);
-	indices.push_back(27);	indices.push_back(30);	indices.push_back(28);
-	indices.push_back(27);	indices.push_back(29);	indices.push_back(30);
-	indices.push_back(29);	indices.push_back(31);	indices.push_back(32);
-	indices.push_back(29);	indices.push_back(32);	indices.push_back(30);
-	indices.push_back(31);	indices.push_back(1);	indices.push_back(32);
-	indices.push_back(32);	indices.push_back(26);	indices.push_back(1);
-	indices.push_back(10);	indices.push_back(34);	indices.push_back(33);
-	indices.push_back(10);	indices.push_back(33);	indices.push_back(8);
-	//head
-	indices.push_back(8);	indices.push_back(33);	indices.push_back(11);
-	indices.push_back(33);	indices.push_back(35);	indices.push_back(11);
-	indices.push_back(33);	indices.push_back(34);	indices.push_back(35);
-	indices.push_back(34);	indices.push_back(36);	indices.push_back(37);
-	indices.push_back(34);	indices.push_back(37);	indices.push_back(35);
-	//continue from 38
-	//hands
-	//indices.push_back(38);	indices.push_back(12);	indices.push_back(13);
-	//indices.push_back(38);	indices.push_back(13);	indices.push_back(39);
-	//indices.push_back(40);	indices.push_back(16);	indices.push_back(41);
-	//indices.push_back(16);	indices.push_back(17);	indices.push_back(41);
-
-
-	/***BODY INDICES WITH CLAVICLES***/
-	////torso w/o clavicles
-	//indices.push_back(0);	indices.push_back(2);	indices.push_back(3);
-	//indices.push_back(0);	indices.push_back(3);	indices.push_back(1);
-	//indices.push_back(2);	indices.push_back(4);	indices.push_back(5); //mtl, shoulderleft, clavicleleft
-	//indices.push_back(2);	indices.push_back(5);	indices.push_back(3); //mtl, clavicleleft, mtr
-	//indices.push_back(3);	indices.push_back(6);	indices.push_back(2); //mtr, clavicleright, mtl
-	//indices.push_back(3);	indices.push_back(7);	indices.push_back(6); //clavicleright, shoulderright, mtr
-	//indices.push_back(4);	indices.push_back(8);	indices.push_back(11); //shoulderleft, utl, sll
-	//indices.push_back(4);	indices.push_back(11);	indices.push_back(5); //shoulderleft, sll, clavicleleft
-	//indices.push_back(11);	indices.push_back(9);	indices.push_back(5); //sll, neck, clavicleleft
-	//indices.push_back(9);	indices.push_back(12);	indices.push_back(6); //neck, slr, clavicleright
-	//indices.push_back(6);	indices.push_back(12);	indices.push_back(7); //clavicleright, slr, shoulderright
-	//indices.push_back(7);	indices.push_back(12);	indices.push_back(10); //shoulderright, slr, utr
-	//indices.push_back(13);	indices.push_back(15);	indices.push_back(14); 
-	//indices.push_back(15);	indices.push_back(16);	indices.push_back(14);
-	//indices.push_back(15);	indices.push_back(8);	indices.push_back(4);
-	//indices.push_back(15);	indices.push_back(4);	indices.push_back(16);
-	////arms
-	//indices.push_back(4);	indices.push_back(2);	indices.push_back(16);
-	//indices.push_back(17);	indices.push_back(19);	indices.push_back(20);
-	//indices.push_back(17);	indices.push_back(20);	indices.push_back(18);
-	//indices.push_back(19);	indices.push_back(3);	indices.push_back(7);
-	//indices.push_back(19);	indices.push_back(7);	indices.push_back(20);
-	//indices.push_back(7);	indices.push_back(10);	indices.push_back(20);
-	//indices.push_back(21);	indices.push_back(23);	indices.push_back(22);
-	//indices.push_back(23);	indices.push_back(24);	indices.push_back(22);
-	////legs
-	//indices.push_back(23);	indices.push_back(25);	indices.push_back(24);
-	//indices.push_back(25);	indices.push_back(26);	indices.push_back(24);
-	//indices.push_back(25);	indices.push_back(0);	indices.push_back(26);
-	//indices.push_back(0);	indices.push_back(27);	indices.push_back(26);
-	//indices.push_back(0);	indices.push_back(1);	indices.push_back(27);
-	//indices.push_back(28);	indices.push_back(31);	indices.push_back(29);
-	//indices.push_back(28);	indices.push_back(30);	indices.push_back(31);
-	//indices.push_back(30);	indices.push_back(32);	indices.push_back(33);
-	//indices.push_back(30);	indices.push_back(33);	indices.push_back(31);
-	//indices.push_back(32);	indices.push_back(1);	indices.push_back(33);
-	//indices.push_back(33);	indices.push_back(27);	indices.push_back(1);
-	//indices.push_back(11);	indices.push_back(35);	indices.push_back(34);
-	//indices.push_back(11);	indices.push_back(34);	indices.push_back(9);
-	////head
-	//indices.push_back(9);	indices.push_back(34);	indices.push_back(12);
-	//indices.push_back(34);	indices.push_back(36);	indices.push_back(12);
-	//indices.push_back(34);	indices.push_back(35);	indices.push_back(36);
-	//indices.push_back(35);	indices.push_back(37);	indices.push_back(38);
-	//indices.push_back(35);	indices.push_back(38);	indices.push_back(36);
-	////continue from 38
-	////hands
-	//indices.push_back(39);	indices.push_back(13);	indices.push_back(14);
-	//indices.push_back(39);	indices.push_back(14);	indices.push_back(40);
-	//indices.push_back(41);	indices.push_back(17);	indices.push_back(42);
-	//indices.push_back(17);	indices.push_back(18);	indices.push_back(42);
-	vector<vec2> tex;
-	tex.push_back(vec2(0.357056, 0.417677));
-	tex.push_back(vec2(0.63436, 0.424716));
-	tex.push_back(vec2(0.281281, 0.654486));
-	tex.push_back(vec2(0.668834, 0.651864));
-	tex.push_back(vec2(0.344362, 0.668123));
-	tex.push_back(vec2(0.483297, 0.704922));
-	tex.push_back(vec2(0.606656, 0.666727));
-	tex.push_back(vec2(0.363513, 0.704208));
-	tex.push_back(vec2(0.481398, 0.742544));
-	tex.push_back(vec2(0.594513, 0.703739));
-	tex.push_back(vec2(0.445423, 0.730845));
-	tex.push_back(vec2(0.512891, 0.73174));
-	tex.push_back(vec2(0.163252, 0.925081));
-	tex.push_back(vec2(0.055907, 0.893054));
-	tex.push_back(vec2(0.260317, 0.808323));
-	tex.push_back(vec2(0.152971, 0.776296));
-	tex.push_back(vec2(0.94095, 0.878834));
-	tex.push_back(vec2(0.839852, 0.916624));
-	tex.push_back(vec2(0.831066, 0.762144));
-	tex.push_back(vec2(0.729968, 0.799934));
-	tex.push_back(vec2(0.329756, 0.00389565));
-	tex.push_back(vec2(0.426757, 0));
-	tex.push_back(vec2(0.340259, 0.0597313));
-	tex.push_back(vec2(0.43726, 0.0558356));
-	tex.push_back(vec2(0.306178, 0.261854));
-	tex.push_back(vec2(0.50028, 0.25486));
-	tex.push_back(vec2(0.496964, 0.387029));
-	tex.push_back(vec2(0.67537, 0.00663857));
-	tex.push_back(vec2(0.57814, 0.00542157));
-	tex.push_back(vec2(0.676887, 0.0588956));
-	tex.push_back(vec2(0.579657, 0.0576786));
-	tex.push_back(vec2(0.703275, 0.260904));
-	tex.push_back(vec2(0.50992, 0.249145));
-	tex.push_back(vec2(0.475392, 0.778904));
-	tex.push_back(vec2(0.411582, 0.79506));
-	tex.push_back(vec2(0.533196, 0.799108));
-	tex.push_back(vec2(0.402573, 0.8496));
-	tex.push_back(vec2(0.524187, 0.853647));
-	tex.push_back(vec2(0.088382, 1));
-	tex.push_back(vec2(0, 0.977442));
-	tex.push_back(vec2(1, 0.962063));
-	tex.push_back(vec2(0.913081, 0.986313));
+						/***BODY WITHOUT CLAVICLES***/
+						//torso w/o clavicles
+						indices.push_back(0);	indices.push_back(2);	indices.push_back(3);
+						indices.push_back(0);	indices.push_back(3);	indices.push_back(1);
+						indices.push_back(2);	indices.push_back(4);	indices.push_back(5);
+						indices.push_back(2);	indices.push_back(5);	indices.push_back(3);
+						indices.push_back(5);	indices.push_back(6);	indices.push_back(3);
+						indices.push_back(4);	indices.push_back(7);	indices.push_back(10);
+						indices.push_back(4);	indices.push_back(10);	indices.push_back(5);
+						indices.push_back(10);	indices.push_back(8);	indices.push_back(5);
+						indices.push_back(8);	indices.push_back(11);	indices.push_back(5);
+						indices.push_back(5);	indices.push_back(11);	indices.push_back(6);
+						indices.push_back(6);	indices.push_back(11);	indices.push_back(9);
+						indices.push_back(12);	indices.push_back(14);	indices.push_back(13);
+						indices.push_back(14);	indices.push_back(15);	indices.push_back(13);
+						indices.push_back(14);	indices.push_back(7);	indices.push_back(4);
+						indices.push_back(14);	indices.push_back(4);	indices.push_back(15);
+						//arms
+						indices.push_back(4);	indices.push_back(2);	indices.push_back(15);
+						indices.push_back(16);	indices.push_back(18);	indices.push_back(19);
+						indices.push_back(16);	indices.push_back(19);	indices.push_back(17);
+						indices.push_back(18);	indices.push_back(3);	indices.push_back(6);
+						indices.push_back(18);	indices.push_back(6);	indices.push_back(19);
+						indices.push_back(6);	indices.push_back(9);	indices.push_back(19);
+						indices.push_back(20);	indices.push_back(22);	indices.push_back(21);
+						indices.push_back(22);	indices.push_back(23);	indices.push_back(21);
+						//legs
+						indices.push_back(22);	indices.push_back(24);	indices.push_back(23);
+						indices.push_back(24);	indices.push_back(25);	indices.push_back(23);
+						indices.push_back(24);	indices.push_back(0);	indices.push_back(25);
+						indices.push_back(0);	indices.push_back(26);	indices.push_back(25);
+						indices.push_back(0);	indices.push_back(1);	indices.push_back(26);
+						indices.push_back(27);	indices.push_back(30);	indices.push_back(28);
+						indices.push_back(27);	indices.push_back(29);	indices.push_back(30);
+						indices.push_back(29);	indices.push_back(31);	indices.push_back(32);
+						indices.push_back(29);	indices.push_back(32);	indices.push_back(30);
+						indices.push_back(31);	indices.push_back(1);	indices.push_back(32);
+						indices.push_back(32);	indices.push_back(26);	indices.push_back(1);
+						indices.push_back(10);	indices.push_back(34);	indices.push_back(33);
+						indices.push_back(10);	indices.push_back(33);	indices.push_back(8);
+						//head
+						indices.push_back(8);	indices.push_back(33);	indices.push_back(11);
+						indices.push_back(33);	indices.push_back(35);	indices.push_back(11);
+						indices.push_back(33);	indices.push_back(34);	indices.push_back(35);
+						indices.push_back(34);	indices.push_back(36);	indices.push_back(37);
+						indices.push_back(34);	indices.push_back(37);	indices.push_back(35);
+						//continue from 38
+						//hands
+						//indices.push_back(38);	indices.push_back(12);	indices.push_back(13);
+						//indices.push_back(38);	indices.push_back(13);	indices.push_back(39);
+						//indices.push_back(40);	indices.push_back(16);	indices.push_back(41);
+						//indices.push_back(16);	indices.push_back(17);	indices.push_back(41);
 
 
-	vector<vec3> temp_posb;
-	generate_body_vertices(&body.trackedbody.at(0), &temp_posb, app_posb);
-	app_posb = temp_posb;
+						/***BODY INDICES WITH CLAVICLES***/
+						////torso w/o clavicles
+						//indices.push_back(0);	indices.push_back(2);	indices.push_back(3);
+						//indices.push_back(0);	indices.push_back(3);	indices.push_back(1);
+						//indices.push_back(2);	indices.push_back(4);	indices.push_back(5); //mtl, shoulderleft, clavicleleft
+						//indices.push_back(2);	indices.push_back(5);	indices.push_back(3); //mtl, clavicleleft, mtr
+						//indices.push_back(3);	indices.push_back(6);	indices.push_back(2); //mtr, clavicleright, mtl
+						//indices.push_back(3);	indices.push_back(7);	indices.push_back(6); //clavicleright, shoulderright, mtr
+						//indices.push_back(4);	indices.push_back(8);	indices.push_back(11); //shoulderleft, utl, sll
+						//indices.push_back(4);	indices.push_back(11);	indices.push_back(5); //shoulderleft, sll, clavicleleft
+						//indices.push_back(11);	indices.push_back(9);	indices.push_back(5); //sll, neck, clavicleleft
+						//indices.push_back(9);	indices.push_back(12);	indices.push_back(6); //neck, slr, clavicleright
+						//indices.push_back(6);	indices.push_back(12);	indices.push_back(7); //clavicleright, slr, shoulderright
+						//indices.push_back(7);	indices.push_back(12);	indices.push_back(10); //shoulderright, slr, utr
+						//indices.push_back(13);	indices.push_back(15);	indices.push_back(14); 
+						//indices.push_back(15);	indices.push_back(16);	indices.push_back(14);
+						//indices.push_back(15);	indices.push_back(8);	indices.push_back(4);
+						//indices.push_back(15);	indices.push_back(4);	indices.push_back(16);
+						////arms
+						//indices.push_back(4);	indices.push_back(2);	indices.push_back(16);
+						//indices.push_back(17);	indices.push_back(19);	indices.push_back(20);
+						//indices.push_back(17);	indices.push_back(20);	indices.push_back(18);
+						//indices.push_back(19);	indices.push_back(3);	indices.push_back(7);
+						//indices.push_back(19);	indices.push_back(7);	indices.push_back(20);
+						//indices.push_back(7);	indices.push_back(10);	indices.push_back(20);
+						//indices.push_back(21);	indices.push_back(23);	indices.push_back(22);
+						//indices.push_back(23);	indices.push_back(24);	indices.push_back(22);
+						////legs
+						//indices.push_back(23);	indices.push_back(25);	indices.push_back(24);
+						//indices.push_back(25);	indices.push_back(26);	indices.push_back(24);
+						//indices.push_back(25);	indices.push_back(0);	indices.push_back(26);
+						//indices.push_back(0);	indices.push_back(27);	indices.push_back(26);
+						//indices.push_back(0);	indices.push_back(1);	indices.push_back(27);
+						//indices.push_back(28);	indices.push_back(31);	indices.push_back(29);
+						//indices.push_back(28);	indices.push_back(30);	indices.push_back(31);
+						//indices.push_back(30);	indices.push_back(32);	indices.push_back(33);
+						//indices.push_back(30);	indices.push_back(33);	indices.push_back(31);
+						//indices.push_back(32);	indices.push_back(1);	indices.push_back(33);
+						//indices.push_back(33);	indices.push_back(27);	indices.push_back(1);
+						//indices.push_back(11);	indices.push_back(35);	indices.push_back(34);
+						//indices.push_back(11);	indices.push_back(34);	indices.push_back(9);
+						////head
+						//indices.push_back(9);	indices.push_back(34);	indices.push_back(12);
+						//indices.push_back(34);	indices.push_back(36);	indices.push_back(12);
+						//indices.push_back(34);	indices.push_back(35);	indices.push_back(36);
+						//indices.push_back(35);	indices.push_back(37);	indices.push_back(38);
+						//indices.push_back(35);	indices.push_back(38);	indices.push_back(36);
+						////continue from 38
+						////hands
+						//indices.push_back(39);	indices.push_back(13);	indices.push_back(14);
+						//indices.push_back(39);	indices.push_back(14);	indices.push_back(40);
+						//indices.push_back(41);	indices.push_back(17);	indices.push_back(42);
+						//indices.push_back(17);	indices.push_back(18);	indices.push_back(42);
+						vector<vec2> tex;
+						tex.push_back(vec2(0.357056, 0.417677));
+						tex.push_back(vec2(0.63436, 0.424716));
+						tex.push_back(vec2(0.281281, 0.654486));
+						tex.push_back(vec2(0.668834, 0.651864));
+						tex.push_back(vec2(0.344362, 0.668123));
+						tex.push_back(vec2(0.483297, 0.704922));
+						tex.push_back(vec2(0.606656, 0.666727));
+						tex.push_back(vec2(0.363513, 0.704208));
+						tex.push_back(vec2(0.481398, 0.742544));
+						tex.push_back(vec2(0.594513, 0.703739));
+						tex.push_back(vec2(0.445423, 0.730845));
+						tex.push_back(vec2(0.512891, 0.73174));
+						tex.push_back(vec2(0.163252, 0.925081));
+						tex.push_back(vec2(0.055907, 0.893054));
+						tex.push_back(vec2(0.260317, 0.808323));
+						tex.push_back(vec2(0.152971, 0.776296));
+						tex.push_back(vec2(0.94095, 0.878834));
+						tex.push_back(vec2(0.839852, 0.916624));
+						tex.push_back(vec2(0.831066, 0.762144));
+						tex.push_back(vec2(0.729968, 0.799934));
+						tex.push_back(vec2(0.329756, 0.00389565));
+						tex.push_back(vec2(0.426757, 0));
+						tex.push_back(vec2(0.340259, 0.0597313));
+						tex.push_back(vec2(0.43726, 0.0558356));
+						tex.push_back(vec2(0.306178, 0.261854));
+						tex.push_back(vec2(0.50028, 0.25486));
+						tex.push_back(vec2(0.496964, 0.387029));
+						tex.push_back(vec2(0.67537, 0.00663857));
+						tex.push_back(vec2(0.57814, 0.00542157));
+						tex.push_back(vec2(0.676887, 0.0588956));
+						tex.push_back(vec2(0.579657, 0.0576786));
+						tex.push_back(vec2(0.703275, 0.260904));
+						tex.push_back(vec2(0.50992, 0.249145));
+						tex.push_back(vec2(0.475392, 0.778904));
+						tex.push_back(vec2(0.411582, 0.79506));
+						tex.push_back(vec2(0.533196, 0.799108));
+						tex.push_back(vec2(0.402573, 0.8496));
+						tex.push_back(vec2(0.524187, 0.853647));
+						tex.push_back(vec2(0.088382, 1));
+						tex.push_back(vec2(0, 0.977442));
+						tex.push_back(vec2(1, 0.962063));
+						tex.push_back(vec2(0.913081, 0.986313));
 
 
-	GLuint VB;
-
-	glGenVertexArrays(1, &VAObody);
-	glBindVertexArray(VAObody);
-
-	glGenBuffers(1, &VBbody);
-	glBindBuffer(GL_ARRAY_BUFFER, VBbody);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * temp_posb.size(), temp_posb.data(), GL_DYNAMIC_DRAW);
-	vertexcount = temp_posb.size();
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-	glGenBuffers(1, &VB);
-	glBindBuffer(GL_ARRAY_BUFFER, VB);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vec2) * tex.size(), tex.data(), GL_DYNAMIC_DRAW);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
-	glGenBuffers(1, &VB);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, VB);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLushort) * indices.size(), indices.data(), GL_STATIC_DRAW);
-	body_size = indices.size();
-	glBindVertexArray(0);
+						vector<vec3> temp_posb;
+						generate_body_vertices(&body.trackedbody.at(0), &temp_posb, app_posb);
+						app_posb = temp_posb;
 
 
+						GLuint VB;
 
+						glGenVertexArrays(1, &VAObody);
+						glBindVertexArray(VAObody);
 
-	string resourceDirectory = "../resources";
-	// Initialize mesh.
+						glGenBuffers(1, &VBbody);
+						glBindBuffer(GL_ARRAY_BUFFER, VBbody);
+						glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * temp_posb.size(), temp_posb.data(), GL_DYNAMIC_DRAW);
+						vertexcount = temp_posb.size();
+						glEnableVertexAttribArray(0);
+						glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+						glGenBuffers(1, &VB);
+						glBindBuffer(GL_ARRAY_BUFFER, VB);
+						glBufferData(GL_ARRAY_BUFFER, sizeof(vec2) * tex.size(), tex.data(), GL_DYNAMIC_DRAW);
+						glEnableVertexAttribArray(1);
+						glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
+						glGenBuffers(1, &VB);
+						glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, VB);
+						glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLushort) * indices.size(), indices.data(), GL_STATIC_DRAW);
+						body_size = indices.size();
+						glBindVertexArray(0);
 
 
 
 
-	int width, height, channels;
-	char filepath[1000];
-
-	//texture 1
-	string str = resourceDirectory + "/skeleton.jpg";
-	strcpy(filepath, str.c_str());
-	unsigned char* data = stbi_load(filepath, &width, &height, &channels, 4);
-	TextureSkeleton = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-
-	str = resourceDirectory + "/shead.png";
-	strcpy(filepath, str.c_str());
-	data = stbi_load(filepath, &width, &height, &channels, 4);
-	TextureSkeletonHead = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-
-	str = resourceDirectory + "/red.jpg";
-	strcpy(filepath, str.c_str());
-	data = stbi_load(filepath, &width, &height, &channels, 4);
-	TexRed = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-
-	str = resourceDirectory + "/skeleton.png";
-	strcpy(filepath, str.c_str());
-	data = stbi_load(filepath, &width, &height, &channels, 4);
-	TextureSkeletonH = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-
-	str = resourceDirectory + "/heart2.png";
-	strcpy(filepath, str.c_str());
-	data = stbi_load(filepath, &width, &height, &channels, 4);
-	TexHeart = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+						string resourceDirectory = "../resources";
+						// Initialize mesh.
 
 
-	str = resourceDirectory + "/fur.jpg";		strcpy(filepath, str.c_str());		data = stbi_load(filepath, &width, &height, &channels, 4);
-	TextureSkin[0] = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-	str = resourceDirectory + "/snake.jpg";		strcpy(filepath, str.c_str());		data = stbi_load(filepath, &width, &height, &channels, 4);
-	TextureSkin[1] = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-	str = resourceDirectory + "/zebra.jpg";		strcpy(filepath, str.c_str());		data = stbi_load(filepath, &width, &height, &channels, 4);
-	TextureSkin[2] = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-	str = resourceDirectory + "/chameleon.jpg";		strcpy(filepath, str.c_str());		data = stbi_load(filepath, &width, &height, &channels, 4);
-	TextureSkin[3] = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-	str = resourceDirectory + "/chameleon2.jpg";		strcpy(filepath, str.c_str());		data = stbi_load(filepath, &width, &height, &channels, 4);
-	TextureSkin[4] = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-	str = resourceDirectory + "/chameleon3.jpg";		strcpy(filepath, str.c_str());		data = stbi_load(filepath, &width, &height, &channels, 4);
-	TextureSkin[5] = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-	str = resourceDirectory + "/gecko.jpg";		strcpy(filepath, str.c_str());		data = stbi_load(filepath, &width, &height, &channels, 4);
-	TextureSkin[6] = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
 
 
-	str = resourceDirectory + "/lines.jpg";
-	strcpy(filepath, str.c_str());
-	data = stbi_load(filepath, &width, &height, &channels, 4);
-	TextureLines = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+						int width, height, channels;
+						char filepath[1000];
+
+						//texture 1
+						string str = resourceDirectory + "/skeleton.jpg";
+						strcpy(filepath, str.c_str());
+						unsigned char* data = stbi_load(filepath, &width, &height, &channels, 4);
+						TextureSkeleton = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+
+						str = resourceDirectory + "/shead.png";
+						strcpy(filepath, str.c_str());
+						data = stbi_load(filepath, &width, &height, &channels, 4);
+						TextureSkeletonHead = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+
+						str = resourceDirectory + "/red.jpg";
+						strcpy(filepath, str.c_str());
+						data = stbi_load(filepath, &width, &height, &channels, 4);
+						TexRed = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+
+						str = resourceDirectory + "/skeleton.png";
+						strcpy(filepath, str.c_str());
+						data = stbi_load(filepath, &width, &height, &channels, 4);
+						TextureSkeletonH = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+
+						str = resourceDirectory + "/heart2.png";
+						strcpy(filepath, str.c_str());
+						data = stbi_load(filepath, &width, &height, &channels, 4);
+						TexHeart = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
 
 
-	//texture 2
-	str = resourceDirectory + "/butterfly.png";
-	strcpy(filepath, str.c_str());
-	data = stbi_load(filepath, &width, &height, &channels, 4);
-	TextureButterfly = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-	//t3
-	str = resourceDirectory + "/firering_a.jpg";
-	strcpy(filepath, str.c_str());
-	data = stbi_load(filepath, &width, &height, &channels, 4);
-	TextureAlpha = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_CLAMP_TO_BORDER, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+						str = resourceDirectory + "/fur.jpg";		strcpy(filepath, str.c_str());		data = stbi_load(filepath, &width, &height, &channels, 4);
+						TextureSkin[0] = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+						str = resourceDirectory + "/snake.jpg";		strcpy(filepath, str.c_str());		data = stbi_load(filepath, &width, &height, &channels, 4);
+						TextureSkin[1] = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+						str = resourceDirectory + "/zebra.jpg";		strcpy(filepath, str.c_str());		data = stbi_load(filepath, &width, &height, &channels, 4);
+						TextureSkin[2] = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+						str = resourceDirectory + "/chameleon.jpg";		strcpy(filepath, str.c_str());		data = stbi_load(filepath, &width, &height, &channels, 4);
+						TextureSkin[3] = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+						str = resourceDirectory + "/chameleon2.jpg";		strcpy(filepath, str.c_str());		data = stbi_load(filepath, &width, &height, &channels, 4);
+						TextureSkin[4] = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+						str = resourceDirectory + "/chameleon3.jpg";		strcpy(filepath, str.c_str());		data = stbi_load(filepath, &width, &height, &channels, 4);
+						TextureSkin[5] = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+						str = resourceDirectory + "/gecko.jpg";		strcpy(filepath, str.c_str());		data = stbi_load(filepath, &width, &height, &channels, 4);
+						TextureSkin[6] = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
 
 
-	//texture array	
-	glGenTextures(1, &TextureArray);
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D_ARRAY, TextureArray);
-	glTexStorage3D(GL_TEXTURE_2D_ARRAY, 7, GL_RGBA8, 512, 512, 25);
-	std::vector<unsigned char> buffer(512 * 512 * 4 * 25);
-	int sizepicoffset = 0;
-	char txt[1000];
-	for (int ii = 0; ii < 25; ii++)
-	{
-		sprintf(txt, "../resources/firering_%.3d.png", ii + 1);
-		data = stbi_load(txt, &width, &height, &channels, 4);
-		if (data == NULL)
-		{
-			cout << "data is null" << endl;
-			return;
-		}
-		int sizepic = width * height * 4;
-		memcpy(&buffer[sizepicoffset], data, sizepic);
-		sizepicoffset = sizepic;
-		glTexSubImage3D(GL_TEXTURE_2D_ARRAY,
-			0,                     //Mipmap number
-			0, 0, ii,                 //xoffset, yoffset, zoffset
-			width, height, 1,                 //width, height, depth
-			GL_RGBA,                //format
-			GL_UNSIGNED_BYTE,      //type
-			data);
-	}
-	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-	glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
+						str = resourceDirectory + "/lines.jpg";
+						strcpy(filepath, str.c_str());
+						data = stbi_load(filepath, &width, &height, &channels, 4);
+						TextureLines = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+
+
+						//texture 2
+						str = resourceDirectory + "/butterfly.png";
+						strcpy(filepath, str.c_str());
+						data = stbi_load(filepath, &width, &height, &channels, 4);
+						TextureButterfly = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+						//t3
+						str = resourceDirectory + "/firering_a.jpg";
+						strcpy(filepath, str.c_str());
+						data = stbi_load(filepath, &width, &height, &channels, 4);
+						TextureAlpha = generate_texture2D(GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, GL_CLAMP_TO_BORDER, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+
+
+						//texture array	
+						glGenTextures(1, &TextureArray);
+						glActiveTexture(GL_TEXTURE2);
+						glBindTexture(GL_TEXTURE_2D_ARRAY, TextureArray);
+						glTexStorage3D(GL_TEXTURE_2D_ARRAY, 7, GL_RGBA8, 512, 512, 25);
+						std::vector<unsigned char> buffer(512 * 512 * 4 * 25);
+						int sizepicoffset = 0;
+						char txt[1000];
+						for (int ii = 0; ii < 25; ii++)
+						{
+							sprintf(txt, "../resources/firering_%.3d.png", ii + 1);
+							data = stbi_load(txt, &width, &height, &channels, 4);
+							if (data == NULL)
+							{
+								cout << "data is null" << endl;
+								return;
+							}
+							int sizepic = width * height * 4;
+							memcpy(&buffer[sizepicoffset], data, sizepic);
+							sizepicoffset = sizepic;
+							glTexSubImage3D(GL_TEXTURE_2D_ARRAY,
+								0,                     //Mipmap number
+								0, 0, ii,                 //xoffset, yoffset, zoffset
+								width, height, 1,                 //width, height, depth
+								GL_RGBA,                //format
+								GL_UNSIGNED_BYTE,      //type
+								data);
+						}
+						glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+						glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+						glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+						glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+						glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
 
 	glGenVertexArrays(1, &VAOrect);
 	glBindVertexArray(VAOrect);
@@ -1257,54 +1257,54 @@ int render_render_fire_to_screen_FBO(double frametime, mat4 P, mat4 V)
 
 
 
-	prog->bind();
+									prog->bind();
 
-	vec2 texoff = vec2(0, 0);
-	float tick = phaseprogresstotaltime * 25.;
-	int texframe_x = (int)tick % 8;
-	int texframe_y = (int)tick / 8;
-	texoff.x = (float)texframe_x;
-	texoff.y = (float)texframe_y;
+									vec2 texoff = vec2(0, 0);
+									float tick = phaseprogresstotaltime * 25.;
+									int texframe_x = (int)tick % 8;
+									int texframe_y = (int)tick / 8;
+									texoff.x = (float)texframe_x;
+									texoff.y = (float)texframe_y;
 
-	float firescale = 100. - pow(phaseprogresstotaltime, 0.06) * 92;
-	if (firescale <= 0)
-	{
-		//reset
-		firescale = 0.1;
-		//roll_dice();
-	}
-	glUniform1f(prog->getUniform("firescale"), firescale);
-	glUniform2fv(prog->getUniform("texsplit"), 1, &texoff.x);
-	glUniform1f(prog->getUniform("totaltime"), phaseprogresstotaltime);
-	glUniformMatrix4fv(prog->getUniform("P"), 1, GL_FALSE, &P[0][0]);
-	glUniformMatrix4fv(prog->getUniform("V"), 1, GL_FALSE, &V[0][0]);
-	M = glm::translate(glm::mat4(1.0f), modelpos) * glm::scale(glm::mat4(1.0f), modelscale);
-	glUniformMatrix4fv(prog->getUniform("M"), 1, GL_FALSE, &M[0][0]);
-
-
-
-	glBindVertexArray(VAObody);
-	glActiveTexture(GL_TEXTURE0);		glBindTexture(GL_TEXTURE_2D, 0);
-	glActiveTexture(GL_TEXTURE1);		glBindTexture(GL_TEXTURE_2D, 0);
-	glActiveTexture(GL_TEXTURE2);		glBindTexture(GL_TEXTURE_2D, TextureAlpha);
-	glActiveTexture(GL_TEXTURE3);		glBindTexture(GL_TEXTURE_2D_ARRAY, TextureArray);
-
-	glDrawElements(GL_TRIANGLES, (int)body_size, GL_UNSIGNED_SHORT, (const void*)0);
-
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	//glBindVertexArray(VAOrect);
+									float firescale = 100. - pow(phaseprogresstotaltime, 0.06) * 92;
+									if (firescale <= 0)
+									{
+										//reset
+										firescale = 0.1;
+										//roll_dice();
+									}
+									glUniform1f(prog->getUniform("firescale"), firescale);
+									glUniform2fv(prog->getUniform("texsplit"), 1, &texoff.x);
+									glUniform1f(prog->getUniform("totaltime"), phaseprogresstotaltime);
+									glUniformMatrix4fv(prog->getUniform("P"), 1, GL_FALSE, &P[0][0]);
+									glUniformMatrix4fv(prog->getUniform("V"), 1, GL_FALSE, &V[0][0]);
+									M = glm::translate(glm::mat4(1.0f), modelpos) * glm::scale(glm::mat4(1.0f), modelscale);
+									glUniformMatrix4fv(prog->getUniform("M"), 1, GL_FALSE, &M[0][0]);
 
 
-	//for (int ii = 0; ii < JointType_Count; ii++)
-	//	{
-	//	vec3 t = body.joint_positions[ii];
-	//	//t.z *= -1;
-	//	mat4 Mr = M * translate(mat4(1), t * 1.0f) * scale(mat4(1), vec3(0.01, 0.01, 0.01));
 
-	//	glUniformMatrix4fv(prog->getUniform("M"), 1, GL_FALSE, &Mr[0][0]);
-	//	glDrawArrays(GL_TRIANGLES, 0, 6);
-	//	}
-	prog->unbind();
+									glBindVertexArray(VAObody);
+									glActiveTexture(GL_TEXTURE0);		glBindTexture(GL_TEXTURE_2D, 0);
+									glActiveTexture(GL_TEXTURE1);		glBindTexture(GL_TEXTURE_2D, 0);
+									glActiveTexture(GL_TEXTURE2);		glBindTexture(GL_TEXTURE_2D, TextureAlpha);
+									glActiveTexture(GL_TEXTURE3);		glBindTexture(GL_TEXTURE_2D_ARRAY, TextureArray);
+
+									glDrawElements(GL_TRIANGLES, (int)body_size, GL_UNSIGNED_SHORT, (const void*)0);
+
+									glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+									//glBindVertexArray(VAOrect);
+
+
+									//for (int ii = 0; ii < JointType_Count; ii++)
+									//	{
+									//	vec3 t = body.joint_positions[ii];
+									//	//t.z *= -1;
+									//	mat4 Mr = M * translate(mat4(1), t * 1.0f) * scale(mat4(1), vec3(0.01, 0.01, 0.01));
+
+									//	glUniformMatrix4fv(prog->getUniform("M"), 1, GL_FALSE, &Mr[0][0]);
+									//	glDrawArrays(GL_TRIANGLES, 0, 6);
+									//	}
+									prog->unbind();
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glBindTexture(GL_TEXTURE_2D, FBOcolor);
@@ -1403,127 +1403,127 @@ int render_body_to_FBO(double frametime, mat4 P, mat4 V)
 
 	M = TransZ * S;
 	// Draw the box using GLSL.
-	if (scenemode != SCENE_BUTTERFLY)
-	{
-		switch (scenemode)
-		{
-		default:
-			break;
-		case SCENE_SCELETONHEART:
-		{
+						if (scenemode != SCENE_BUTTERFLY)
+						{
+							switch (scenemode)
+							{
+							default:
+								break;
+							case SCENE_SCELETONHEART:
+							{
 
-			float tileprogress = totaltime * 16.;
-			int tx = (int)tileprogress % 4;
-			int ty = (int)tileprogress / 4;
-			vec4 texoff = vec4(4, 4, tx, ty);
-			vec3 a = body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SHOULDER_LEFT);
-			vec3 b = body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SPINE_CHEST);
-			vec3 pos;
-			pos.x = a.x * 0.2 + b.x * 0.8;
-			pos.y = a.y * 0.7 + b.y * 0.3;
-			pos.z = a.z;
-			mat4 MrectHeart = translate(mat4(1), pos) * rotate(mat4(1), 3.14159265f, vec3(0, 1, 0)) * scale(mat4(1), vec3(0.4, 0.4, 0.4));
-			render_rect(P, V, TexHeart, MrectHeart, texoff);
+								float tileprogress = totaltime * 16.;
+								int tx = (int)tileprogress % 4;
+								int ty = (int)tileprogress / 4;
+								vec4 texoff = vec4(4, 4, tx, ty);
+								vec3 a = body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SHOULDER_LEFT);
+								vec3 b = body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_SPINE_CHEST);
+								vec3 pos;
+								pos.x = a.x * 0.2 + b.x * 0.8;
+								pos.y = a.y * 0.7 + b.y * 0.3;
+								pos.z = a.z;
+								mat4 MrectHeart = translate(mat4(1), pos) * rotate(mat4(1), 3.14159265f, vec3(0, 1, 0)) * scale(mat4(1), vec3(0.4, 0.4, 0.4));
+								render_rect(P, V, TexHeart, MrectHeart, texoff);
 
 
 
-			mat4 MrectHead = translate(mat4(1), body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_NOSE) * 0.6f + body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_HEAD) * 0.6f) * scale(mat4(1), vec3(0.61, 0.61, 0.61));
-			texoff = vec4(1, 1, 0, 0);
-			render_rect(P, V, TextureSkeletonHead, MrectHead, texoff);
-			redtone = vec3(1, 0, 0);
-			greentone = vec3(0, 1, 0);
-			bluetone = vec3(0, 0, 1);
-		}
-		break;
-		}
+								mat4 MrectHead = translate(mat4(1), body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_NOSE) * 0.6f + body.trackedbody.at(0).new_get_joint(FORECASTFACT, K4ABT_JOINT_HEAD) * 0.6f) * scale(mat4(1), vec3(0.61, 0.61, 0.61));
+								texoff = vec4(1, 1, 0, 0);
+								render_rect(P, V, TextureSkeletonHead, MrectHead, texoff);
+								redtone = vec3(1, 0, 0);
+								greentone = vec3(0, 1, 0);
+								bluetone = vec3(0, 0, 1);
+							}
+							break;
+							}
 
-		progbody->bind();
-		M = glm::translate(glm::mat4(1.0f), modelpos) * glm::scale(glm::mat4(1.0f), modelscale);
-		glUniform1f(progbody->getUniform("totaltime"), phaseprogresstotaltime);
-		glUniform1f(progbody->getUniform("texblend"), 0);
-		glUniformMatrix4fv(progbody->getUniform("P"), 1, GL_FALSE, &P[0][0]);
-		glUniformMatrix4fv(progbody->getUniform("V"), 1, GL_FALSE, &V[0][0]);
-		glUniformMatrix4fv(progbody->getUniform("M"), 1, GL_FALSE, &M[0][0]);
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+							progbody->bind();
+							M = glm::translate(glm::mat4(1.0f), modelpos) * glm::scale(glm::mat4(1.0f), modelscale);
+							glUniform1f(progbody->getUniform("totaltime"), phaseprogresstotaltime);
+							glUniform1f(progbody->getUniform("texblend"), 0);
+							glUniformMatrix4fv(progbody->getUniform("P"), 1, GL_FALSE, &P[0][0]);
+							glUniformMatrix4fv(progbody->getUniform("V"), 1, GL_FALSE, &V[0][0]);
+							glUniformMatrix4fv(progbody->getUniform("M"), 1, GL_FALSE, &M[0][0]);
+							//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-		glUniform3fv(progbody->getUniform("redmul"), 1, &redtone.x);
-		glUniform3fv(progbody->getUniform("greenmul"), 1, &greentone.x);
-		glUniform3fv(progbody->getUniform("bluemul"), 1, &bluetone.x);
+							glUniform3fv(progbody->getUniform("redmul"), 1, &redtone.x);
+							glUniform3fv(progbody->getUniform("greenmul"), 1, &greentone.x);
+							glUniform3fv(progbody->getUniform("bluemul"), 1, &bluetone.x);
 
-		glBindVertexArray(VAObody);
+							glBindVertexArray(VAObody);
 
-		switch (scenemode)
-		{
-		default:
-		case SCENE_LINES:
-			glActiveTexture(GL_TEXTURE0);		glBindTexture(GL_TEXTURE_2D, TextureLines);
-			break;
-		case SCENE_SCELETON:
-			glActiveTexture(GL_TEXTURE0);		glBindTexture(GL_TEXTURE_2D, TextureSkeleton);
-			break;
-		case SCENE_SCELETONHEART:
-			glActiveTexture(GL_TEXTURE0);		glBindTexture(GL_TEXTURE_2D, TextureSkeletonH);
-			break;
-		case SCENE_FUR:
-		{
-			static GLuint tex1 = -1, tex2 = -1;
-			static vec3 next_redtone = vec3(1, 0, 0);
-			static vec3 next_greentone = vec3(0, 1, 0);
-			static vec3 next_bluetone = vec3(0, 0, 1);
-			vec3 actual_redtone = redtone;
-			vec3 actual_greentone = greentone;
-			vec3 actual_bluetone = bluetone;
+							switch (scenemode)
+							{
+							default:
+							case SCENE_LINES:
+								glActiveTexture(GL_TEXTURE0);		glBindTexture(GL_TEXTURE_2D, TextureLines);
+								break;
+							case SCENE_SCELETON:
+								glActiveTexture(GL_TEXTURE0);		glBindTexture(GL_TEXTURE_2D, TextureSkeleton);
+								break;
+							case SCENE_SCELETONHEART:
+								glActiveTexture(GL_TEXTURE0);		glBindTexture(GL_TEXTURE_2D, TextureSkeletonH);
+								break;
+							case SCENE_FUR:
+							{
+								static GLuint tex1 = -1, tex2 = -1;
+								static vec3 next_redtone = vec3(1, 0, 0);
+								static vec3 next_greentone = vec3(0, 1, 0);
+								static vec3 next_bluetone = vec3(0, 0, 1);
+								vec3 actual_redtone = redtone;
+								vec3 actual_greentone = greentone;
+								vec3 actual_bluetone = bluetone;
 
-			if (fur_phase_total_time < 0.001)
-			{
-				tex1 = rand() % FURMAXTEX;
-				tex2 = rand() % FURMAXTEX;
-				next_redtone = normalize(vec3(frand(), frand(), frand()));
-				next_greentone = normalize(vec3(frand(), frand(), frand()));
-				next_bluetone = normalize(vec3(frand(), frand(), frand()));
-			}
-			else if (fur_phase_total_time > FURCHANGETIME)
-			{
-				fur_phase_total_time = 0.001;
-				tex1 = tex2;
-				tex2 = rand() % FURMAXTEX;
-				redtone = next_redtone;
-				greentone = next_greentone;
-				bluetone = next_bluetone;
-				next_redtone = normalize(vec3(frand(), frand(), frand()));
-				next_greentone = normalize(vec3(frand(), frand(), frand()));
-				next_bluetone = normalize(vec3(frand(), frand(), frand()));
-				actual_redtone = redtone;
-				actual_greentone = greentone;
-				actual_bluetone = bluetone;
-			}
-			else if (fur_phase_total_time > FURBLENDTIME)
-			{
-				float blend = fur_phase_total_time - FURBLENDTIME;
-				blend /= FURCHANGETIME - FURBLENDTIME;
-				if (blend > 1.0)	blend = 1.0;
-				glUniform1f(progbody->getUniform("texblend"), blend);
-				actual_redtone = mix(redtone, next_redtone, blend);
-				actual_greentone = mix(greentone, next_greentone, blend);
-				actual_bluetone = mix(bluetone, next_bluetone, blend);
-			}
+								if (fur_phase_total_time < 0.001)
+								{
+									tex1 = rand() % FURMAXTEX;
+									tex2 = rand() % FURMAXTEX;
+									next_redtone = normalize(vec3(frand(), frand(), frand()));
+									next_greentone = normalize(vec3(frand(), frand(), frand()));
+									next_bluetone = normalize(vec3(frand(), frand(), frand()));
+								}
+								else if (fur_phase_total_time > FURCHANGETIME)
+								{
+									fur_phase_total_time = 0.001;
+									tex1 = tex2;
+									tex2 = rand() % FURMAXTEX;
+									redtone = next_redtone;
+									greentone = next_greentone;
+									bluetone = next_bluetone;
+									next_redtone = normalize(vec3(frand(), frand(), frand()));
+									next_greentone = normalize(vec3(frand(), frand(), frand()));
+									next_bluetone = normalize(vec3(frand(), frand(), frand()));
+									actual_redtone = redtone;
+									actual_greentone = greentone;
+									actual_bluetone = bluetone;
+								}
+								else if (fur_phase_total_time > FURBLENDTIME)
+								{
+									float blend = fur_phase_total_time - FURBLENDTIME;
+									blend /= FURCHANGETIME - FURBLENDTIME;
+									if (blend > 1.0)	blend = 1.0;
+									glUniform1f(progbody->getUniform("texblend"), blend);
+									actual_redtone = mix(redtone, next_redtone, blend);
+									actual_greentone = mix(greentone, next_greentone, blend);
+									actual_bluetone = mix(bluetone, next_bluetone, blend);
+								}
 
-			fur_phase_total_time += frametime;
-			glUniform3fv(progbody->getUniform("redmul"), 1, &actual_redtone.x);
-			glUniform3fv(progbody->getUniform("greenmul"), 1, &actual_greentone.x);
-			glUniform3fv(progbody->getUniform("bluemul"), 1, &actual_bluetone.x);
-			/*	glUniform3fv(progbody->getUniform("redmul"), 1, &redtone.x);
-				glUniform3fv(progbody->getUniform("bluemul"), 1, &greentone.x);
-				glUniform3fv(progbody->getUniform("greenmul"), 1, &bluetone.x);*/
-			glActiveTexture(GL_TEXTURE0);		glBindTexture(GL_TEXTURE_2D, TextureSkin[tex1]);
-			glActiveTexture(GL_TEXTURE1);		glBindTexture(GL_TEXTURE_2D, TextureSkin[tex2]);
-		}
-		break;
-		}
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		glDrawElements(GL_TRIANGLES, (int)body_size, GL_UNSIGNED_SHORT, (const void*)0);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		progbody->unbind();
+								fur_phase_total_time += frametime;
+								glUniform3fv(progbody->getUniform("redmul"), 1, &actual_redtone.x);
+								glUniform3fv(progbody->getUniform("greenmul"), 1, &actual_greentone.x);
+								glUniform3fv(progbody->getUniform("bluemul"), 1, &actual_bluetone.x);
+								/*	glUniform3fv(progbody->getUniform("redmul"), 1, &redtone.x);
+									glUniform3fv(progbody->getUniform("bluemul"), 1, &greentone.x);
+									glUniform3fv(progbody->getUniform("greenmul"), 1, &bluetone.x);*/
+								glActiveTexture(GL_TEXTURE0);		glBindTexture(GL_TEXTURE_2D, TextureSkin[tex1]);
+								glActiveTexture(GL_TEXTURE1);		glBindTexture(GL_TEXTURE_2D, TextureSkin[tex2]);
+							}
+							break;
+							}
+							//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+							glDrawElements(GL_TRIANGLES, (int)body_size, GL_UNSIGNED_SHORT, (const void*)0);
+							glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+							progbody->unbind();
 
 #ifndef RELEASEVERSION
 		for (int ii = 0; ii < K4ABT_JOINT_COUNT; ii++)
@@ -1533,61 +1533,61 @@ int render_body_to_FBO(double frametime, mat4 P, mat4 V)
 			render_rect(P, V, TexRed, Mrect, texoff);
 		}
 #endif
-	}
-	else
-	{
-		float forecastfact = FORECASTFACT;
-		//send the matrices to the shaders
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		progbut->bind();
-		glUniform1f(progbut->getUniform("totaltime"), phaseprogresstotaltime);
-		glUniformMatrix4fv(progbut->getUniform("P"), 1, GL_FALSE, &P[0][0]);
-		glUniformMatrix4fv(progbut->getUniform("V"), 1, GL_FALSE, &V[0][0]);
-		glUniformMatrix4fv(progbut->getUniform("M"), 1, GL_FALSE, &M[0][0]);
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);		
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, TextureButterfly);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		//glBindVertexArray(VAOrect);
-		glBindVertexArray(VAO_rect);
-		M = glm::translate(glm::mat4(1.0f), modelpos) * glm::scale(glm::mat4(1.0f), modelscale);
+						}
+						else
+						{
+							float forecastfact = FORECASTFACT;
+							//send the matrices to the shaders
+							glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+							progbut->bind();
+							glUniform1f(progbut->getUniform("totaltime"), phaseprogresstotaltime);
+							glUniformMatrix4fv(progbut->getUniform("P"), 1, GL_FALSE, &P[0][0]);
+							glUniformMatrix4fv(progbut->getUniform("V"), 1, GL_FALSE, &V[0][0]);
+							glUniformMatrix4fv(progbut->getUniform("M"), 1, GL_FALSE, &M[0][0]);
+							//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);		
+							glActiveTexture(GL_TEXTURE0);
+							glBindTexture(GL_TEXTURE_2D, TextureButterfly);
+							glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+							//glBindVertexArray(VAOrect);
+							glBindVertexArray(VAO_rect);
+							M = glm::translate(glm::mat4(1.0f), modelpos) * glm::scale(glm::mat4(1.0f), modelscale);
 
-		for (int ii = 0; ii < butterflyactual; ii++)
-		{
-			vec3 pos = mix(body.trackedbody.at(0).new_get_joint(forecastfact, butterfly[ii].iA), body.trackedbody.at(0).new_get_joint(forecastfact, butterfly[ii].iB), butterfly[ii].rationAB);
-			mat4 Sc = scale(mat4(1), vec3(butterfly[ii].scale));
-			mat4 Rz = rotate(mat4(1), butterfly[ii].rotz, vec3(0, 0, 1));
-			vec3 t = body.trackedbody.at(0).new_get_joint(forecastfact, ii);
-			if (butterfly[ii].startanim >= (-1))
-				butterfly[ii].startanim -= frametime;
-			vec4 texoff = vec4(4, 4, 0, 0);
-			if (butterfly[ii].startanim <= 0)
-			{
-				float animprogress = -butterfly[ii].startanim * 2.;
-				if (animprogress >= 1.)
-				{
-					animprogress = 1.;
-					texoff = vec4(4, 4, 3, 3);
-				}
-				else
-				{
-					float tileprogress = animprogress * 16.;
-					int tx = (int)tileprogress % 4;
-					int ty = (int)tileprogress / 4;
-					texoff = vec4(4, 4, tx, ty);
-				}
-			}
-			glUniform4fv(progbut->getUniform("texsplit"), 1, &texoff.x);
-			glUniform3fv(progbut->getUniform("redmul"), 1, &butterfly[ii].red.x);
-			glUniform3fv(progbut->getUniform("bluemul"), 1, &butterfly[ii].blue.x);
-			glUniform3fv(progbut->getUniform("greenmul"), 1, &butterfly[ii].green.x);
+							for (int ii = 0; ii < butterflyactual; ii++)
+							{
+								vec3 pos = mix(body.trackedbody.at(0).new_get_joint(forecastfact, butterfly[ii].iA), body.trackedbody.at(0).new_get_joint(forecastfact, butterfly[ii].iB), butterfly[ii].rationAB);
+								mat4 Sc = scale(mat4(1), vec3(butterfly[ii].scale));
+								mat4 Rz = rotate(mat4(1), butterfly[ii].rotz, vec3(0, 0, 1));
+								vec3 t = body.trackedbody.at(0).new_get_joint(forecastfact, ii);
+								if (butterfly[ii].startanim >= (-1))
+									butterfly[ii].startanim -= frametime;
+								vec4 texoff = vec4(4, 4, 0, 0);
+								if (butterfly[ii].startanim <= 0)
+								{
+									float animprogress = -butterfly[ii].startanim * 2.;
+									if (animprogress >= 1.)
+									{
+										animprogress = 1.;
+										texoff = vec4(4, 4, 3, 3);
+									}
+									else
+									{
+										float tileprogress = animprogress * 16.;
+										int tx = (int)tileprogress % 4;
+										int ty = (int)tileprogress / 4;
+										texoff = vec4(4, 4, tx, ty);
+									}
+								}
+								glUniform4fv(progbut->getUniform("texsplit"), 1, &texoff.x);
+								glUniform3fv(progbut->getUniform("redmul"), 1, &butterfly[ii].red.x);
+								glUniform3fv(progbut->getUniform("bluemul"), 1, &butterfly[ii].blue.x);
+								glUniform3fv(progbut->getUniform("greenmul"), 1, &butterfly[ii].green.x);
 
-			mat4 Mr = M * translate(mat4(1), pos) * Rz * Sc;
-			glUniformMatrix4fv(progbut->getUniform("M"), 1, GL_FALSE, &Mr[0][0]);
-			glDrawArrays(GL_TRIANGLES, 0, 6);
-		}
-		progbut->unbind();
-	}
+								mat4 Mr = M * translate(mat4(1), pos) * Rz * Sc;
+								glUniformMatrix4fv(progbut->getUniform("M"), 1, GL_FALSE, &Mr[0][0]);
+								glDrawArrays(GL_TRIANGLES, 0, 6);
+							}
+							progbut->unbind();
+						}
 
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);

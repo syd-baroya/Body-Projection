@@ -13,6 +13,7 @@ void GeometryComponent::init()
 
 void GeometryComponent::draw(Program* prog)
 {
+	this->startGPUUpload();
 	glDrawElements(GL_TRIANGLES, (int)cpu_elements.size(), GL_UNSIGNED_SHORT, (const void*)0);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
@@ -49,8 +50,8 @@ void GeometryComponent::finishGPUUpload() {
 	vertex_array_object.unbind();
 }
 
-TexturedGeomComponent::TexturedGeomComponent(const std::vector<glm::vec3>& vertices, const std::vector<GLuint>& elements, 
-	std::vector<glm::vec3>& normals, std::vector<glm::vec2>& tex_coords) : GeometryComponent(vertices, elements)
+TexturedGeomComponent::TexturedGeomComponent(std::vector<glm::vec3> vertices, std::vector<GLushort> elements,
+std::vector<glm::vec3> normals, std::vector<glm::vec2> tex_coords) : GeometryComponent(vertices, elements)
 {
 	vertex_array_object.addBuffer(vertex_texture_buffer);
 	vertex_array_object.addBuffer(vertex_normals_buffer);

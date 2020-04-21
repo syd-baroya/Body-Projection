@@ -3,7 +3,9 @@
 #include <iostream>
 #include "ShaderLibrary.hpp"
 #include "RenderSystem.h"
-
+#include "Time.h"
+#include "KinectSystem.h"
+#include "TrackedBodyEntity.h"
 
 void Application::init(int argc, char** argv)
 {
@@ -18,29 +20,34 @@ void Application::run()
 {
 	RenderSystem& render_system = RenderSystem::getInstance();
 
-	//CollisionSystem& collision_system = CollisionSystem::getInstance();
+	KinectSystem& kinect_system = KinectSystem::getInstance();
+
+	Time globalTime;
 
 
-
+	kinect_system.InitializeDefaultSensor();
 	render_system.init(_window);
 
 	//std::vector<Entity*> new_entities(entities);
 
 	//new_entities.push_back(&camera);
 
+	int active_scene = 0;
+	int active_anim = 0;
+	double frametime = 0;
+
 	// Loop until the user closes the window.
 
 	while (!glfwWindowShouldClose(_window))
 
 	{
+		frametime = globalTime.getElapsedTime();
+		active_scene = rand() % scene_comps.size();
+		active_anim = rand() % anim_comps.size();
 
-		//for (Entity* e : new_entities)
+		kinect_system.process(frametime, dynamic_cast<TrackedBodyEntity*>(entities.at(0)));
 
-		//	e->update();
-
-		//collision_system.process(new_entities);
-
-		render_system.process(entities);
+		render_system.process(&scene_comps.at(active_scene), &anim_comps.at(active_anim), entities, frametime);
 
 
 
@@ -57,6 +64,8 @@ void Application::run()
 
 void Application::cleanup()
 {
+	KinectSystem& kinect_system = KinectSystem::getInstance();
+	kinect_system.CloseSensor();
 	glfwHideWindow(_window);
 	glfwDestroyWindow(_window);
 	glfwTerminate();
@@ -123,6 +132,175 @@ void Application::initShaders()
 
 void Application::initScene()
 {
+	/***BODY WITHOUT CLAVICLES***/
+	//torso w/o clavicles
+	vector<GLushort> indices;
+
+	indices.push_back(0);	indices.push_back(2);	indices.push_back(3);
+	indices.push_back(0);	indices.push_back(3);	indices.push_back(1);
+	indices.push_back(2);	indices.push_back(4);	indices.push_back(5);
+	indices.push_back(2);	indices.push_back(5);	indices.push_back(3);
+	indices.push_back(5);	indices.push_back(6);	indices.push_back(3);
+	indices.push_back(4);	indices.push_back(7);	indices.push_back(10);
+	indices.push_back(4);	indices.push_back(10);	indices.push_back(5);
+	indices.push_back(10);	indices.push_back(8);	indices.push_back(5);
+	indices.push_back(8);	indices.push_back(11);	indices.push_back(5);
+	indices.push_back(5);	indices.push_back(11);	indices.push_back(6);
+	indices.push_back(6);	indices.push_back(11);	indices.push_back(9);
+	indices.push_back(12);	indices.push_back(14);	indices.push_back(13);
+	indices.push_back(14);	indices.push_back(15);	indices.push_back(13);
+	indices.push_back(14);	indices.push_back(7);	indices.push_back(4);
+	indices.push_back(14);	indices.push_back(4);	indices.push_back(15);
+	//arms
+	indices.push_back(4);	indices.push_back(2);	indices.push_back(15);
+	indices.push_back(16);	indices.push_back(18);	indices.push_back(19);
+	indices.push_back(16);	indices.push_back(19);	indices.push_back(17);
+	indices.push_back(18);	indices.push_back(3);	indices.push_back(6);
+	indices.push_back(18);	indices.push_back(6);	indices.push_back(19);
+	indices.push_back(6);	indices.push_back(9);	indices.push_back(19);
+	indices.push_back(20);	indices.push_back(22);	indices.push_back(21);
+	indices.push_back(22);	indices.push_back(23);	indices.push_back(21);
+	//legs
+	indices.push_back(22);	indices.push_back(24);	indices.push_back(23);
+	indices.push_back(24);	indices.push_back(25);	indices.push_back(23);
+	indices.push_back(24);	indices.push_back(0);	indices.push_back(25);
+	indices.push_back(0);	indices.push_back(26);	indices.push_back(25);
+	indices.push_back(0);	indices.push_back(1);	indices.push_back(26);
+	indices.push_back(27);	indices.push_back(30);	indices.push_back(28);
+	indices.push_back(27);	indices.push_back(29);	indices.push_back(30);
+	indices.push_back(29);	indices.push_back(31);	indices.push_back(32);
+	indices.push_back(29);	indices.push_back(32);	indices.push_back(30);
+	indices.push_back(31);	indices.push_back(1);	indices.push_back(32);
+	indices.push_back(32);	indices.push_back(26);	indices.push_back(1);
+	indices.push_back(10);	indices.push_back(34);	indices.push_back(33);
+	indices.push_back(10);	indices.push_back(33);	indices.push_back(8);
+	//head
+	indices.push_back(8);	indices.push_back(33);	indices.push_back(11);
+	indices.push_back(33);	indices.push_back(35);	indices.push_back(11);
+	indices.push_back(33);	indices.push_back(34);	indices.push_back(35);
+	indices.push_back(34);	indices.push_back(36);	indices.push_back(37);
+	indices.push_back(34);	indices.push_back(37);	indices.push_back(35);
+	//continue from 38
+	//hands
+	indices.push_back(38);	indices.push_back(12);	indices.push_back(13);
+	indices.push_back(38);	indices.push_back(13);	indices.push_back(39);
+	indices.push_back(40);	indices.push_back(16);	indices.push_back(41);
+	indices.push_back(16);	indices.push_back(17);	indices.push_back(41);
+
+
+	
+	vector<vec2> tex;
+	tex.push_back(vec2(0.357056, 0.417677));
+	tex.push_back(vec2(0.63436, 0.424716));
+	tex.push_back(vec2(0.281281, 0.654486));
+	tex.push_back(vec2(0.668834, 0.651864));
+	tex.push_back(vec2(0.344362, 0.668123));
+	tex.push_back(vec2(0.483297, 0.704922));
+	tex.push_back(vec2(0.606656, 0.666727));
+	tex.push_back(vec2(0.363513, 0.704208));
+	tex.push_back(vec2(0.481398, 0.742544));
+	tex.push_back(vec2(0.594513, 0.703739));
+	tex.push_back(vec2(0.445423, 0.730845));
+	tex.push_back(vec2(0.512891, 0.73174));
+	tex.push_back(vec2(0.163252, 0.925081));
+	tex.push_back(vec2(0.055907, 0.893054));
+	tex.push_back(vec2(0.260317, 0.808323));
+	tex.push_back(vec2(0.152971, 0.776296));
+	tex.push_back(vec2(0.94095, 0.878834));
+	tex.push_back(vec2(0.839852, 0.916624));
+	tex.push_back(vec2(0.831066, 0.762144));
+	tex.push_back(vec2(0.729968, 0.799934));
+	tex.push_back(vec2(0.329756, 0.00389565));
+	tex.push_back(vec2(0.426757, 0));
+	tex.push_back(vec2(0.340259, 0.0597313));
+	tex.push_back(vec2(0.43726, 0.0558356));
+	tex.push_back(vec2(0.306178, 0.261854));
+	tex.push_back(vec2(0.50028, 0.25486));
+	tex.push_back(vec2(0.496964, 0.387029));
+	tex.push_back(vec2(0.67537, 0.00663857));
+	tex.push_back(vec2(0.57814, 0.00542157));
+	tex.push_back(vec2(0.676887, 0.0588956));
+	tex.push_back(vec2(0.579657, 0.0576786));
+	tex.push_back(vec2(0.703275, 0.260904));
+	tex.push_back(vec2(0.50992, 0.249145));
+	tex.push_back(vec2(0.475392, 0.778904));
+	tex.push_back(vec2(0.411582, 0.79506));
+	tex.push_back(vec2(0.533196, 0.799108));
+	tex.push_back(vec2(0.402573, 0.8496));
+	tex.push_back(vec2(0.524187, 0.853647));
+	tex.push_back(vec2(0.088382, 1));
+	tex.push_back(vec2(0, 0.977442));
+	tex.push_back(vec2(1, 0.962063));
+	tex.push_back(vec2(0.913081, 0.986313));
+
+	vector<glm::vec3>* verts = nullptr;
+	vector<glm::vec3>* norms = nullptr;
+	TexturedGeomComponent tex_geom_comp(*verts, indices, *norms, tex);
+
+	TrackedBodyEntity tracked_body;
+	tracked_body.addComponent<DrawableComponent>();
+	tracked_body.addComponent<TexturedGeomComponent>(tex_geom_comp);
+	tracked_body.generateBodyVertices();
+
+	/*
+	* add fire animation
+	*/
+	SimpleTexture2D fire_tex; 
+	fire_tex.setFile("../resources/firering_a.jpg");
+
+	TextureArray fire_tex_array;
+	fire_tex_array.setFile("../resources/firering_%.3d.png");
+	
+	AnimationComponent fire_anim(fire_tex, fire_tex_array);
+	fire_anim.init();
+
+	//SCENE_LINES
+	SimpleTexture2D line_tex;
+	line_tex.setFile("../resources/lines.jpg");
+
+	SceneComponent scene_lines(line_tex);
+
+	//SCENE_SCELETON
+	SimpleTexture2D skeleton_tex;
+	skeleton_tex.setFile("../resources/skeleton.jpg");
+	
+	SceneComponent scene_skeleton(skeleton_tex);
+
+	
+	//SCENE_FUR
+	SimpleTexture2D fur_tex0;
+	fur_tex0.setFile("../resources/fur.jpg");
+	SimpleTexture2D fur_tex1;
+	fur_tex1.setFile("../resources/snake.jpg");
+	SimpleTexture2D fur_tex2;
+	fur_tex2.setFile("../resources/zebra.jpg");
+	SimpleTexture2D fur_tex3;
+	fur_tex3.setFile("../resources/chameleon.jpg");
+	SimpleTexture2D fur_tex4;
+	fur_tex4.setFile("../resources/chameleon2.jpg");
+	SimpleTexture2D fur_tex5;
+	fur_tex5.setFile("../resources/chameleon3.jpg");
+	SimpleTexture2D fur_tex6;
+	fur_tex6.setFile("../resources/gecko.jpg");
+
+	SimpleTexture2D fur_tex[] = {
+		fur_tex0,
+		fur_tex1,
+		fur_tex2,
+		fur_tex3,
+		fur_tex4,
+		fur_tex5,
+		fur_tex6
+	};
+	FurScene scene_fur(fur_tex);
+
+
+	entities.push_back(&tracked_body);
+	anim_comps.push_back(fire_anim);
+	scene_comps.push_back(scene_lines);
+	scene_comps.push_back(scene_skeleton);
+	scene_comps.push_back(scene_fur);
+
 }
 
 bool Application::isFullscreen()

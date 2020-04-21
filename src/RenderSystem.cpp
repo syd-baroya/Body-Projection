@@ -15,7 +15,7 @@ void RenderSystem::init(GLFWwindow* window)
     glClearColor(0.279755f, 0.271146f, 0.2803f, 1.0f);
 }
 
-void RenderSystem::process(std::vector<Entity*> entities) {
+void RenderSystem::process(SceneComponent* scene, AnimationComponent* anim, std::vector<Entity*> entities, double frametime) {
 
     // Clear framebuffer.
 
@@ -27,7 +27,17 @@ void RenderSystem::process(std::vector<Entity*> entities) {
 
     for (Entity* entity : entities)
     {
+        entity->addComponent<SceneComponent>(scene);
+        entity->addComponent<AnimationComponent>(anim);
+
+        entity->update(frametime);
+    }
+
+    for (Entity* entity : entities)
+    {
+        prog->bind();
         entity->draw(prog);
+        prog->unbind();
     }
 
 }

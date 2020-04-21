@@ -4,7 +4,7 @@
 #define KINECT_SYSTEM_HPP
 
 #include <vector>
-#include "TexturedMeshEntity.h"
+#include "TrackedBodyEntity.h"
 
 const float MillimeterToMeter = 0.001f;
 #define BODY_LOST_TIME 0.1
@@ -28,6 +28,10 @@ public:
 class KinectSystem
 {
 public:
+	static KinectSystem& getInstance() {
+		static KinectSystem _instance_;
+		return(_instance_);
+	}
 
 	int process(float frametime, TrackedBodyEntity* tracked_body);
 	void InitializeDefaultSensor();

@@ -10,7 +10,7 @@ class AnimationComponent : public Component {
 
 public:
 	AnimationComponent(){}
-	AnimationComponent(Texture tex) : animation_texture(tex) {}
+	AnimationComponent(Texture tex, TextureArray array_tex) : animation_texture(tex), animation_texture_array(array_tex) {}
 
 	virtual void init() override;
 	virtual void update(double phaseprogresstotaltime) override;

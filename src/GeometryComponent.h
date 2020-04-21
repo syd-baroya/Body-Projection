@@ -13,7 +13,7 @@ public:
 	GeometryComponent() {
 		vertex_array_object.addBuffer(vertex_pos_buffer);
 	}
-	GeometryComponent(const std::vector<glm::vec3>& vertices, const std::vector<GLuint>& elements) {
+	GeometryComponent(const std::vector<glm::vec3> vertices, const std::vector<GLushort> elements) {
 		cpu_vertices = vertices;
 		cpu_elements = elements;
 		vertex_array_object.addBuffer(vertex_pos_buffer);
@@ -44,7 +44,7 @@ protected:
 
 private:
 	std::vector<glm::vec3> cpu_vertices;
-	std::vector<GLuint> cpu_elements;
+	std::vector<GLushort> cpu_elements;
 	//GLenum draw_type = GL_STATIC_DRAW;
 };
 
@@ -54,8 +54,8 @@ public:
 		vertex_array_object.addBuffer(vertex_texture_buffer);
 
 	}
-	TexturedGeomComponent(const std::vector<glm::vec3>& vertices, const std::vector<GLuint>& elements, 
-		std::vector<glm::vec3>& normals, std::vector<glm::vec2>& tex_coords);
+	TexturedGeomComponent(std::vector<glm::vec3> vertices, std::vector<GLushort> elements, 
+		std::vector<glm::vec3> normals, std::vector<glm::vec2> tex_coords);
 
 protected:
 	void uploadData() override;

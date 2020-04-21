@@ -21,7 +21,7 @@ using namespace glm;
 class SceneComponent : public Component {
 public:
 	SceneComponent(){}
-	SceneComponent(Texture tex, float total_time) : scene_texture(tex), effect_time(total_time) {}
+	SceneComponent(Texture tex) : scene_texture(tex) {}
 
 	virtual void init() override;
 	virtual void update(double frametime) override;
@@ -61,7 +61,7 @@ protected:
 
 class FurScene : public SceneComponent {
 public:
-	FurScene(Texture tex, float total_time) : SceneComponent(tex, total_time) {}
+	FurScene(Texture* tex) {}
 
 
 	void init() override;

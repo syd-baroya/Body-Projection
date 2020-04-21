@@ -7,6 +7,7 @@
 
 class Time {
 public:
+	Time(){}
 	double getElapsedTime()
 	{
 		static double lasttime = glfwGetTime();

@@ -81,7 +81,7 @@ public:
 	std::string getName() { return(_name); }
 	uuid_t getUUID() { return(uuid); }
 
-	virtual void update() {}
+	virtual void update(double frametime) {}
 
     virtual void draw(Program* prog) {}
 
@@ -92,10 +92,16 @@ public:
 
 
     template <typename T, typename... TArgs>
-
     T* addComponent(TArgs&&... mArgs)
     {
         T* c(new T(std::forward<TArgs>(mArgs)...));
+        components[getComponentTypeID<T>()] = c;
+        return c;
+    }
+
+    template <typename T>
+    T* addComponent(T* c)
+    {
         components[getComponentTypeID<T>()] = c;
         return c;
     }
@@ -110,11 +116,11 @@ public:
 
 protected:
     std::string _name;
+    std::array<Component*, maxComponents> components;
 
 private:
     uuid_t uuid;
     bool active = true;
-    std::array<Component*, maxComponents> components;
 };
 
 #endif

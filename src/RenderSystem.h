@@ -8,6 +8,8 @@
 #include "Program.h"
 #include <vector>
 #include "ShaderLibrary.hpp"
+#include "SceneComponent.h"
+
 
 class RenderSystem {
 public:
@@ -17,7 +19,7 @@ public:
     }
 
     virtual void init(GLFWwindow* window);
-    virtual void process(std::vector<Entity*> entities);
+    virtual void process(SceneComponent* scene, AnimationComponent* anim, std::vector<Entity*> entities, double frametime);
     //virtual void processEntity(SceneComponent& scene, const MVPset& MVP, Entity* entity, Program* shader = nullptr);
 
 private:
