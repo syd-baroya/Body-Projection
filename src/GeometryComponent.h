@@ -23,8 +23,8 @@ public:
 	
 	std::vector<glm::vec3>& getMutableVertices() { return(cpu_vertices); }
 	std::vector<glm::vec3> getVertices() const { return(cpu_vertices); }
-	std::vector<GLuint>& getMutableElements() { return(cpu_elements); }
-	std::vector<GLuint> getElements() const { return(cpu_elements); }
+	std::vector<GLushort>& getMutableElements() { return(cpu_elements); }
+	std::vector<GLushort> getElements() const { return(cpu_elements); }
 
 	void init() override;
 	void draw(Program* prog);

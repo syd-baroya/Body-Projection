@@ -90,7 +90,7 @@ bool ShaderLibrary::buildAndAdd(string name, const string &vpath, const string &
 }
 
 bool ShaderLibrary::buildAndAdd(string name, const string& cpath) {
-	Program* newprog = new Program(cpath);
+	Program* newprog = new ComputeProgram(1,1,1,cpath);
 	bool status = newprog && newprog->wasBuildSuccessful();
 	if (status) {
 		programs[name] = newprog;

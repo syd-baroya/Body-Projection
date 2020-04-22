@@ -7,7 +7,6 @@
 #include <Utilities.h>
 
 #include <iostream>
-#include <glad/glad.h>
 #include <strsafe.h>
 #include <stdio.h>
 #include <stdlib.h>

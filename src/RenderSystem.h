@@ -3,12 +3,12 @@
 #ifndef RENDER_SYSTEM_H
 #define RENDER_SYSTEM_H
 
-#include <GLFW\glfw3.h>
 #include "Entity.h"
 #include "Program.h"
 #include <vector>
 #include "ShaderLibrary.hpp"
 #include "SceneComponent.h"
+#include <GLFW/glfw3.h>
 
 
 class RenderSystem {

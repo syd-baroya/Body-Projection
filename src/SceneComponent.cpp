@@ -1,5 +1,5 @@
 #include "SceneComponent.h"
-#include <glm/glm.hpp>
+#include <glm\glm.hpp>
 
 #include <glm\ext\matrix_transform.hpp>
 #include <math.h>

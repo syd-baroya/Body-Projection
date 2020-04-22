@@ -1,11 +1,16 @@
 #include "new_Application.h"
-#include <glad/glad.h>
 #include <iostream>
 #include "ShaderLibrary.hpp"
 #include "RenderSystem.h"
 #include "Time.h"
 #include "KinectSystem.h"
 #include "TrackedBodyEntity.h"
+
+static void error_callback(int error, const char* description) { std::cerr << "glfw error: " << description << std::endl; };
+static void key_callback(GLFWwindow* _window, int key, int scancode, int action, int mods) { };
+
+static void mouse_callback(GLFWwindow* window, int button, int action, int mods) { };
+static void resize_callback(GLFWwindow* window, int in_width, int in_height) { };
 
 void Application::init(int argc, char** argv)
 {
@@ -378,8 +383,3 @@ std::vector<std::string>::iterator StartupState::parseInput(std::vector<std::str
 }
 
 
-static void error_callback(int error, const char* description) { std::cerr << "glfw error: " << description << std::endl; };
-static void key_callback(GLFWwindow* _window, int key, int scancode, int action, int mods) { };
-
-static void mouse_callback(GLFWwindow* window, int button, int action, int mods) { };
-static void resize_callback(GLFWwindow* window, int in_width, int in_height) { };

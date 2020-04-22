@@ -1,5 +1,4 @@
 #pragma once
-#include <glad\glad.h>
 #include "Buffers.h"
 #include <map>
 #ifndef VERTEX_ARRAY_OBJECT_H

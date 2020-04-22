@@ -82,7 +82,7 @@ void ShaderStorageBuffer::create_SSBO(T& ssbo_data)
 
 	glGenBuffers(1, &getID());
 	bind();
-	bufferData(sizeof(T, &ssbo_data, GL_DYNAMIC_DRAW);
+	bufferData(sizeof(T, &ssbo_data, GL_DYNAMIC_DRAW));
 	bindBufferBase(0);
 	unbind();
 }

@@ -38,13 +38,13 @@ protected:
 class FireAnimation : public AnimationComponent {
 public:
 	FireAnimation() : AnimationComponent() {}
-	FireAnimation(Texture tex) : AnimationComponent(tex){}
+	FireAnimation(Texture tex, TextureArray tex_array) : AnimationComponent(tex, tex_array){}
 	void init() override;
 	void update(double frametime) override;
 	void draw(Program* prog) override;
 private:
 	float firescale = 0;
-	vec2 texoff = vec2(0, 0);
+	glm::vec2 texoff =glm::vec2(0, 0);
 };
 
 #endif
