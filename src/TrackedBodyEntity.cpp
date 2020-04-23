@@ -1,8 +1,5 @@
 #include "TrackedBodyEntity.h"
-#include <GLFW/glfw3.h>
-#include <iostream>
-#include "HelperFunctions.h"
-#include "BodyTrackingHelpers.h"
+
 
 using namespace std;
 

@@ -1,16 +1,11 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <iostream>
-#include <sstream>
-#include <fstream>
 #include "ShaderLibrary.hpp"
-#include "Program.h"
+
 
 using namespace std;
 
 ShaderLibrary::ShaderLibrary(){
-	istringstream evs(errorvs);
-	istringstream efs(errorfs);
+	ifstream evs(errorvs);
+	ifstream efs(errorfs);
 
 	if(!fallback.buildProgram(evs,efs)){
 		exit(1);
@@ -47,9 +42,9 @@ bool ShaderLibrary::loadFromShaderCollection(string path, bool silent) {
 
 		//get vertex and fragment shader file names
 		if ((pos = tp.find(",")) != std::string::npos) {
-			v_file_name = tp.substr(0, pos);
+			v_file_name = "../resources/" + tp.substr(0, pos);
 			tp.erase(0, pos + 1);
-			f_file_name = tp;
+			f_file_name = "../resources/" + tp;
 			bool build_status = buildAndAdd(name, v_file_name, f_file_name);
 			status &= build_status;
 			if (build_status) {

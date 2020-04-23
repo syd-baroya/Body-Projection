@@ -54,8 +54,13 @@ public:
 		vertex_array_object.addBuffer(vertex_texture_buffer);
 
 	}
-	TexturedGeomComponent(std::vector<glm::vec3> vertices, std::vector<GLushort> elements, 
-		std::vector<glm::vec3> normals, std::vector<glm::vec2> tex_coords);
+	//TexturedGeomComponent(std::vector<glm::vec3> vertices, std::vector<GLushort> elements, 
+	//	std::vector<glm::vec3> normals, std::vector<glm::vec2> tex_coords);
+
+	std::vector<glm::vec3>& getMutableNormals() { return(cpu_normals); }
+	std::vector<glm::vec3> getNormals() const { return(cpu_normals); }
+	std::vector<glm::vec2>& getMutableTextures() { return(cpu_texture_coords); }
+	std::vector<glm::vec2> getTexture() const { return(cpu_texture_coords); }
 
 protected:
 	void uploadData() override;

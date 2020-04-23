@@ -9,8 +9,13 @@
 #include "Entity.h"
 #include "GeometryComponent.h"
 #include "SceneComponent.h"
-#include "AnimationComponent.h"
+//#include "AnimationComponent.h"
 #include "DrawableComponent.h"
+
+#include <GLFW/glfw3.h>
+#include <iostream>
+//#include "HelperFunctions.h"
+//#include "BodyTrackingHelpers.h"
 
 using namespace glm;
 using namespace std;
@@ -32,8 +37,6 @@ public:
 		glUniformMatrix4fv(prog->getUniform("M"), 1, GL_FALSE, &MVP->M[0][0]);
 	}
 
-private:
-	GeometryComponent geometry;
 };
 
 class TexturedMeshEntity : public MeshEntity {

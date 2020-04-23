@@ -2,7 +2,8 @@
 #ifndef RENDERBUFFER_HPP_
 #define RENDERBUFFER_HPP_
 
-#include "Texture.h"
+//#include "Texture.h"
+#include "GLSL.h"
 
 class Renderbuffer{
 public:

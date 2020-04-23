@@ -1,10 +1,5 @@
 #include "new_Application.h"
-#include <iostream>
-#include "ShaderLibrary.hpp"
-#include "RenderSystem.h"
-#include "Time.h"
-#include "KinectSystem.h"
-#include "TrackedBodyEntity.h"
+
 
 static void error_callback(int error, const char* description) { std::cerr << "glfw error: " << description << std::endl; };
 static void key_callback(GLFWwindow* _window, int key, int scancode, int action, int mods) { };
@@ -132,14 +127,16 @@ void Application::initGLFW()
 
 void Application::initShaders()
 {
-	ShaderLibrary::getInstance().loadFromShaderCollection("/shaders.txt");
+	ShaderLibrary::getInstance().loadFromShaderCollection("../resources/shaders.txt");
 }
 
 void Application::initScene()
 {
 	/***BODY WITHOUT CLAVICLES***/
 	//torso w/o clavicles
-	vector<GLushort> indices;
+	TexturedGeomComponent tex_geom_comp;
+
+	std::vector<GLushort> indices = tex_geom_comp.getMutableElements();
 
 	indices.push_back(0);	indices.push_back(2);	indices.push_back(3);
 	indices.push_back(0);	indices.push_back(3);	indices.push_back(1);
@@ -194,7 +191,7 @@ void Application::initScene()
 
 
 	
-	vector<vec2> tex;
+	vector<vec2> tex = tex_geom_comp.getMutableTextures();
 	tex.push_back(vec2(0.357056, 0.417677));
 	tex.push_back(vec2(0.63436, 0.424716));
 	tex.push_back(vec2(0.281281, 0.654486));
@@ -238,10 +235,7 @@ void Application::initScene()
 	tex.push_back(vec2(1, 0.962063));
 	tex.push_back(vec2(0.913081, 0.986313));
 
-	vector<glm::vec3>* verts = nullptr;
-	vector<glm::vec3>* norms = nullptr;
-	TexturedGeomComponent tex_geom_comp(*verts, indices, *norms, tex);
-
+	
 	TrackedBodyEntity tracked_body;
 	tracked_body.addComponent<DrawableComponent>();
 	tracked_body.addComponent<TexturedGeomComponent>(tex_geom_comp);
@@ -305,6 +299,10 @@ void Application::initScene()
 	scene_comps.push_back(scene_lines);
 	scene_comps.push_back(scene_skeleton);
 	scene_comps.push_back(scene_fur);
+
+	Program* prog = ShaderLibrary::getInstance().getPtr("prog");
+	prog->addAttribute("vertPos");
+	prog->addAttribute("vertTex");
 
 }
 

@@ -23,7 +23,13 @@
 #include "RenderSystem.h"
 
 #include "CameraEntity.h"
-#include "SceneComponent.h"
+
+#include <iostream>
+//#include "ShaderLibrary.hpp"
+#include "Time.h"
+#include "KinectSystem.h"
+//#include "TrackedBodyEntity.h"
+//#include "SceneComponent.h"
 
 //#include "SystemEnvironment.h"
 

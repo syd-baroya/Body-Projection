@@ -1,10 +1,15 @@
 #pragma once
-#include "Texture.h"
-#include <unordered_map>
-#include "Entity.h"
+
 
 #ifndef ANIMATION_H
 #define ANIMATION_H
+
+
+//#include "Entity.h"
+#include <glm/glm.hpp>
+#include "Texture.h"
+#include "Component.h"
+#include <unordered_map>
 
 class AnimationComponent : public Component {
 

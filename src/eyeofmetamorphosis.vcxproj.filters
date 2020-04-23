@@ -10,9 +10,6 @@
     <ClCompile Include="camera.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="GLSL.cpp">
       <Filter>Source</Filter>
     </ClCompile>
@@ -32,9 +29,6 @@
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="new_Application.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="new_main.cpp">
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="ShaderLibrary.cpp">
@@ -70,9 +64,6 @@
     <ClCompile Include="AnimationComponent.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="Component.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="GeometryComponent.cpp">
       <Filter>Source</Filter>
     </ClCompile>
@@ -80,6 +71,12 @@
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="CameraEntity.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="old_main.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
@@ -233,7 +230,6 @@
     <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />
     <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />
     <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />
-    <None Include="dnn_model_2_0.onnx" />
     <None Include="..\resources\compute.glsl">
       <Filter>shader</Filter>
     </None>
@@ -250,8 +246,12 @@
     <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />
     <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />
     <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />
+    <None Include="dnn_model_2_0.onnx" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Text.txt" />
+    <Text Include="..\resources\shaders.txt">
+      <Filter>shader</Filter>
+    </Text>
   </ItemGroup>
 </Project>

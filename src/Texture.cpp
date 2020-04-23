@@ -1,6 +1,8 @@
 #include "Texture.h"
-#include <vector>
-#include <iostream>
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
 
 void Texture::initParams()
 {
@@ -32,7 +34,7 @@ void TextureArray::initSubImageParams() {
 	char txt[1000];
 	for (int ii = 0; ii < 25; ii++)
 	{
-		sprintf(txt, file_name.c_str(), ii + 1);
+		sprintf(txt, filepath, ii + 1);
 		data = stbi_load(txt, &width, &height, &channels, 4);
 		if (data == NULL)
 		{
@@ -50,6 +52,17 @@ void TextureArray::initSubImageParams() {
 			datatype,      //type
 			data);
 	}
+}
+
+SimpleTexture2D::SimpleTexture2D(std::string resource_dir, std::string file) : Texture() {
+	strcpy(filepath, (resource_dir + file).c_str());
+	data = stbi_load(filepath, &width, &height, &channels, 4);
+	wrap = GL_REPEAT;
+}
+void SimpleTexture2D::setFile(std::string file) {
+	strcpy(filepath, file.c_str());
+	data = stbi_load(filepath, &width, &height, &channels, 4);
+	initParams();
 }
 
 void SimpleTexture2D::uploadToGPU(GLuint pid, int location_num)

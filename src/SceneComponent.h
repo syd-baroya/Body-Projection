@@ -7,15 +7,19 @@
 #include <random>
 #include "Texture.h"
 #include <unordered_map>
-#include "Entity.h"
 #include <map>
 #include <k4abt.h>
 #include <glm/glm.hpp>
 #include "HelperFunctions.h"
-#include "GeometryComponent.h"
-#include "TrackedBodyEntity.h"
+#include "Component.h"
+#include <glm\ext\matrix_transform.hpp>
+#include <math.h>
+//#include "GeometryComponent.h"
+//#include "TrackedBodyEntity.h"
+//#include "Entity.h"
 
 using namespace glm;
+using namespace HelperFunctions;
 
 
 class SceneComponent : public Component {
@@ -74,8 +78,8 @@ private:
 	vec3 actual_redtone;
 	vec3 actual_greentone;
 	vec3 actual_bluetone;
-	static GLuint tex1;
-	static GLuint tex2;
+	GLuint tex1;
+	GLuint tex2;
 };
 
 

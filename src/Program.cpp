@@ -1,10 +1,6 @@
 
 #include "Program.h"
-#include <iostream>
-#include <cassert>
-#include <fstream>
 
-#include "GLSL.h"
 
 
 std::string readFile(std::istream& fileHandle)

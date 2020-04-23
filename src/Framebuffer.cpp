@@ -1,5 +1,4 @@
 #include "Framebuffer.h"
-#include "HelperFunctions.h"
 #include <iostream>
 
 void Framebuffer::attach(Renderbuffer& rb, GLenum attachment)

@@ -8,7 +8,13 @@
 #include <unordered_map>
 #include <vector>
 #include <string>
+#include <stdlib.h>
+#include <stdio.h>
+#include <iostream>
+#include <sstream>
+#include <fstream>
 #include "Program.h"
+
 
 using namespace std;
 
@@ -76,29 +82,9 @@ private:
 	Program* active;
 
 	// Hardcoded fallback shadercode
-	constexpr const static char* errorvs = "#version  330 core\n"
-		"layout(location = 0) in vec4 vertPos;\n"
-		"\n"
-		"uniform mat4 P;\n"
-		"uniform mat4 V;\n"
-		"uniform mat4 M;\n"
-		"\n"
-		"void main()\n"
-		"{\n"
-		"  gl_Position = P * V * M * vertPos;\n"
-		"}\n"
-		;
+	constexpr const static char* errorvs = "../resources/vert.glsl";
 
-	constexpr const static char* errorfs = "#version 330 core\n"
-		"\n"
-		"out vec4 color;\n"
-		"\n"
-		"void main()\n"
-		"{\n"
-		"  vec3 col = vec3(1.0,0.0,1.0);\n"
-		"  color = vec4(col, 1.0);\n"
-		"}\n"
-	;
+	constexpr const static char* errorfs = "../resources/frag.glsl";
 
 };
 

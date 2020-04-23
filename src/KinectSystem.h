@@ -1,10 +1,13 @@
 #pragma once
-#include <k4abt.h>
 #ifndef KINECT_SYSTEM_HPP
 #define KINECT_SYSTEM_HPP
 
 #include <vector>
 #include "TrackedBodyEntity.h"
+#include <k4abt.h>
+#include <k4a\k4a.h>
+#include <iostream>
+#include "Utilities.h"
 
 const float MillimeterToMeter = 0.001f;
 #define BODY_LOST_TIME 0.1

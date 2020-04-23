@@ -1,9 +1,11 @@
 #pragma once
-#include "stb_image.h"
-#ifndef _TEXTURE_H_
-#define _TEXTURE_H_
+#ifndef TEXTURE_H_
+#define TEXTURE_H_
 
 #include "GLSL.h"
+#include <vector>
+#include <iostream>
+
 
 class Texture {
 public:
@@ -35,25 +37,22 @@ protected:
 	int height = 0;
 	GLushort colororder = GL_RGBA;
 	GLushort datatype = GL_UNSIGNED_BYTE;
-	unsigned char* data = NULL;
+	unsigned char* data;
 	GLushort wrap = GL_CLAMP_TO_BORDER;
 	GLushort minfilter = GL_LINEAR_MIPMAP_LINEAR;
 	GLushort magfilter = GL_LINEAR;
 };
 
+
 class SimpleTexture2D : public Texture {
 public:
 	SimpleTexture2D(){}
-	SimpleTexture2D(std::string resource_dir, std::string file) : Texture() {
-		file_name = resource_dir + file;
-		data = stbi_load(file_name.c_str(), &width, &height, &channels, 4);
-		wrap = GL_REPEAT;
-	}
-	void setFile(std::string file) { file_name = file; data = stbi_load(file_name.c_str(), &width, &height, &channels, 4); initParams(); }
+	SimpleTexture2D(std::string resource_dir, std::string file);
+	void setFile(std::string file);
 	void uploadToGPU(GLuint pid, int location_num);
 
 private:
-	std::string file_name = "default.png";
+	char filepath[100];
 	int channels;
 	const GLchar* tex_name = "tex";
 };
@@ -63,14 +62,14 @@ public:
 	
 	TextureArray() {}
 	TextureArray(std::string resource_dir, std::string file) : Texture() {
-		file_name = resource_dir + file;
+		strcpy(filepath, (resource_dir + file).c_str());
 		minfilter = GL_LINEAR;
 	}
 	void initParams();
 	void initSubImageParams();
-	void setFile(std::string file) { file_name = file; initParams(); }
+	void setFile(std::string file) { strcpy(filepath, file.c_str()); initParams(); }
 private:
-	std::string file_name = "default.png";
+	char filepath[100];
 	int channels;
 	GLsizei levels;
 	GLsizei images_width;

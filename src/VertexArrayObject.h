@@ -1,9 +1,9 @@
 #pragma once
-#include "Buffers.h"
-#include <map>
+
 #ifndef VERTEX_ARRAY_OBJECT_H
 #define VERTEX_ARRAY_OBJECT_H
-
+#include "Buffers.h"
+#include <map>
 class VertexArrayObject {
 public:
 	VertexArrayObject() {

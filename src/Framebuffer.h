@@ -1,12 +1,15 @@
 #pragma once
-#ifndef FRAMEBUFFER_HPP_
-#define FRAMEBUFFER_HPP_
+#ifndef FRAMEBUFFER_HPP
+#define FRAMEBUFFER_HPP
 
-#include "GLSL.h"
+//#include "GLSL.h"
 #include "Texture.h"
 #include <map>
 #include <vector>
 #include "Renderbuffer.h"
+#include "HelperFunctions.h"
+
+using namespace HelperFunctions;
 
 class FramebufferObject : public Texture {
 public:

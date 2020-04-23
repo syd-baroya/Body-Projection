@@ -9,6 +9,10 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <iostream>
+
+#include "GLSL.h"
+#include "Program.h"
 
 
 

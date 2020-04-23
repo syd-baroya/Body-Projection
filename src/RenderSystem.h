@@ -4,12 +4,12 @@
 #define RENDER_SYSTEM_H
 
 #include "Entity.h"
-#include "Program.h"
+//#include "Program.h"
 #include <vector>
 #include "ShaderLibrary.hpp"
 #include "SceneComponent.h"
 #include <GLFW/glfw3.h>
-
+#include "AnimationComponent.h"
 
 class RenderSystem {
 public:
@@ -18,8 +18,8 @@ public:
         return(_instance_);
     }
 
-    virtual void init(GLFWwindow* window);
-    virtual void process(SceneComponent* scene, AnimationComponent* anim, std::vector<Entity*> entities, double frametime);
+    void init(GLFWwindow* window);
+    void process(SceneComponent* scene, AnimationComponent* anim, std::vector<Entity*> entities, double frametime);
     //virtual void processEntity(SceneComponent& scene, const MVPset& MVP, Entity* entity, Program* shader = nullptr);
 
 private:

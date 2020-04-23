@@ -1,7 +1,5 @@
 #include "KinectSystem.h"
-#include <k4a\k4a.h>
-#include <iostream>
-#include <Utilities.h>
+
 
 void KinectSystem::InitializeDefaultSensor()
 {

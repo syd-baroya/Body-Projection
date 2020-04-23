@@ -1,4 +1,6 @@
 #pragma once
+#ifndef BUFFERS_H
+#define BUFFERS_H
 #include <glad\glad.h>
 
 class SimpleBuffer {
@@ -74,3 +76,4 @@ public:
 	template <typename T>
 	void get_SSBO_back(T& ssbo_data);
 };
+#endif

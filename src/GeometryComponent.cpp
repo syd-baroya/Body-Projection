@@ -50,14 +50,6 @@ void GeometryComponent::finishGPUUpload() {
 	vertex_array_object.unbind();
 }
 
-TexturedGeomComponent::TexturedGeomComponent(std::vector<glm::vec3> vertices, std::vector<GLushort> elements,
-std::vector<glm::vec3> normals, std::vector<glm::vec2> tex_coords) : GeometryComponent(vertices, elements)
-{
-	vertex_array_object.addBuffer(vertex_texture_buffer);
-	vertex_array_object.addBuffer(vertex_normals_buffer);
-}
-
-
 void TexturedGeomComponent::uploadData() {
 	GeometryComponent::uploadData();
 	if (cpu_normals.size() > 0)
