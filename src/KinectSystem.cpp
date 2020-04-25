@@ -96,7 +96,7 @@ int KinectSystem::process(float frametime, TrackedBodyEntity* tracked_body)
 		if (get_capture_result == K4A_WAIT_RESULT_SUCCEEDED)
 		{
 			k4a_wait_result_t queue_capture_result = k4abt_tracker_enqueue_capture(this->trackers.at(deviceIndex), sensor_capture, K4A_WAIT_INFINITE);
-			k4a_capture_release(sensor_capture); // Remember to release the sensor capture once you finish using it
+			//k4a_capture_release(sensor_capture); // Remember to release the sensor capture once you finish using it
 			if (queue_capture_result == K4A_WAIT_RESULT_TIMEOUT)
 			{
 				// It should never hit timeout when K4A_WAIT_INFINITE is set.
@@ -108,6 +108,21 @@ int KinectSystem::process(float frametime, TrackedBodyEntity* tracked_body)
 				printf("Error! Add capture to tracker process queue failed!\n");
 				return 0;
 			}
+
+			k4a_image_t image = k4a_capture_get_depth_image(sensor_capture);
+			if (image != NULL)
+			{
+				printf(" | Depth16 res:%4dx%4d stride:%5d\n",
+					k4a_image_get_height_pixels(image),
+					k4a_image_get_width_pixels(image),
+					k4a_image_get_stride_bytes(image));
+
+				// Release the image
+				k4a_image_release(image);
+			}
+
+			// Release the capture
+			k4a_capture_release(sensor_capture);
 		}
 		else if (get_capture_result == K4A_WAIT_RESULT_TIMEOUT)
 		{
