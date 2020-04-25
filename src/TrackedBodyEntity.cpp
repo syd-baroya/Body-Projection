@@ -18,7 +18,10 @@ void TexturedMeshEntity::draw(Program* prog)
 
 void TrackedBodyEntity::update(double frametime)
 {
+	std::cout << this->components.size() << std::endl;
 	for (Component* comp : this->components) {
+		if (comp == NULL)
+			break;
 		comp->update(frametime);
 	}
 	generateBodyVertices();
@@ -231,7 +234,7 @@ void TrackedBodyEntity::angleHierarchy(std::map <k4abt_joint_id_t, vector<k4abt_
 void TrackedBodyEntity::generateBodyVertices()
 {
 
-	std::vector<glm::vec3> vertex_coords = this->getComponent<TexturedGeomComponent>().getMutableVertices();
+	std::vector<glm::vec3> vertex_coords = this->getComponent<GeometryComponent>().getMutableVertices();
 
 	float forecastfact = FORECASTFACT;
 	float z_base = getJoint(forecastfact, 0).z;

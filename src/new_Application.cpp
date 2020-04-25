@@ -45,7 +45,9 @@ void Application::run()
 		active_scene = rand() % scene_comps.size();
 		active_anim = rand() % anim_comps.size();
 
-		kinect_system.process(frametime, dynamic_cast<TrackedBodyEntity*>(entities.at(0)));
+		TrackedBodyEntity* tb = dynamic_cast<TrackedBodyEntity*>(entities.at(0));
+
+		kinect_system.process(frametime, tb);
 
 		render_system.process(&scene_comps.at(active_scene), &anim_comps.at(active_anim), entities, frametime);
 
@@ -236,10 +238,10 @@ void Application::initScene()
 	tex.push_back(vec2(0.913081, 0.986313));
 
 	
-	TrackedBodyEntity tracked_body;
-	tracked_body.addComponent<DrawableComponent>();
-	tracked_body.addComponent<TexturedGeomComponent>(tex_geom_comp);
-	tracked_body.generateBodyVertices();
+	TrackedBodyEntity* tracked_body = new TrackedBodyEntity();
+	tracked_body->addComponent<DrawableComponent>();
+	tracked_body->addComponent<GeometryComponent>(tex_geom_comp);
+	tracked_body->generateBodyVertices();
 
 	/*
 	* add fire animation
@@ -294,7 +296,7 @@ void Application::initScene()
 	FurScene scene_fur(fur_tex);
 
 
-	entities.push_back(&tracked_body);
+	entities.push_back(tracked_body);
 	anim_comps.push_back(fire_anim);
 	scene_comps.push_back(scene_lines);
 	scene_comps.push_back(scene_skeleton);

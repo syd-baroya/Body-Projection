@@ -50,7 +50,7 @@ public:
 		deviceConfig.depth_mode = K4A_DEPTH_MODE_NFOV_UNBINNED;
 		deviceConfig.color_resolution = K4A_COLOR_RESOLUTION_OFF;
 		tracker_config = K4ABT_TRACKER_CONFIG_DEFAULT;
-		tracker_config.processing_mode = K4ABT_TRACKER_PROCESSING_MODE_GPU;
+		tracker_config.processing_mode = K4ABT_TRACKER_PROCESSING_MODE_CPU;
 	}
 
 private:
