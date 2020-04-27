@@ -38,6 +38,7 @@ class ComplexBuffer : public SimpleBuffer {
 public:
 	ComplexBuffer() : SimpleBuffer(){}
 	ComplexBuffer(GLenum buffer_type, GLenum draw_type) : SimpleBuffer(buffer_type, draw_type) {}
+	void bufferData(GLsizeiptr size, const void* data);
 	auto* mapBufferRange(GLintptr offset, GLsizeiptr length, GLbitfield access);
 	GLvoid* mapBuffer(GLenum access);
 	void unMapBuffer();
@@ -81,7 +82,6 @@ class ShaderStorageBuffer : public ComplexBuffer {
 public:
 	ShaderStorageBuffer() : ComplexBuffer(GL_SHADER_STORAGE_BUFFER, GL_DYNAMIC_DRAW) {}
 	void create_SSBO(ssbo_data& ssbo_data);
-	template <typename T>
 	void get_SSBO_back(ssbo_data& ssbo_data);
 };
 #endif

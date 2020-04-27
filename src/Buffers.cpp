@@ -20,6 +20,14 @@ void SimpleBuffer::bufferSubData(GLuint npe, GLenum type, GLintptr offset, GLsiz
 	unbind();
 }
 
+void ComplexBuffer::bufferData(GLsizeiptr size, const void* data)
+{
+	bind();
+	glBufferData(getBufferType(), size, data, GL_DYNAMIC_DRAW);
+	bindBufferBase(0);
+	unbind();
+}
+
 auto* ComplexBuffer::mapBufferRange(GLintptr offset, GLsizeiptr length, GLbitfield access)
 {
 	GLuint* userCounters;
@@ -78,12 +86,7 @@ void ShaderStorageBuffer::create_SSBO(ssbo_data& ssbo_data)
 	for (int i = 0; i < sizeof(ssbo_data); i++) {
 		ssbo_data.positions_list[i] = glm::ivec4(i, 0, 0, 0);
 	}
-
-	glGenBuffers(1, &getID());
-	bind();
-	bufferData(sizeof(ssbo_data, &ssbo_data, GL_DYNAMIC_DRAW));
-	bindBufferBase(0);
-	unbind();
+	bufferData(sizeof(ssbo_data), &ssbo_data);
 }
 
 void ShaderStorageBuffer::get_SSBO_back(ssbo_data& ssbo_data)

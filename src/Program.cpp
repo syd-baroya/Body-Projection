@@ -29,11 +29,11 @@ Program::Program(const std::string& vpath, const std::string& fpath)
 	std::ifstream vertex = std::ifstream(vpath);
 	std::ifstream fragment = std::ifstream(fpath);
 	if (!vertex.is_open()) {
-		fprintf(stderr, "Warning!: Couldn't open given shader file: ");
+		fprintf(stderr, "Warning!: Couldn't open given vertex shader file: ");
 		std::cerr << vpath << std::endl;
 	}
 	else if (!fragment.is_open()) {
-		fprintf(stderr, "Warning!: Couldn't open given shader file: ");
+		fprintf(stderr, "Warning!: Couldn't open given fragment shader file: ");
 		std::cerr << fpath << std::endl;
 	}
 	if (!buildProgram(vertex, fragment)) {
@@ -47,7 +47,7 @@ ComputeProgram::ComputeProgram(GLuint x, GLuint y, GLuint z, const std::string& 
 {
 	std::ifstream compute = std::ifstream(cpath);
 	if (!compute.is_open()) {
-		fprintf(stderr, "Warning!: Couldn't open given shader file: ");
+		fprintf(stderr, "Warning!: Couldn't open given compute shader file: ");
 		std::cerr << cpath << std::endl;
 	}
 	if (!buildProgram(compute)) {

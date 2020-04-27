@@ -57,7 +57,7 @@ bool ShaderLibrary::loadFromShaderCollection(string path, bool silent) {
 
 		//get compute shader file names
 		else {
-			bool build_status = buildAndAdd(name, tp);
+			bool build_status = buildAndAdd(name, "../resources/" + tp);
 			status &= build_status;
 			if (build_status) {
 				if (!silent) std::cout << "Loaded compute shader: " << tp << std::endl;

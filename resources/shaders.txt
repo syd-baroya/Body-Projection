@@ -1,4 +1,4 @@
-progfire:shader_vert.glsl,shader_frag.glsl
+progfire:shader_vertex.glsl,shader_fragment.glsl
 progbody:but_vertex.glsl,shader_body.glsl
 postprog:vert.glsl,frag.glsl
 screenproc:vert.glsl,fragscreen.glsl

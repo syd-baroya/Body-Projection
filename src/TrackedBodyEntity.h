@@ -28,21 +28,12 @@ class MeshEntity : public Entity {
 public:
 	MeshEntity(){}
 
-	virtual void draw(Program* prog)
-	{
-		DrawableComponent dc = this->getComponent<DrawableComponent>();
-		const MVPSet* MVP = dc.getMVP();
-		glUniformMatrix4fv(prog->getUniform("P"), 1, GL_FALSE, &MVP->P[0][0]);
-		glUniformMatrix4fv(prog->getUniform("V"), 1, GL_FALSE, &MVP->V[0][0]);
-		glUniformMatrix4fv(prog->getUniform("M"), 1, GL_FALSE, &MVP->M[0][0]);
-	}
-
 };
 
 class TexturedMeshEntity : public MeshEntity {
 public:
 	TexturedMeshEntity(){}
-	void draw(Program* prog) override;
+	virtual void draw(Program* prog) override;
 
 };
 

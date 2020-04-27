@@ -13,6 +13,8 @@ void Application::init(int argc, char** argv)
 	initGLFW();
 	initGL();
 	initShaders();
+	initProgs();
+	initGeom();
 	initScene();
 }
 
@@ -25,7 +27,7 @@ void Application::run()
 	Time globalTime;
 
 
-	kinect_system.InitializeDefaultSensor();
+	//kinect_system.InitializeDefaultSensor();
 	render_system.init(_window);
 
 	//std::vector<Entity*> new_entities(entities);
@@ -42,14 +44,14 @@ void Application::run()
 
 	{
 		frametime = globalTime.getElapsedTime();
-		active_scene = rand() % scene_comps.size();
-		active_anim = rand() % anim_comps.size();
+		//active_scene = rand() % scene_comps.size();
+		//active_anim = rand() % anim_comps.size();
 
-		TrackedBodyEntity* tb = dynamic_cast<TrackedBodyEntity*>(entities.at(0));
+		TrackedBodyEntity* tb = body_entities.at(0);
 
-		kinect_system.process(frametime, tb);
+		//kinect_system.process(frametime, tb);
 
-		render_system.process(&scene_comps.at(active_scene), &anim_comps.at(active_anim), entities, frametime);
+		render_system.process(&scene_comps.at(active_scene), &anim_comps.at(active_anim), body_entities, fbo_entities, frame_buffers, getCurrScreenSize(), frametime, false);
 
 
 
@@ -134,151 +136,6 @@ void Application::initShaders()
 
 void Application::initScene()
 {
-	/***BODY WITHOUT CLAVICLES***/
-	//torso w/o clavicles
-	TexturedGeomComponent tex_geom_comp;
-
-	std::vector<GLushort> indices = tex_geom_comp.getMutableElements();
-
-	indices.push_back(0);	indices.push_back(2);	indices.push_back(3);
-	indices.push_back(0);	indices.push_back(3);	indices.push_back(1);
-	indices.push_back(2);	indices.push_back(4);	indices.push_back(5);
-	indices.push_back(2);	indices.push_back(5);	indices.push_back(3);
-	indices.push_back(5);	indices.push_back(6);	indices.push_back(3);
-	indices.push_back(4);	indices.push_back(7);	indices.push_back(10);
-	indices.push_back(4);	indices.push_back(10);	indices.push_back(5);
-	indices.push_back(10);	indices.push_back(8);	indices.push_back(5);
-	indices.push_back(8);	indices.push_back(11);	indices.push_back(5);
-	indices.push_back(5);	indices.push_back(11);	indices.push_back(6);
-	indices.push_back(6);	indices.push_back(11);	indices.push_back(9);
-	indices.push_back(12);	indices.push_back(14);	indices.push_back(13);
-	indices.push_back(14);	indices.push_back(15);	indices.push_back(13);
-	indices.push_back(14);	indices.push_back(7);	indices.push_back(4);
-	indices.push_back(14);	indices.push_back(4);	indices.push_back(15);
-	//arms
-	indices.push_back(4);	indices.push_back(2);	indices.push_back(15);
-	indices.push_back(16);	indices.push_back(18);	indices.push_back(19);
-	indices.push_back(16);	indices.push_back(19);	indices.push_back(17);
-	indices.push_back(18);	indices.push_back(3);	indices.push_back(6);
-	indices.push_back(18);	indices.push_back(6);	indices.push_back(19);
-	indices.push_back(6);	indices.push_back(9);	indices.push_back(19);
-	indices.push_back(20);	indices.push_back(22);	indices.push_back(21);
-	indices.push_back(22);	indices.push_back(23);	indices.push_back(21);
-	//legs
-	indices.push_back(22);	indices.push_back(24);	indices.push_back(23);
-	indices.push_back(24);	indices.push_back(25);	indices.push_back(23);
-	indices.push_back(24);	indices.push_back(0);	indices.push_back(25);
-	indices.push_back(0);	indices.push_back(26);	indices.push_back(25);
-	indices.push_back(0);	indices.push_back(1);	indices.push_back(26);
-	indices.push_back(27);	indices.push_back(30);	indices.push_back(28);
-	indices.push_back(27);	indices.push_back(29);	indices.push_back(30);
-	indices.push_back(29);	indices.push_back(31);	indices.push_back(32);
-	indices.push_back(29);	indices.push_back(32);	indices.push_back(30);
-	indices.push_back(31);	indices.push_back(1);	indices.push_back(32);
-	indices.push_back(32);	indices.push_back(26);	indices.push_back(1);
-	indices.push_back(10);	indices.push_back(34);	indices.push_back(33);
-	indices.push_back(10);	indices.push_back(33);	indices.push_back(8);
-	//head
-	indices.push_back(8);	indices.push_back(33);	indices.push_back(11);
-	indices.push_back(33);	indices.push_back(35);	indices.push_back(11);
-	indices.push_back(33);	indices.push_back(34);	indices.push_back(35);
-	indices.push_back(34);	indices.push_back(36);	indices.push_back(37);
-	indices.push_back(34);	indices.push_back(37);	indices.push_back(35);
-	//continue from 38
-	//hands
-	indices.push_back(38);	indices.push_back(12);	indices.push_back(13);
-	indices.push_back(38);	indices.push_back(13);	indices.push_back(39);
-	indices.push_back(40);	indices.push_back(16);	indices.push_back(41);
-	indices.push_back(16);	indices.push_back(17);	indices.push_back(41);
-
-
-	
-	vector<vec2> tex = tex_geom_comp.getMutableTextures();
-	tex.push_back(vec2(0.357056, 0.417677));
-	tex.push_back(vec2(0.63436, 0.424716));
-	tex.push_back(vec2(0.281281, 0.654486));
-	tex.push_back(vec2(0.668834, 0.651864));
-	tex.push_back(vec2(0.344362, 0.668123));
-	tex.push_back(vec2(0.483297, 0.704922));
-	tex.push_back(vec2(0.606656, 0.666727));
-	tex.push_back(vec2(0.363513, 0.704208));
-	tex.push_back(vec2(0.481398, 0.742544));
-	tex.push_back(vec2(0.594513, 0.703739));
-	tex.push_back(vec2(0.445423, 0.730845));
-	tex.push_back(vec2(0.512891, 0.73174));
-	tex.push_back(vec2(0.163252, 0.925081));
-	tex.push_back(vec2(0.055907, 0.893054));
-	tex.push_back(vec2(0.260317, 0.808323));
-	tex.push_back(vec2(0.152971, 0.776296));
-	tex.push_back(vec2(0.94095, 0.878834));
-	tex.push_back(vec2(0.839852, 0.916624));
-	tex.push_back(vec2(0.831066, 0.762144));
-	tex.push_back(vec2(0.729968, 0.799934));
-	tex.push_back(vec2(0.329756, 0.00389565));
-	tex.push_back(vec2(0.426757, 0));
-	tex.push_back(vec2(0.340259, 0.0597313));
-	tex.push_back(vec2(0.43726, 0.0558356));
-	tex.push_back(vec2(0.306178, 0.261854));
-	tex.push_back(vec2(0.50028, 0.25486));
-	tex.push_back(vec2(0.496964, 0.387029));
-	tex.push_back(vec2(0.67537, 0.00663857));
-	tex.push_back(vec2(0.57814, 0.00542157));
-	tex.push_back(vec2(0.676887, 0.0588956));
-	tex.push_back(vec2(0.579657, 0.0576786));
-	tex.push_back(vec2(0.703275, 0.260904));
-	tex.push_back(vec2(0.50992, 0.249145));
-	tex.push_back(vec2(0.475392, 0.778904));
-	tex.push_back(vec2(0.411582, 0.79506));
-	tex.push_back(vec2(0.533196, 0.799108));
-	tex.push_back(vec2(0.402573, 0.8496));
-	tex.push_back(vec2(0.524187, 0.853647));
-	tex.push_back(vec2(0.088382, 1));
-	tex.push_back(vec2(0, 0.977442));
-	tex.push_back(vec2(1, 0.962063));
-	tex.push_back(vec2(0.913081, 0.986313));
-
-	
-	TrackedBodyEntity* tracked_body = new TrackedBodyEntity();
-	DrawableComponent* dc_tb = tracked_body->addComponent<DrawableComponent>();
-	GeometryComponent* gc_tb = tracked_body->addComponent<GeometryComponent>(tex_geom_comp);
-	dc_tb->init();
-	gc_tb->init();
-	tracked_body->generateBodyVertices();
-
-	TexturedMeshEntity* rect = new TexturedMeshEntity();
-	TexturedMeshEntity* post_proc_rect = new TexturedMeshEntity();
-
-	rect->setProgName("screenproc");
-	post_proc_rect->setProgName("postprog");
-
-	TexturedGeomComponent tex_geom_comp;
-	vector<vec3> rect_pos = tex_geom_comp.getMutableVertices();
-	std::vector<GLushort> rect_elems = tex_geom_comp.getMutableElements();
-	vector<vec2> rect_tex = tex_geom_comp.getMutableTextures();
-
-	rect_pos.push_back(vec3(-1, -1, 0));
-	rect_pos.push_back(vec3(1, -1, 0));
-	rect_pos.push_back(vec3(-1, 1, 0));
-	rect_pos.push_back(vec3(1, 1, 0));
-	rect_tex.push_back(vec2(0, 0));
-	rect_tex.push_back(vec2(1, 0));
-	rect_tex.push_back(vec2(0, 1));
-	rect_tex.push_back(vec2(1, 1));
-	rect_elems.push_back(0);
-	rect_elems.push_back(1);
-	rect_elems.push_back(2);
-	rect_elems.push_back(1);
-	rect_elems.push_back(3);
-	rect_elems.push_back(2);
-
-	GeometryComponent* gc_rect = rect->addComponent<GeometryComponent>(tex_geom_comp);
-	GeometryComponent* gc_rect2 = post_proc_rect->addComponent<GeometryComponent>(tex_geom_comp);
-	gc_rect->init();
-	gc_rect2->init();
-
-	ssbo.create_SSBO(ssbo_CPUMEM);
-	
-
 	/*
 	* add fire animation
 	*/
@@ -333,15 +190,167 @@ void Application::initScene()
 
 
 
-	entities.push_back(tracked_body);
-	entities.push_back(rect);
-	entities.push_back(post_proc_rect);
+	
 	anim_comps.push_back(fire_anim);
 	scene_comps.push_back(scene_lines);
 	scene_comps.push_back(scene_skeleton);
 	scene_comps.push_back(scene_fur);
 
 	
+}
+
+void Application::initGeom()
+{
+	/***BODY WITHOUT CLAVICLES***/
+//torso w/o clavicles
+	TexturedGeomComponent tex_geom_comp;
+
+	std::vector<GLushort>& indices = tex_geom_comp.getMutableElements();
+
+	indices.push_back(0);	indices.push_back(2);	indices.push_back(3);
+	indices.push_back(0);	indices.push_back(3);	indices.push_back(1);
+	indices.push_back(2);	indices.push_back(4);	indices.push_back(5);
+	indices.push_back(2);	indices.push_back(5);	indices.push_back(3);
+	indices.push_back(5);	indices.push_back(6);	indices.push_back(3);
+	indices.push_back(4);	indices.push_back(7);	indices.push_back(10);
+	indices.push_back(4);	indices.push_back(10);	indices.push_back(5);
+	indices.push_back(10);	indices.push_back(8);	indices.push_back(5);
+	indices.push_back(8);	indices.push_back(11);	indices.push_back(5);
+	indices.push_back(5);	indices.push_back(11);	indices.push_back(6);
+	indices.push_back(6);	indices.push_back(11);	indices.push_back(9);
+	indices.push_back(12);	indices.push_back(14);	indices.push_back(13);
+	indices.push_back(14);	indices.push_back(15);	indices.push_back(13);
+	indices.push_back(14);	indices.push_back(7);	indices.push_back(4);
+	indices.push_back(14);	indices.push_back(4);	indices.push_back(15);
+	//arms
+	indices.push_back(4);	indices.push_back(2);	indices.push_back(15);
+	indices.push_back(16);	indices.push_back(18);	indices.push_back(19);
+	indices.push_back(16);	indices.push_back(19);	indices.push_back(17);
+	indices.push_back(18);	indices.push_back(3);	indices.push_back(6);
+	indices.push_back(18);	indices.push_back(6);	indices.push_back(19);
+	indices.push_back(6);	indices.push_back(9);	indices.push_back(19);
+	indices.push_back(20);	indices.push_back(22);	indices.push_back(21);
+	indices.push_back(22);	indices.push_back(23);	indices.push_back(21);
+	//legs
+	indices.push_back(22);	indices.push_back(24);	indices.push_back(23);
+	indices.push_back(24);	indices.push_back(25);	indices.push_back(23);
+	indices.push_back(24);	indices.push_back(0);	indices.push_back(25);
+	indices.push_back(0);	indices.push_back(26);	indices.push_back(25);
+	indices.push_back(0);	indices.push_back(1);	indices.push_back(26);
+	indices.push_back(27);	indices.push_back(30);	indices.push_back(28);
+	indices.push_back(27);	indices.push_back(29);	indices.push_back(30);
+	indices.push_back(29);	indices.push_back(31);	indices.push_back(32);
+	indices.push_back(29);	indices.push_back(32);	indices.push_back(30);
+	indices.push_back(31);	indices.push_back(1);	indices.push_back(32);
+	indices.push_back(32);	indices.push_back(26);	indices.push_back(1);
+	indices.push_back(10);	indices.push_back(34);	indices.push_back(33);
+	indices.push_back(10);	indices.push_back(33);	indices.push_back(8);
+	//head
+	indices.push_back(8);	indices.push_back(33);	indices.push_back(11);
+	indices.push_back(33);	indices.push_back(35);	indices.push_back(11);
+	indices.push_back(33);	indices.push_back(34);	indices.push_back(35);
+	indices.push_back(34);	indices.push_back(36);	indices.push_back(37);
+	indices.push_back(34);	indices.push_back(37);	indices.push_back(35);
+	//continue from 38
+	//hands
+	indices.push_back(38);	indices.push_back(12);	indices.push_back(13);
+	indices.push_back(38);	indices.push_back(13);	indices.push_back(39);
+	indices.push_back(40);	indices.push_back(16);	indices.push_back(41);
+	indices.push_back(16);	indices.push_back(17);	indices.push_back(41);
+
+
+
+	vector<vec2>& tex = tex_geom_comp.getMutableTextures();
+	tex.push_back(vec2(0.357056, 0.417677));
+	tex.push_back(vec2(0.63436, 0.424716));
+	tex.push_back(vec2(0.281281, 0.654486));
+	tex.push_back(vec2(0.668834, 0.651864));
+	tex.push_back(vec2(0.344362, 0.668123));
+	tex.push_back(vec2(0.483297, 0.704922));
+	tex.push_back(vec2(0.606656, 0.666727));
+	tex.push_back(vec2(0.363513, 0.704208));
+	tex.push_back(vec2(0.481398, 0.742544));
+	tex.push_back(vec2(0.594513, 0.703739));
+	tex.push_back(vec2(0.445423, 0.730845));
+	tex.push_back(vec2(0.512891, 0.73174));
+	tex.push_back(vec2(0.163252, 0.925081));
+	tex.push_back(vec2(0.055907, 0.893054));
+	tex.push_back(vec2(0.260317, 0.808323));
+	tex.push_back(vec2(0.152971, 0.776296));
+	tex.push_back(vec2(0.94095, 0.878834));
+	tex.push_back(vec2(0.839852, 0.916624));
+	tex.push_back(vec2(0.831066, 0.762144));
+	tex.push_back(vec2(0.729968, 0.799934));
+	tex.push_back(vec2(0.329756, 0.00389565));
+	tex.push_back(vec2(0.426757, 0));
+	tex.push_back(vec2(0.340259, 0.0597313));
+	tex.push_back(vec2(0.43726, 0.0558356));
+	tex.push_back(vec2(0.306178, 0.261854));
+	tex.push_back(vec2(0.50028, 0.25486));
+	tex.push_back(vec2(0.496964, 0.387029));
+	tex.push_back(vec2(0.67537, 0.00663857));
+	tex.push_back(vec2(0.57814, 0.00542157));
+	tex.push_back(vec2(0.676887, 0.0588956));
+	tex.push_back(vec2(0.579657, 0.0576786));
+	tex.push_back(vec2(0.703275, 0.260904));
+	tex.push_back(vec2(0.50992, 0.249145));
+	tex.push_back(vec2(0.475392, 0.778904));
+	tex.push_back(vec2(0.411582, 0.79506));
+	tex.push_back(vec2(0.533196, 0.799108));
+	tex.push_back(vec2(0.402573, 0.8496));
+	tex.push_back(vec2(0.524187, 0.853647));
+	tex.push_back(vec2(0.088382, 1));
+	tex.push_back(vec2(0, 0.977442));
+	tex.push_back(vec2(1, 0.962063));
+	tex.push_back(vec2(0.913081, 0.986313));
+
+
+	TrackedBodyEntity* tracked_body = new TrackedBodyEntity();
+	DrawableComponent* dc_tb = tracked_body->addComponent<DrawableComponent>();
+	TexturedGeomComponent* gc_tb = tracked_body->addComponent<TexturedGeomComponent>(tex_geom_comp);
+	dc_tb->init();
+	gc_tb->init();
+	tracked_body->generateBodyVertices();
+
+	TexturedMeshEntity* rect = new TexturedMeshEntity();
+	TexturedMeshEntity* post_proc_rect = new TexturedMeshEntity();
+
+	rect->setProgName("screenproc");
+	post_proc_rect->setProgName("postprog");
+
+	TexturedGeomComponent tex_geom_comp2;
+	vector<vec3>& rect_pos = tex_geom_comp2.getMutableVertices();
+	std::vector<GLushort>& rect_elems = tex_geom_comp2.getMutableElements();
+	vector<vec2>& rect_tex = tex_geom_comp2.getMutableTextures();
+
+	rect_pos.push_back(vec3(-1, -1, 0));
+	rect_pos.push_back(vec3(1, -1, 0));
+	rect_pos.push_back(vec3(-1, 1, 0));
+	rect_pos.push_back(vec3(1, 1, 0));
+	rect_tex.push_back(vec2(0, 0));
+	rect_tex.push_back(vec2(1, 0));
+	rect_tex.push_back(vec2(0, 1));
+	rect_tex.push_back(vec2(1, 1));
+	rect_elems.push_back(0);
+	rect_elems.push_back(1);
+	rect_elems.push_back(2);
+	rect_elems.push_back(1);
+	rect_elems.push_back(3);
+	rect_elems.push_back(2);
+
+	TexturedGeomComponent* gc_rect = rect->addComponent<TexturedGeomComponent>(tex_geom_comp2);
+	TexturedGeomComponent* gc_rect2 = post_proc_rect->addComponent<TexturedGeomComponent>(tex_geom_comp2);
+	gc_rect->init();
+	gc_rect2->init();
+
+	generateFramebuffers();
+
+	//ssbo.create_SSBO(ssbo_CPUMEM);
+
+	body_entities.push_back(tracked_body);
+	fbo_entities.emplace("rect", rect);
+	fbo_entities.emplace("post_proc_rect", post_proc_rect);
+
 }
 
 void Application::initProgs() {

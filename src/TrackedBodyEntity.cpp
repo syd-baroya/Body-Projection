@@ -7,14 +7,19 @@ using namespace std;
 
 void TexturedMeshEntity::draw(Program* prog)
 {
-	MeshEntity::draw(prog);
-	GeometryComponent gc = this->getComponent<GeometryComponent>();
+	//MeshEntity::draw(prog);
+	TexturedGeomComponent gc = this->getComponent<TexturedGeomComponent>();
 	gc.draw(prog);
 
 }
 
 void TrackedBodyEntity::draw(Program* prog)
 {
+	DrawableComponent dc = this->getComponent<DrawableComponent>();
+	const MVPSet* MVP = dc.getMVP();
+	glUniformMatrix4fv(prog->getUniform("P"), 1, GL_FALSE, &MVP->P[0][0]);
+	glUniformMatrix4fv(prog->getUniform("V"), 1, GL_FALSE, &MVP->V[0][0]);
+	glUniformMatrix4fv(prog->getUniform("M"), 1, GL_FALSE, &MVP->M[0][0]);
 	TexturedMeshEntity::draw(prog);
 	//SceneComponent sc = this->getComponent<SceneComponent>();
 	//AnimationComponent ac = this->getComponent<AnimationComponent>();
@@ -241,7 +246,7 @@ void TrackedBodyEntity::angleHierarchy(std::map <k4abt_joint_id_t, vector<k4abt_
 void TrackedBodyEntity::generateBodyVertices()
 {
 
-	std::vector<glm::vec3> vertex_coords = this->getComponent<GeometryComponent>().getMutableVertices();
+	std::vector<glm::vec3>& vertex_coords = this->getComponent<TexturedGeomComponent>().getMutableVertices();
 
 	float forecastfact = FORECASTFACT;
 	float z_base = getJoint(forecastfact, 0).z;

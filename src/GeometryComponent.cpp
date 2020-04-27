@@ -14,7 +14,8 @@ void GeometryComponent::init()
 void GeometryComponent::draw(Program* prog)
 {
 	this->startGPUUpload();
-	glDrawElements(GL_TRIANGLES, (int)cpu_elements.size(), GL_UNSIGNED_SHORT, (const void*)0);
+	GLuint body_size = getElements().size();
+	glDrawElements(GL_TRIANGLES, (int)body_size, GL_UNSIGNED_SHORT, (const void*)0);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 

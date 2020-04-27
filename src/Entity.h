@@ -80,7 +80,7 @@ public:
 
 	std::string getName() { return(_name); }
     std::string getProgName() { return(prog_name); }
-    std::string setProgName(std::string name) { prog_name = name; }
+    void setProgName(std::string name) { prog_name = name; }
 	uuid_t getUUID() { return(uuid); }
 
 	virtual void update(double frametime) {}
