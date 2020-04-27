@@ -9,7 +9,7 @@
 #include "Entity.h"
 #include "GeometryComponent.h"
 #include "SceneComponent.h"
-//#include "AnimationComponent.h"
+#include "AnimationComponent.h"
 #include "DrawableComponent.h"
 
 #include <GLFW/glfw3.h>
@@ -53,6 +53,8 @@ public:
 	TrackedBodyEntity() : TexturedMeshEntity() { reset();  }
 
 	void update(double frametime) override;
+	void draw(Program* prog) override;
+
 
 	glm::vec3 getJoint(float forecast_fact, int j);
 

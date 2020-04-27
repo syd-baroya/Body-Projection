@@ -2,6 +2,7 @@
 #ifndef BUFFERS_H
 #define BUFFERS_H
 #include <glad\glad.h>
+#include <glm/glm.hpp>
 
 class SimpleBuffer {
 public:
@@ -67,13 +68,20 @@ public:
 	ElementArrayBuffer(GLenum draw_type) : SimpleBuffer(GL_ELEMENT_ARRAY_BUFFER, draw_type){}
 };
 
+#define ssbo_size 1024
+
+class ssbo_data
+{
+public:
+	glm::ivec4 positions_list[ssbo_size];
+};
+
 
 class ShaderStorageBuffer : public ComplexBuffer {
 public:
 	ShaderStorageBuffer() : ComplexBuffer(GL_SHADER_STORAGE_BUFFER, GL_DYNAMIC_DRAW) {}
+	void create_SSBO(ssbo_data& ssbo_data);
 	template <typename T>
-	void create_SSBO(T& ssbo_data);
-	template <typename T>
-	void get_SSBO_back(T& ssbo_data);
+	void get_SSBO_back(ssbo_data& ssbo_data);
 };
 #endif

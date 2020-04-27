@@ -73,27 +73,25 @@ void  AtomicCounterBuffer::read_atomic()
 	unMapBuffer();
 }
 
-template <typename T>
-void ShaderStorageBuffer::create_SSBO(T& ssbo_data)
+void ShaderStorageBuffer::create_SSBO(ssbo_data& ssbo_data)
 {
-	for (int i = 0; i < sizeof(T); i++) {
-		ssbo_data.positions_list[i] = ivec4(i, 0, 0, 0);
+	for (int i = 0; i < sizeof(ssbo_data); i++) {
+		ssbo_data.positions_list[i] = glm::ivec4(i, 0, 0, 0);
 	}
 
 	glGenBuffers(1, &getID());
 	bind();
-	bufferData(sizeof(T, &ssbo_data, GL_DYNAMIC_DRAW));
+	bufferData(sizeof(ssbo_data, &ssbo_data, GL_DYNAMIC_DRAW));
 	bindBufferBase(0);
 	unbind();
 }
 
-template <typename T>
-void ShaderStorageBuffer::get_SSBO_back(T& ssbo_data)
+void ShaderStorageBuffer::get_SSBO_back(ssbo_data& ssbo_data)
 {
 	// Get SSBO back
 	bind();
 	GLvoid* p = mapBuffer(GL_READ_ONLY);
-	int siz = sizeof(T);
+	int siz = sizeof(ssbo_data);
 	memcpy(&ssbo_data, p, siz);
 	unMapBuffer();
 }

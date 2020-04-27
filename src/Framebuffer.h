@@ -27,16 +27,18 @@ public:
 		glGenFramebuffers(1, &fbID);
 	}
 
+	void bind();
+	void unbind();
 	void attach(Renderbuffer& rb, GLenum attachment);
-	void attach(FramebufferObject& fbo, GLenum attachment, int level);
+	void attach(FramebufferObject& fbo, std::string fbo_name, GLenum attachment, int level);
 	void setDrawBuffers(int num_buffers);
 	void writeToDrawBuffers();
 	void deleteBuffer();
-
+	FramebufferObject getFBO(std::string name) { return(color_attachments.at(name)); }
 private:
 	GLuint fbID;
 	std::vector<GLenum> buffers;
-	std::map<GLenum, FramebufferObject> color_attachments;
+	std::map<std::string, FramebufferObject> color_attachments;
 	Renderbuffer depth_attachment;
 };
 

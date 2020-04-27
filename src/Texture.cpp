@@ -59,6 +59,10 @@ SimpleTexture2D::SimpleTexture2D(std::string resource_dir, std::string file) : T
 	data = stbi_load(filepath, &width, &height, &channels, 4);
 	wrap = GL_REPEAT;
 }
+void SimpleTexture2D::setTexName(const GLchar* name)
+{
+	this->tex_name = name;
+}
 void SimpleTexture2D::setFile(std::string file) {
 	strcpy(filepath, file.c_str());
 	data = stbi_load(filepath, &width, &height, &channels, 4);

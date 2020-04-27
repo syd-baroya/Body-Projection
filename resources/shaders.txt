@@ -1,1 +1,5 @@
-prog:vert.glsl,frag.glsl
+progfire:shader_vert.glsl,shader_frag.glsl
+progbody:but_vertex.glsl,shader_body.glsl
+postprog:vert.glsl,frag.glsl
+screenproc:vert.glsl,fragscreen.glsl
+computeProgram:compute.glsl

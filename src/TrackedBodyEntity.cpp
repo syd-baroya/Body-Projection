@@ -8,11 +8,18 @@ using namespace std;
 void TexturedMeshEntity::draw(Program* prog)
 {
 	MeshEntity::draw(prog);
-	SceneComponent sc = this->getComponent<SceneComponent>();
 	GeometryComponent gc = this->getComponent<GeometryComponent>();
-	sc.draw(prog);
 	gc.draw(prog);
 
+}
+
+void TrackedBodyEntity::draw(Program* prog)
+{
+	TexturedMeshEntity::draw(prog);
+	//SceneComponent sc = this->getComponent<SceneComponent>();
+	//AnimationComponent ac = this->getComponent<AnimationComponent>();
+	//sc.draw(prog);
+	//ac.draw(prog);
 }
 
 

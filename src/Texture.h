@@ -48,6 +48,7 @@ class SimpleTexture2D : public Texture {
 public:
 	SimpleTexture2D(){}
 	SimpleTexture2D(std::string resource_dir, std::string file);
+	void setTexName(const GLchar* name);
 	void setFile(std::string file);
 	void uploadToGPU(GLuint pid, int location_num);
 

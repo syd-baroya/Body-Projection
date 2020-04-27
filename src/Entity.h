@@ -79,6 +79,8 @@ public:
 	Entity(const std::string& name) : uuid(generate_uuid()), _name(name) {}
 
 	std::string getName() { return(_name); }
+    std::string getProgName() { return(prog_name); }
+    std::string setProgName(std::string name) { prog_name = name; }
 	uuid_t getUUID() { return(uuid); }
 
 	virtual void update(double frametime) {}
@@ -116,6 +118,7 @@ public:
 
 protected:
     std::string _name;
+    std::string prog_name;
     std::array<Component*, maxComponents> components;
 
 private:

@@ -1,6 +1,16 @@
 #include "Framebuffer.h"
 #include <iostream>
 
+void Framebuffer::bind()
+{
+	glBindFramebuffer(GL_FRAMEBUFFER, fbID);
+}
+
+void Framebuffer::unbind()
+{
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
 void Framebuffer::attach(Renderbuffer& rb, GLenum attachment)
 {
 	//Attach depth buffer to FBO
@@ -8,10 +18,9 @@ void Framebuffer::attach(Renderbuffer& rb, GLenum attachment)
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachment, GL_RENDERBUFFER, rb.getID());
 }
 
-void Framebuffer::attach(FramebufferObject& fbo, GLenum attachment, int level)
+void Framebuffer::attach(FramebufferObject& fbo, std::string fbo_name, GLenum attachment, int level)
 {
-	glBindFramebuffer(GL_FRAMEBUFFER, fbID);
-	color_attachments.emplace(attachment, fbo);
+	color_attachments.emplace(fbo_name, fbo);
 	buffers.push_back(attachment);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, fbo.getTextureID(), level);
 }
@@ -36,7 +45,7 @@ void Framebuffer::setDrawBuffers(int num_buffers)
 void Framebuffer::writeToDrawBuffers()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	for (std::pair<GLenum, FramebufferObject> attachment : color_attachments) {
+	for (std::pair < std::string , FramebufferObject > attachment : color_attachments) {
 		glBindTexture(GL_TEXTURE_2D, (attachment.second).getTextureID());
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}

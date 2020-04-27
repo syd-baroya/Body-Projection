@@ -25,13 +25,9 @@
 #include "CameraEntity.h"
 
 #include <iostream>
-//#include "ShaderLibrary.hpp"
 #include "Time.h"
 #include "KinectSystem.h"
-//#include "TrackedBodyEntity.h"
-//#include "SceneComponent.h"
-
-//#include "SystemEnvironment.h"
+#include "Framebuffer.h"
 
 /**
 
@@ -98,10 +94,16 @@ protected:
     void initShaders();
     void initScene();
 
+    void initProgs();
+
+    void generateFramebuffers();
+
     std::vector<Entity*> entities;
     std::vector<SceneComponent> scene_comps;
     std::vector<AnimationComponent> anim_comps;
-
+    std::unordered_map<std::string, Framebuffer*> frame_buffers;
+    ShaderStorageBuffer ssbo;
+    ssbo_data ssbo_CPUMEM;
 
     struct Configuration {
         StartupState startup_state;

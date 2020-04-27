@@ -239,9 +239,45 @@ void Application::initScene()
 
 	
 	TrackedBodyEntity* tracked_body = new TrackedBodyEntity();
-	tracked_body->addComponent<DrawableComponent>();
-	tracked_body->addComponent<GeometryComponent>(tex_geom_comp);
+	DrawableComponent* dc_tb = tracked_body->addComponent<DrawableComponent>();
+	GeometryComponent* gc_tb = tracked_body->addComponent<GeometryComponent>(tex_geom_comp);
+	dc_tb->init();
+	gc_tb->init();
 	tracked_body->generateBodyVertices();
+
+	TexturedMeshEntity* rect = new TexturedMeshEntity();
+	TexturedMeshEntity* post_proc_rect = new TexturedMeshEntity();
+
+	rect->setProgName("screenproc");
+	post_proc_rect->setProgName("postprog");
+
+	TexturedGeomComponent tex_geom_comp;
+	vector<vec3> rect_pos = tex_geom_comp.getMutableVertices();
+	std::vector<GLushort> rect_elems = tex_geom_comp.getMutableElements();
+	vector<vec2> rect_tex = tex_geom_comp.getMutableTextures();
+
+	rect_pos.push_back(vec3(-1, -1, 0));
+	rect_pos.push_back(vec3(1, -1, 0));
+	rect_pos.push_back(vec3(-1, 1, 0));
+	rect_pos.push_back(vec3(1, 1, 0));
+	rect_tex.push_back(vec2(0, 0));
+	rect_tex.push_back(vec2(1, 0));
+	rect_tex.push_back(vec2(0, 1));
+	rect_tex.push_back(vec2(1, 1));
+	rect_elems.push_back(0);
+	rect_elems.push_back(1);
+	rect_elems.push_back(2);
+	rect_elems.push_back(1);
+	rect_elems.push_back(3);
+	rect_elems.push_back(2);
+
+	GeometryComponent* gc_rect = rect->addComponent<GeometryComponent>(tex_geom_comp);
+	GeometryComponent* gc_rect2 = post_proc_rect->addComponent<GeometryComponent>(tex_geom_comp);
+	gc_rect->init();
+	gc_rect2->init();
+
+	ssbo.create_SSBO(ssbo_CPUMEM);
+	
 
 	/*
 	* add fire animation
@@ -296,15 +332,108 @@ void Application::initScene()
 	FurScene scene_fur(fur_tex);
 
 
+
 	entities.push_back(tracked_body);
+	entities.push_back(rect);
+	entities.push_back(post_proc_rect);
 	anim_comps.push_back(fire_anim);
 	scene_comps.push_back(scene_lines);
 	scene_comps.push_back(scene_skeleton);
 	scene_comps.push_back(scene_fur);
 
-	Program* prog = ShaderLibrary::getInstance().getPtr("prog");
-	prog->addAttribute("vertPos");
-	prog->addAttribute("vertTex");
+	
+}
+
+void Application::initProgs() {
+	Program* progfire = ShaderLibrary::getInstance().getPtr("progfire");
+	progfire->addUniform("P");
+	progfire->addUniform("V");
+	progfire->addUniform("M");
+	progfire->addUniform("firescale");
+	progfire->addUniform("texsplit");
+	progfire->addUniform("totaltime");
+	progfire->addAttribute("vertPos");
+	progfire->addAttribute("vertTex");
+
+	//Program* progbut = ShaderLibrary::getInstance().getPtr("progbut");
+	//progbut->addUniform("P");
+	//progbut->addUniform("V");
+	//progbut->addUniform("M");
+	//progbut->addUniform("texsplit");
+	//progbut->addUniform("totaltime");
+	//progbut->addUniform("redmul");
+	//progbut->addUniform("greenmul");
+	//progbut->addUniform("bluemul");
+	//progbut->addAttribute("vertPos");
+	//progbut->addAttribute("vertTex");
+
+	Program* progbody = ShaderLibrary::getInstance().getPtr("progbody");
+	progbody->addUniform("texblend");
+	progbody->addUniform("P");
+	progbody->addUniform("V");
+	progbody->addUniform("M");
+	progbody->addUniform("texsplit");
+	progbody->addUniform("totaltime");
+	progbody->addUniform("redmul");
+	progbody->addUniform("greenmul");
+	progbody->addUniform("bluemul");
+	progbody->addAttribute("vertPos");
+	progbody->addAttribute("vertTex");
+
+	Program* postprog = ShaderLibrary::getInstance().getPtr("postprog");
+	postprog->addAttribute("vertPos");
+	postprog->addAttribute("vertTex");
+
+	Program* screenproc = ShaderLibrary::getInstance().getPtr("screenproc");
+	screenproc->addAttribute("vertPos");
+	screenproc->addAttribute("vertTex");
+
+	//[TWOTEXTURES]
+	GLuint TexLoc;
+	//set the 2 textures to the correct samplers in the fragment shader:
+	glUseProgram(progfire->getPID());
+	TexLoc = glGetUniformLocation(progfire->getPID(), "tex");	glUniform1i(TexLoc, 0);
+	TexLoc = glGetUniformLocation(progfire->getPID(), "tex2");	glUniform1i(TexLoc, 1);
+	TexLoc = glGetUniformLocation(progfire->getPID(), "texA");	glUniform1i(TexLoc, 2);
+	TexLoc = glGetUniformLocation(progfire->getPID(), "texarr");	glUniform1i(TexLoc, 3);
+
+	glUseProgram(postprog->getPID());
+	TexLoc = glGetUniformLocation(postprog->getPID(), "tex");	glUniform1i(TexLoc, 0);
+	TexLoc = glGetUniformLocation(postprog->getPID(), "texmask");	glUniform1i(TexLoc, 1);
+
+	glUseProgram(progbody->getPID());
+	TexLoc = glGetUniformLocation(progbody->getPID(), "tex");	glUniform1i(TexLoc, 0);
+	TexLoc = glGetUniformLocation(progbody->getPID(), "tex2");	glUniform1i(TexLoc, 1);
+}
+
+void Application::generateFramebuffers()
+{
+	ivec2 screen_size = getCurrScreenSize();
+	Framebuffer* fb = new Framebuffer();
+	fb->bind();
+	FramebufferObject FBOcolor(screen_size.x, screen_size.y);
+	FramebufferObject FBOmask(screen_size.x, screen_size.y);
+	Renderbuffer depth_rb;
+	FBOcolor.initParams();
+	FBOmask.initParams();
+	depth_rb.initParams();
+	fb->attach(FBOcolor, "FBOcolor", GL_COLOR_ATTACHMENT0, 0);
+	fb->attach(FBOmask, "FBOmask", GL_COLOR_ATTACHMENT1, 0);
+	fb->attach(depth_rb, GL_DEPTH_ATTACHMENT);
+	fb->unbind();
+
+	Framebuffer* fbbut = new Framebuffer();
+	fbbut->bind();
+	FramebufferObject FBOcolorbut(screen_size.x, screen_size.y);
+	Renderbuffer depth_rbbut;
+	FBOcolorbut.initParams();
+	depth_rbbut.initParams();
+	fbbut->attach(FBOcolorbut, "FBOcolorbut", GL_COLOR_ATTACHMENT0, 0);
+	fbbut->attach(depth_rbbut, GL_DEPTH_ATTACHMENT);
+	fbbut->unbind();
+
+	frame_buffers.emplace("fb", fb);
+	frame_buffers.emplace("fbbut", fbbut);
 
 }
 
