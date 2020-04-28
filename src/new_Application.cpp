@@ -37,6 +37,7 @@ void Application::run()
 	int active_scene = 0;
 	int active_anim = 0;
 	double frametime = 0;
+	double time_since_last_body_tracked = 0;
 
 	// Loop until the user closes the window.
 
@@ -49,9 +50,16 @@ void Application::run()
 
 		TrackedBodyEntity* tb = body_entities.at(0);
 
-		kinect_system.process(frametime, tb);
+		int bodytracked = kinect_system.process(frametime, tb);
 
-		render_system.process(&scene_comps.at(active_scene), &anim_comps.at(active_anim), body_entities, fbo_entities, frame_buffers, getCurrScreenSize(), frametime, false);
+		if (bodytracked > 0)
+			time_since_last_body_tracked = 0;
+
+		else
+			time_since_last_body_tracked += frametime;
+		
+
+		render_system.process(&scene_comps.at(active_scene), &anim_comps.at(active_anim), body_entities, fbo_entities, frame_buffers, getCurrScreenSize(), frametime, time_since_last_body_tracked, bodytracked);
 
 
 

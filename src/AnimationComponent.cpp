@@ -13,6 +13,7 @@ void AnimationComponent::update(double phaseprogresstotaltime)
 void AnimationComponent::draw(Program* prog)
 {
 	glUniform1f(prog->getUniform("totaltime"), phaseprogresstotaltime);
+	this->activateTexture();
 }
 
 void AnimationComponent::activateTexture()
@@ -59,4 +60,5 @@ void FireAnimation::draw(Program* prog)
 {
 	glUniform1f(prog->getUniform("firescale"), firescale);
 	glUniform2fv(prog->getUniform("texsplit"), 1, &texoff.x);
+	AnimationComponent::draw(prog);
 }

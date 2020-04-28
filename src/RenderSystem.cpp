@@ -36,7 +36,7 @@ void RenderSystem::processFireToFBO(TexturedMeshEntity* screen_entity, Animation
     Program* progfire = shlib.getPtr("progfire");
     for (TrackedBodyEntity* entity : body_entities)
     {
-        
+        anim->update(frametime);
         entity->update(frametime);
         progfire->bind();
         anim->draw(progfire);
@@ -50,16 +50,17 @@ void RenderSystem::processFireToFBO(TexturedMeshEntity* screen_entity, Animation
 
 void RenderSystem::processBodyToFBO(SceneComponent* scene, std::vector<TrackedBodyEntity*> body_entities, ShaderLibrary& shlib, Framebuffer* fb_to_write, double frametime, ivec2 screensize)
 {
-    fb_to_write->setDrawBuffers(1);
+    //fb_to_write->setDrawBuffers(1);
     glViewport(0, 0, screensize.x, screensize.y);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glDisable(GL_DEPTH_TEST);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     Program* progbody = shlib.getPtr("progbody");
     for (TrackedBodyEntity* entity : body_entities)
     {
-
+        scene->update(frametime);
         entity->update(frametime);
         progbody->bind();
         scene->draw(progbody);
@@ -67,7 +68,7 @@ void RenderSystem::processBodyToFBO(SceneComponent* scene, std::vector<TrackedBo
         progbody->unbind();
     }
 
-    fb_to_write->writeToDrawBuffers();
+    //fb_to_write->writeToDrawBuffers();
 }
 
 void RenderSystem::processFBOtoScreen(TexturedMeshEntity* screen_entity, Framebuffer* fb_to_draw, ShaderLibrary& shlib, ivec2 screensize, bool black)
@@ -96,7 +97,7 @@ void RenderSystem::processFBOtoScreen(TexturedMeshEntity* screen_entity, Framebu
 }
 
 void RenderSystem::process(SceneComponent* scene, AnimationComponent* anim, std::vector<TrackedBodyEntity*> body_entities, std::unordered_map<std::string,
-    TexturedMeshEntity*> fbo_entities, std::unordered_map<std::string, Framebuffer*> frame_buffers, ivec2 screensize, double frametime, bool black) 
+    TexturedMeshEntity*> fbo_entities, std::unordered_map<std::string, Framebuffer*> frame_buffers, ivec2 screensize, double frametime, double time_since_last_body_tracked, int bodytracked)
 {
 
     // Clear framebuffer.
@@ -105,9 +106,16 @@ void RenderSystem::process(SceneComponent* scene, AnimationComponent* anim, std:
 
     ShaderLibrary& shlib = ShaderLibrary::getInstance();
 
-    processBodyToFBO(scene, body_entities, shlib, frame_buffers.at("fbbut"), frametime, screensize);
-    processFireToFBO(fbo_entities.at("rect"), anim, body_entities, shlib, frame_buffers.at("fb"), frame_buffers.at("fbbut"), frametime, screensize);
-    processFBOtoScreen(fbo_entities.at("post_proc_rect"), frame_buffers.at("fb"), shlib, screensize, black);
+    if (bodytracked > 0)
+    {
+        processBodyToFBO(scene, body_entities, shlib, frame_buffers.at("fbbut"), frametime, screensize);
+        //processFireToFBO(fbo_entities.at("rect"), anim, body_entities, shlib, frame_buffers.at("fb"), frame_buffers.at("fbbut"), frametime, screensize);
+    }
+
+    bool black = false;
+    if (time_since_last_body_tracked > 1.0)
+        black = true;
+    //processFBOtoScreen(fbo_entities.at("post_proc_rect"), frame_buffers.at("fb"), shlib, screensize, black);
 }
 
 //void RenderSystem::processEntity(SceneComponent& scene, const MVPset& MVP, Entity* entity, Program* shader)
