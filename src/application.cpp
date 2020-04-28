@@ -1449,7 +1449,7 @@
 //
 //							glUniform3fv(progbody->getUniform("redmul"), 1, &redtone.x);
 //							glUniform3fv(progbody->getUniform("greenmul"), 1, &greentone.x);
-//							glUniform3fv(progbody->getUniform("bluemul"), 1, &bluetone.x);
+//							glUniform3fv(progbody->getUniform("bluemul"), 1, &bluetone.x);a
 //
 //							glBindVertexArray(VAObody);
 //

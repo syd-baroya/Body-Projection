@@ -304,9 +304,9 @@ void Application::initGeom()
 	tex.push_back(vec2(1, 0.962063));
 	tex.push_back(vec2(0.913081, 0.986313));
 
-
+	ivec2 screensize = getCurrScreenSize();
 	TrackedBodyEntity* tracked_body = new TrackedBodyEntity();
-	DrawableComponent* dc_tb = tracked_body->addComponent<DrawableComponent>();
+	DrawableComponent* dc_tb = tracked_body->addComponent<DrawableComponent>(screensize.x, screensize.y);
 	TexturedGeomComponent* gc_tb = tracked_body->addComponent<TexturedGeomComponent>(tex_geom_comp);
 	tracked_body->generateBodyVertices();
 	dc_tb->init();

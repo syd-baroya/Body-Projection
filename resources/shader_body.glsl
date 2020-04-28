@@ -27,7 +27,10 @@ if(texblend>0.0001)
 color.rgb = vec3(	texcol.r * redmul.r + texcol.g * redmul.g + texcol.b * redmul.b, 
 					texcol.r * greenmul.r + texcol.g * greenmul.g + texcol.b * greenmul.b,
 					texcol.r * bluemul.r + texcol.g * bluemul.g + texcol.b * bluemul.b);
+
 color.a = texcol.a;
+
+color = vec4(0.5,0,0.5,1);
 
 }
 
