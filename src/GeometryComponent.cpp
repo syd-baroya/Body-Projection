@@ -53,8 +53,8 @@ void GeometryComponent::finishGPUUpload() {
 
 void TexturedGeomComponent::uploadData() {
 	GeometryComponent::uploadData();
-	if (cpu_normals.size() > 0)
-		vertex_normals_buffer.bufferData(3, GL_FLOAT, cpu_normals.size() * sizeof(glm::vec3), cpu_normals.data());
+	/*if (cpu_normals.size() > 0)
+		vertex_normals_buffer.bufferData(3, GL_FLOAT, cpu_normals.size() * sizeof(glm::vec3), cpu_normals.data());*/
 	if (cpu_texture_coords.size() > 0)
 		vertex_texture_buffer.bufferData(2, GL_FLOAT, cpu_texture_coords.size() * sizeof(glm::vec2), cpu_texture_coords.data());
 

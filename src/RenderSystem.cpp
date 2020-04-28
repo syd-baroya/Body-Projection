@@ -39,8 +39,8 @@ void RenderSystem::processFireToFBO(TexturedMeshEntity* screen_entity, Animation
         
         entity->update(frametime);
         progfire->bind();
-        entity->draw(progfire);
         anim->draw(progfire);
+        entity->draw(progfire);
         progfire->unbind();
     }
 
@@ -62,8 +62,8 @@ void RenderSystem::processBodyToFBO(SceneComponent* scene, std::vector<TrackedBo
 
         entity->update(frametime);
         progbody->bind();
-        entity->draw(progbody);
         scene->draw(progbody);
+        entity->draw(progbody);
         progbody->unbind();
     }
 

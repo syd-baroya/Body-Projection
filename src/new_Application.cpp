@@ -27,7 +27,7 @@ void Application::run()
 	Time globalTime;
 
 
-	//kinect_system.InitializeDefaultSensor();
+	kinect_system.InitializeDefaultSensor();
 	render_system.init(_window);
 
 	//std::vector<Entity*> new_entities(entities);
@@ -49,7 +49,7 @@ void Application::run()
 
 		TrackedBodyEntity* tb = body_entities.at(0);
 
-		//kinect_system.process(frametime, tb);
+		kinect_system.process(frametime, tb);
 
 		render_system.process(&scene_comps.at(active_scene), &anim_comps.at(active_anim), body_entities, fbo_entities, frame_buffers, getCurrScreenSize(), frametime, false);
 
@@ -203,7 +203,7 @@ void Application::initGeom()
 {
 	/***BODY WITHOUT CLAVICLES***/
 //torso w/o clavicles
-	TexturedGeomComponent tex_geom_comp;
+	TexturedGeomComponent tex_geom_comp(GL_DYNAMIC_DRAW, GL_STATIC_DRAW, GL_DYNAMIC_DRAW);
 
 	std::vector<GLushort>& indices = tex_geom_comp.getMutableElements();
 
@@ -308,9 +308,9 @@ void Application::initGeom()
 	TrackedBodyEntity* tracked_body = new TrackedBodyEntity();
 	DrawableComponent* dc_tb = tracked_body->addComponent<DrawableComponent>();
 	TexturedGeomComponent* gc_tb = tracked_body->addComponent<TexturedGeomComponent>(tex_geom_comp);
+	tracked_body->generateBodyVertices();
 	dc_tb->init();
 	gc_tb->init();
-	tracked_body->generateBodyVertices();
 
 	TexturedMeshEntity* rect = new TexturedMeshEntity();
 	TexturedMeshEntity* post_proc_rect = new TexturedMeshEntity();
@@ -318,11 +318,30 @@ void Application::initGeom()
 	rect->setProgName("screenproc");
 	post_proc_rect->setProgName("postprog");
 
-	TexturedGeomComponent tex_geom_comp2;
-	vector<vec3>& rect_pos = tex_geom_comp2.getMutableVertices();
-	std::vector<GLushort>& rect_elems = tex_geom_comp2.getMutableElements();
-	vector<vec2>& rect_tex = tex_geom_comp2.getMutableTextures();
+	//TexturedGeomComponent tex_geom_comp2(GL_STATIC_DRAW, GL_STATIC_DRAW, GL_DYNAMIC_DRAW);
+	//vector<vec3>& rect_pos = tex_geom_comp2.getMutableVertices();
+	//std::vector<GLushort>& rect_elems = tex_geom_comp2.getMutableElements();
+	//vector<vec2>& rect_tex = tex_geom_comp2.getMutableTextures();
 
+	//rect_pos.push_back(vec3(-1, -1, 0));
+	//rect_pos.push_back(vec3(1, -1, 0));
+	//rect_pos.push_back(vec3(-1, 1, 0));
+	//rect_pos.push_back(vec3(1, 1, 0));
+	//rect_tex.push_back(vec2(0, 0));
+	//rect_tex.push_back(vec2(1, 0));
+	//rect_tex.push_back(vec2(0, 1));
+	//rect_tex.push_back(vec2(1, 1));
+	//rect_elems.push_back(0);
+	//rect_elems.push_back(1);
+	//rect_elems.push_back(2);
+	//rect_elems.push_back(1);
+	//rect_elems.push_back(3);
+	//rect_elems.push_back(2);
+
+	TexturedGeomComponent* gc_rect = rect->addComponent<TexturedGeomComponent>(GL_STATIC_DRAW, GL_STATIC_DRAW, GL_DYNAMIC_DRAW);
+	vector<vec3>& rect_pos = gc_rect->getMutableVertices();
+	std::vector<GLushort>& rect_elems = gc_rect->getMutableElements();
+	vector<vec2>& rect_tex = gc_rect->getMutableTextures();
 	rect_pos.push_back(vec3(-1, -1, 0));
 	rect_pos.push_back(vec3(1, -1, 0));
 	rect_pos.push_back(vec3(-1, 1, 0));
@@ -337,9 +356,24 @@ void Application::initGeom()
 	rect_elems.push_back(1);
 	rect_elems.push_back(3);
 	rect_elems.push_back(2);
-
-	TexturedGeomComponent* gc_rect = rect->addComponent<TexturedGeomComponent>(tex_geom_comp2);
-	TexturedGeomComponent* gc_rect2 = post_proc_rect->addComponent<TexturedGeomComponent>(tex_geom_comp2);
+	TexturedGeomComponent* gc_rect2 = post_proc_rect->addComponent<TexturedGeomComponent>(GL_STATIC_DRAW, GL_STATIC_DRAW, GL_DYNAMIC_DRAW);
+	rect_pos = gc_rect2->getMutableVertices();
+	rect_elems = gc_rect2->getMutableElements();
+	rect_tex = gc_rect2->getMutableTextures();
+	rect_pos.push_back(vec3(-1, -1, 0));
+	rect_pos.push_back(vec3(1, -1, 0));
+	rect_pos.push_back(vec3(-1, 1, 0));
+	rect_pos.push_back(vec3(1, 1, 0));
+	rect_tex.push_back(vec2(0, 0));
+	rect_tex.push_back(vec2(1, 0));
+	rect_tex.push_back(vec2(0, 1));
+	rect_tex.push_back(vec2(1, 1));
+	rect_elems.push_back(0);
+	rect_elems.push_back(1);
+	rect_elems.push_back(2);
+	rect_elems.push_back(1);
+	rect_elems.push_back(3);
+	rect_elems.push_back(2);
 	gc_rect->init();
 	gc_rect2->init();
 
