@@ -28,7 +28,7 @@ public:
 
 	void setVerbose(const bool v) { verbose = v; }
 	bool isVerbose() const { return verbose; }
-	GLuint getPID() const { return(pid); }
+	GLuint getPID() { return(pid); }
 	bool wasBuildSuccessful() { return(buildSuccess); }
 
 	bool buildProgram(std::istream& vertex, std::istream& fragment);

@@ -23,5 +23,5 @@ vec4 fire = texture(texarr, vec3(texcoord.x,1-texcoord.y,float(itick)));
 fire.a = max(fire.a,texture(texA, texcoord).r);
 color =fire;
 mask = vec4(1,1,1,1);
-color = vec4(0,0,1,1);
+//color = vec4(0,0,1,1);
 }

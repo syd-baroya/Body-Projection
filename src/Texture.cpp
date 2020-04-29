@@ -66,7 +66,6 @@ void SimpleTexture2D::setTexName(const GLchar* name)
 void SimpleTexture2D::setFile(std::string file) {
 	strcpy(filepath, file.c_str());
 	data = stbi_load(filepath, &width, &height, &channels, 4);
-	initParams();
 }
 
 void SimpleTexture2D::uploadToGPU(GLuint pid, int location_num)

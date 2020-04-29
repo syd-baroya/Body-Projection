@@ -32,7 +32,11 @@ void GeometryComponent::cleanupAfterDraw()
 
 void GeometryComponent::update(double frametime)
 {
-
+	if (pos_draw_type == GL_DYNAMIC_DRAW) {
+		glBindBuffer(GL_ARRAY_BUFFER, vertex_pos_buffer);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, cpu_vertices.size() * sizeof(glm::vec3), cpu_vertices.data());
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+	}
 }
 
 void GeometryComponent::uploadToGPU()

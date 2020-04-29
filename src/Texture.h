@@ -24,11 +24,11 @@ public:
 	const GLushort getWrap() { return(wrap); }
 	const GLushort getMinFilter() { return(minfilter); }
 	const GLushort getMagFilter() { return(magfilter); }
-	void setColorOrder(GLushort color) { colororder = color; initParams(); }
-	void setDataType(GLushort data) { datatype = data; initParams(); }
-	void setWrap(GLushort wrap_) { wrap_ = wrap; initParams(); }
-	void setMinFilter(GLushort filter) { filter = minfilter; initParams(); }
-	void setMagFilter(GLushort filter) { filter = magfilter; initParams(); }
+	void setColorOrder(GLushort color) { colororder = color;}
+	void setDataType(GLushort data) { datatype = data; }
+	void setWrap(GLushort wrap_) { wrap_ = wrap; }
+	void setMinFilter(GLushort filter) { filter = minfilter; }
+	void setMagFilter(GLushort filter) { filter = magfilter; }
 	void deleteTexture() { glDeleteTextures(1, &textureID); }
 protected:
 	GLuint textureID;
@@ -68,7 +68,12 @@ public:
 	}
 	void initParams();
 	void initSubImageParams();
-	void setFile(std::string file) { strcpy(filepath, file.c_str()); initParams(); }
+	void setImageWidth(GLsizei iwidth) { images_width = iwidth; }
+	void setImageHeight(GLsizei iheight) { images_height = iheight; }
+	void setLevels(GLsizei lev) { levels = lev; }
+	void setNumImages(GLsizei num) { num_images = num; }
+
+	void setFile(std::string file) { strcpy(filepath, file.c_str());}
 private:
 	char filepath[100];
 	int channels;

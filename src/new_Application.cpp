@@ -13,9 +13,9 @@ void Application::init(int argc, char** argv)
 	initGLFW();
 	initGL();
 	initShaders();
+	initScene();
 	initProgs();
 	initGeom();
-	initScene();
 }
 
 void Application::run()
@@ -144,14 +144,23 @@ void Application::initShaders()
 
 void Application::initScene()
 {
+	ivec2 screensize = getCurrScreenSize();
 	/*
 	* add fire animation
 	*/
 	SimpleTexture2D fire_tex; 
 	fire_tex.setFile("../resources/firering_a.jpg");
+	fire_tex.setWrap(GL_REPEAT);
+	fire_tex.initParams();
 
 	TextureArray fire_tex_array;
 	fire_tex_array.setFile("../resources/firering_%.3d.png");
+	fire_tex_array.setImageWidth(512);
+	fire_tex_array.setImageHeight(512);
+	fire_tex_array.setLevels(7);
+	fire_tex_array.setNumImages(25);
+	fire_tex_array.initParams();
+
 	
 	AnimationComponent fire_anim(fire_tex, fire_tex_array);
 	fire_anim.init();
@@ -159,31 +168,56 @@ void Application::initScene()
 	//SCENE_LINES
 	SimpleTexture2D line_tex;
 	line_tex.setFile("../resources/lines.jpg");
+	line_tex.setWrap(GL_REPEAT);
+	line_tex.initParams();
 
 	SceneComponent scene_lines(line_tex);
+	scene_lines.init();
 
 	//SCENE_SCELETON
 	SimpleTexture2D skeleton_tex;
 	skeleton_tex.setFile("../resources/skeleton.jpg");
-	
-	SceneComponent scene_skeleton(skeleton_tex);
+	skeleton_tex.setWrap(GL_REPEAT);
+	skeleton_tex.initParams();
 
+	SceneComponent scene_skeleton(skeleton_tex);
+	scene_skeleton.init();
 	
 	//SCENE_FUR
 	SimpleTexture2D fur_tex0;
 	fur_tex0.setFile("../resources/fur.jpg");
+	fur_tex0.setWrap(GL_REPEAT);
+	fur_tex0.initParams();
+
 	SimpleTexture2D fur_tex1;
 	fur_tex1.setFile("../resources/snake.jpg");
+	fur_tex1.setWrap(GL_REPEAT);
+	fur_tex1.initParams();
+
 	SimpleTexture2D fur_tex2;
 	fur_tex2.setFile("../resources/zebra.jpg");
+	fur_tex2.setWrap(GL_REPEAT);
+	fur_tex2.initParams();
+
 	SimpleTexture2D fur_tex3;
 	fur_tex3.setFile("../resources/chameleon.jpg");
+	fur_tex3.setWrap(GL_REPEAT);
+	fur_tex3.initParams();
+
 	SimpleTexture2D fur_tex4;
 	fur_tex4.setFile("../resources/chameleon2.jpg");
+	fur_tex4.setWrap(GL_REPEAT);
+	fur_tex4.initParams();
+
 	SimpleTexture2D fur_tex5;
 	fur_tex5.setFile("../resources/chameleon3.jpg");
+	fur_tex5.setWrap(GL_REPEAT);
+	fur_tex5.initParams();
+
 	SimpleTexture2D fur_tex6;
 	fur_tex6.setFile("../resources/gecko.jpg");
+	fur_tex6.setWrap(GL_REPEAT);
+	fur_tex6.initParams();
 
 	SimpleTexture2D fur_tex[] = {
 		fur_tex0,
@@ -195,8 +229,7 @@ void Application::initScene()
 		fur_tex6
 	};
 	FurScene scene_fur(fur_tex);
-
-
+	scene_fur.init();
 
 	
 	anim_comps.push_back(fire_anim);
