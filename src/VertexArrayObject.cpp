@@ -62,7 +62,7 @@ void VertexArrayObject::setupBuffersToDraw()
 		buffer.bind();
 		enableVertexAttribArray(attrib_num);
 		setVertexAttribPointer(attrib_num, buffer.getNumPerElem(), buffer.getElemType(), GL_FALSE, 0, (void*)0);
-
+		buffer.unbind();
 	}
 	this->element_buffer.bind();
 	unbind();

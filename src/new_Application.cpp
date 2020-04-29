@@ -139,7 +139,7 @@ void Application::initGLFW()
 
 void Application::initShaders()
 {
-	ShaderLibrary::getInstance().loadFromShaderCollection("../resources/shaders.txt");
+	shlib.loadFromShaderCollection("../resources/shaders.txt");
 }
 
 void Application::initScene()
@@ -365,23 +365,23 @@ void Application::initGeom()
 	rect_elems.push_back(3);
 	rect_elems.push_back(2);
 	TexturedGeomComponent* gc_rect2 = post_proc_rect->addComponent<TexturedGeomComponent>(GL_STATIC_DRAW, GL_STATIC_DRAW, GL_DYNAMIC_DRAW);
-	rect_pos = gc_rect2->getMutableVertices();
-	rect_elems = gc_rect2->getMutableElements();
-	rect_tex = gc_rect2->getMutableTextures();
-	rect_pos.push_back(vec3(-1, -1, 0));
-	rect_pos.push_back(vec3(1, -1, 0));
-	rect_pos.push_back(vec3(-1, 1, 0));
-	rect_pos.push_back(vec3(1, 1, 0));
-	rect_tex.push_back(vec2(0, 0));
-	rect_tex.push_back(vec2(1, 0));
-	rect_tex.push_back(vec2(0, 1));
-	rect_tex.push_back(vec2(1, 1));
-	rect_elems.push_back(0);
-	rect_elems.push_back(1);
-	rect_elems.push_back(2);
-	rect_elems.push_back(1);
-	rect_elems.push_back(3);
-	rect_elems.push_back(2);
+	vector<vec3>& rect_pos2 = gc_rect2->getMutableVertices();
+	std::vector<GLushort>& rect_elems2 = gc_rect2->getMutableElements();
+	vector<vec2>& rect_tex2 = gc_rect2->getMutableTextures();
+	rect_pos2.push_back(vec3(-1, -1, 0));
+	rect_pos2.push_back(vec3(1, -1, 0));
+	rect_pos2.push_back(vec3(-1, 1, 0));
+	rect_pos2.push_back(vec3(1, 1, 0));
+	rect_tex2.push_back(vec2(0, 0));
+	rect_tex2.push_back(vec2(1, 0));
+	rect_tex2.push_back(vec2(0, 1));
+	rect_tex2.push_back(vec2(1, 1));
+	rect_elems2.push_back(0);
+	rect_elems2.push_back(1);
+	rect_elems2.push_back(2);
+	rect_elems2.push_back(1);
+	rect_elems2.push_back(3);
+	rect_elems2.push_back(2);
 	gc_rect->init();
 	gc_rect2->init();
 
@@ -396,7 +396,7 @@ void Application::initGeom()
 }
 
 void Application::initProgs() {
-	Program* progfire = ShaderLibrary::getInstance().getPtr("progfire");
+	Program* progfire = shlib.getPtr("progfire");
 	progfire->addUniform("P");
 	progfire->addUniform("V");
 	progfire->addUniform("M");
@@ -406,7 +406,7 @@ void Application::initProgs() {
 	progfire->addAttribute("vertPos");
 	progfire->addAttribute("vertTex");
 
-	//Program* progbut = ShaderLibrary::getInstance().getPtr("progbut");
+	//Program* progbut = shlib.getPtr("progbut");
 	//progbut->addUniform("P");
 	//progbut->addUniform("V");
 	//progbut->addUniform("M");
@@ -418,7 +418,7 @@ void Application::initProgs() {
 	//progbut->addAttribute("vertPos");
 	//progbut->addAttribute("vertTex");
 
-	Program* progbody = ShaderLibrary::getInstance().getPtr("progbody");
+	Program* progbody = shlib.getPtr("progbody");
 	progbody->addUniform("texblend");
 	progbody->addUniform("P");
 	progbody->addUniform("V");
@@ -431,11 +431,11 @@ void Application::initProgs() {
 	progbody->addAttribute("vertPos");
 	progbody->addAttribute("vertTex");
 
-	Program* postprog = ShaderLibrary::getInstance().getPtr("postprog");
+	Program* postprog = shlib.getPtr("postprog");
 	postprog->addAttribute("vertPos");
 	postprog->addAttribute("vertTex");
 
-	Program* screenproc = ShaderLibrary::getInstance().getPtr("screenproc");
+	Program* screenproc = shlib.getPtr("screenproc");
 	screenproc->addAttribute("vertPos");
 	screenproc->addAttribute("vertTex");
 

@@ -10,17 +10,19 @@
 
 class GeometryComponent : public Component {
 public:
-	GeometryComponent(GLenum pos_draw_type) {
-		vertex_pos_buffer = ArrayBuffer(pos_draw_type);
+	GeometryComponent() {}
 
-		vertex_array_object.addBuffer(vertex_pos_buffer);
-	}
-	GeometryComponent(GLenum pos_draw_type, GLenum elem_draw_type) {
-		vertex_pos_buffer = ArrayBuffer(pos_draw_type);
-		vertex_elements_buffer = ElementArrayBuffer(elem_draw_type);
+	GeometryComponent(GLenum pdraw, GLenum edraw=GL_INVALID_ENUM) : pos_draw_type(pdraw), elem_draw_type(edraw) {
+		glGenVertexArrays(1, &vertex_array_object);
+		glGenBuffers(1, &vertex_pos_buffer);
+		if(edraw!=GL_INVALID_ENUM)
+			glGenBuffers(1, &vertex_elements_buffer);
 
-		vertex_array_object.addBuffer(vertex_pos_buffer);
-		vertex_array_object.addBuffer(vertex_elements_buffer);
+		/*vertex_pos_buffer = new ArrayBuffer(pos_draw_type);
+		vertex_elements_buffer = new ElementArrayBuffer(elem_draw_type);*/
+
+		/*vertex_array_object.addBuffer(vertex_pos_buffer);
+		vertex_array_object.addBuffer(vertex_elements_buffer);*/
 	}
 	
 	std::vector<glm::vec3>& getMutableVertices() { return(cpu_vertices); }
@@ -41,9 +43,16 @@ protected:
 	void uploadToGPU();
 	virtual void uploadData();
 
-	VertexArrayObject vertex_array_object;
-	ArrayBuffer vertex_pos_buffer;
-	ElementArrayBuffer vertex_elements_buffer;
+	void uploadElementData();
+
+	//VertexArrayObject* vertex_array_object = new VertexArrayObject();
+	//ArrayBuffer* vertex_pos_buffer;
+	//ElementArrayBuffer* vertex_elements_buffer;
+	GLuint vertex_array_object;
+	GLuint vertex_pos_buffer;
+	GLuint vertex_elements_buffer;
+
+	GLenum pos_draw_type, elem_draw_type;
 
 private:
 	std::vector<glm::vec3> cpu_vertices;
@@ -53,15 +62,14 @@ private:
 
 class TexturedGeomComponent : public GeometryComponent {
 public:
-	TexturedGeomComponent(GLenum pos_draw_type, GLenum tex_draw_type) : GeometryComponent(pos_draw_type) {
-		vertex_texture_buffer = ArrayBuffer(tex_draw_type);
 
-		vertex_array_object.addBuffer(vertex_texture_buffer);
-	}
-	TexturedGeomComponent(GLenum pos_draw_type, GLenum elem_draw_type, GLenum tex_draw_type) : GeometryComponent(pos_draw_type, elem_draw_type) {
-		vertex_texture_buffer = ArrayBuffer(tex_draw_type);
+	TexturedGeomComponent(GLenum pos_draw_type, GLenum tdraw, GLenum elem_draw_type=GL_INVALID_ENUM) : GeometryComponent(pos_draw_type, elem_draw_type) {
+		tex_draw_type = tdraw;
+		glGenBuffers(1, &vertex_texture_buffer);
 
-		vertex_array_object.addBuffer(vertex_texture_buffer);
+	/*	vertex_texture_buffer = new ArrayBuffer(tex_draw_type);*/
+
+		//vertex_array_object.addBuffer(vertex_texture_buffer);
 	}
 	//TexturedGeomComponent(std::vector<glm::vec3> vertices, std::vector<GLushort> elements, 
 	//	std::vector<glm::vec3> normals, std::vector<glm::vec2> tex_coords);
@@ -75,7 +83,8 @@ protected:
 	void uploadData() override;
 
 	//ArrayBuffer vertex_normals_buffer;
-	ArrayBuffer vertex_texture_buffer;
+	GLuint vertex_texture_buffer;
+	GLenum tex_draw_type;
 
 private:
 	std::vector<glm::vec3> cpu_normals;

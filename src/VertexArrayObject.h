@@ -4,6 +4,7 @@
 #define VERTEX_ARRAY_OBJECT_H
 #include "Buffers.h"
 #include <map>
+#include <unordered_map>
 class VertexArrayObject {
 public:
 	VertexArrayObject() {
@@ -26,7 +27,7 @@ public:
 
 private:
 	GLuint id;
-	std::map<GLuint, ArrayBuffer> array_buffer_objects;
+	std::unordered_map<GLuint, ArrayBuffer> array_buffer_objects;
 	ElementArrayBuffer element_buffer;
 };
 

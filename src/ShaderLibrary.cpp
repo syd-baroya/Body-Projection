@@ -4,15 +4,15 @@
 using namespace std;
 
 ShaderLibrary::ShaderLibrary(){
-	ifstream evs(errorvs);
-	ifstream efs(errorfs);
+	//ifstream evs(errorvs);
+	//ifstream efs(errorfs);
 
-	if(!fallback.buildProgram(evs,efs)){
-		exit(1);
-	}
-	fallback.setVerbose(false);
-	fallback.bind();
-	active = &fallback;
+	//if(!fallback.buildProgram(evs,efs)){
+	//	exit(1);
+	//}
+	//fallback.setVerbose(false);
+	//fallback.bind();
+	//active = &fallback;
 }
 
 void ShaderLibrary::add(const string &name, Program* prog){

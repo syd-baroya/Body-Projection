@@ -119,7 +119,7 @@ protected:
     GLFWmonitor* _monitor = nullptr;
 
 private:
-
+    ShaderLibrary& shlib = ShaderLibrary::getInstance();
     bool fullscreen_mode = false;
 
 };

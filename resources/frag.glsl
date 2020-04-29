@@ -9,8 +9,9 @@ void main()
 vec2 texcoords = fragtex;
 texcoords.x = 1.-texcoords.x;
 color.rgb= texture(tex, texcoords).rgb;
-color.rgb = vec3(1,0,0);
 float mask = texture(texmask, texcoords,0).r;// * texture(texmask, texcoords,3).r;
 color.a=mask;
+//color = vec4(1,0,0,1);
+
 //color.r=mask;
 }
