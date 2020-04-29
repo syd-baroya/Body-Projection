@@ -50,7 +50,7 @@ void RenderSystem::processFireToFBO(TexturedMeshEntity* screen_entity, Animation
 
 void RenderSystem::processBodyToFBO(SceneComponent* scene, std::vector<TrackedBodyEntity*> body_entities, ShaderLibrary& shlib, Framebuffer* fb_to_write, double frametime, ivec2 screensize)
 {
-    //fb_to_write->setDrawBuffers(1);
+    fb_to_write->setDrawBuffers(1);
     glViewport(0, 0, screensize.x, screensize.y);
     //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -69,7 +69,7 @@ void RenderSystem::processBodyToFBO(SceneComponent* scene, std::vector<TrackedBo
         progbody->unbind();
     }
 
-    //fb_to_write->writeToDrawBuffers();
+    fb_to_write->writeToDrawBuffers();
 }
 
 void RenderSystem::processFBOtoScreen(TexturedMeshEntity* screen_entity, Framebuffer* fb_to_draw, ShaderLibrary& shlib, ivec2 screensize, bool black)
@@ -89,8 +89,10 @@ void RenderSystem::processFBOtoScreen(TexturedMeshEntity* screen_entity, Framebu
     }
     else
     {
-        glActiveTexture(GL_TEXTURE0);		glBindTexture(GL_TEXTURE_2D, fb_to_draw->getFBO("FBOcolor").getTextureID());
-        glActiveTexture(GL_TEXTURE1);		glBindTexture(GL_TEXTURE_2D, fb_to_draw->getFBO("FBOmask").getTextureID());
+        /*glActiveTexture(GL_TEXTURE0);		glBindTexture(GL_TEXTURE_2D, fb_to_draw->getFBO("FBOcolor").getTextureID());
+        glActiveTexture(GL_TEXTURE1);		glBindTexture(GL_TEXTURE_2D, fb_to_draw->getFBO("FBOmask").getTextureID());*/
+        glActiveTexture(GL_TEXTURE0);		glBindTexture(GL_TEXTURE_2D, fb_to_draw->getFBO("FBOcolorbut").getTextureID());
+        glActiveTexture(GL_TEXTURE1);		glBindTexture(GL_TEXTURE_2D, fb_to_draw->getFBO("FBOcolorbut").getTextureID());
     }
     screen_entity->draw(postprog);
     postprog->unbind();
@@ -116,7 +118,7 @@ void RenderSystem::process(SceneComponent* scene, AnimationComponent* anim, std:
     bool black = false;
     if (time_since_last_body_tracked > 1.0)
         black = true;
-    //processFBOtoScreen(fbo_entities.at("post_proc_rect"), frame_buffers.at("fb"), shlib, screensize, black);
+    processFBOtoScreen(fbo_entities.at("post_proc_rect"), frame_buffers.at("fbbut"), shlib, screensize, black);
 }
 
 //void RenderSystem::processEntity(SceneComponent& scene, const MVPset& MVP, Entity* entity, Program* shader)

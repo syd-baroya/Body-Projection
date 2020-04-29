@@ -117,6 +117,11 @@ int KinectSystem::process(float frametime, TrackedBodyEntity* tracked_body)
 					k4a_image_get_width_pixels(image),
 					k4a_image_get_stride_bytes(image));
 
+				depth_image_dim = ivec2(k4a_image_get_height_pixels(image),
+					k4a_image_get_width_pixels(image));
+
+				depth_image = k4a_image_get_buffer(image);
+
 				// Release the image
 				k4a_image_release(image);
 			}

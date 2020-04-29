@@ -61,6 +61,8 @@ private:
 	k4abt_tracker_configuration_t tracker_config;
 	uint32_t device_count;
 	size_t num_bodies;
+	uint8_t* depth_image;
+	ivec2 depth_image_dim;
 
 };
 
