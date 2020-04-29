@@ -59,7 +59,7 @@ void Application::run()
 			time_since_last_body_tracked += frametime;
 		
 
-		render_system.process(&scene_comps.at(active_scene), &anim_comps.at(active_anim), body_entities, fbo_entities, frame_buffers, getCurrScreenSize(), frametime, time_since_last_body_tracked, bodytracked);
+		render_system.process(scene_comps.at(active_scene), &anim_comps.at(active_anim), body_entities, fbo_entities, frame_buffers, getCurrScreenSize(), frametime, time_since_last_body_tracked, bodytracked);
 
 
 
@@ -166,76 +166,72 @@ void Application::initScene()
 	fire_anim.init();
 
 	//SCENE_LINES
-	SimpleTexture2D line_tex;
-	line_tex.setFile("../resources/lines.jpg");
-	line_tex.setWrap(GL_REPEAT);
-	line_tex.initParams();
 
-	SceneComponent scene_lines(line_tex);
-	scene_lines.init();
+	SceneComponent* scene_lines = new SceneComponent("../resources/lines.jpg");
+	scene_lines->init();
 
-	//SCENE_SCELETON
-	SimpleTexture2D skeleton_tex;
-	skeleton_tex.setFile("../resources/skeleton.jpg");
-	skeleton_tex.setWrap(GL_REPEAT);
-	skeleton_tex.initParams();
+	////SCENE_SCELETON
+	//SimpleTexture2D skeleton_tex;
+	//skeleton_tex.setFile("../resources/skeleton.jpg");
+	//skeleton_tex.setWrap(GL_REPEAT);
+	//skeleton_tex.initParams();
 
-	SceneComponent scene_skeleton(skeleton_tex);
-	scene_skeleton.init();
-	
-	//SCENE_FUR
-	SimpleTexture2D fur_tex0;
-	fur_tex0.setFile("../resources/fur.jpg");
-	fur_tex0.setWrap(GL_REPEAT);
-	fur_tex0.initParams();
+	//SceneComponent scene_skeleton(skeleton_tex);
+	//scene_skeleton.init();
+	//
+	////SCENE_FUR
+	//SimpleTexture2D fur_tex0;
+	//fur_tex0.setFile("../resources/fur.jpg");
+	//fur_tex0.setWrap(GL_REPEAT);
+	//fur_tex0.initParams();
 
-	SimpleTexture2D fur_tex1;
-	fur_tex1.setFile("../resources/snake.jpg");
-	fur_tex1.setWrap(GL_REPEAT);
-	fur_tex1.initParams();
+	//SimpleTexture2D fur_tex1;
+	//fur_tex1.setFile("../resources/snake.jpg");
+	//fur_tex1.setWrap(GL_REPEAT);
+	//fur_tex1.initParams();
 
-	SimpleTexture2D fur_tex2;
-	fur_tex2.setFile("../resources/zebra.jpg");
-	fur_tex2.setWrap(GL_REPEAT);
-	fur_tex2.initParams();
+	//SimpleTexture2D fur_tex2;
+	//fur_tex2.setFile("../resources/zebra.jpg");
+	//fur_tex2.setWrap(GL_REPEAT);
+	//fur_tex2.initParams();
 
-	SimpleTexture2D fur_tex3;
-	fur_tex3.setFile("../resources/chameleon.jpg");
-	fur_tex3.setWrap(GL_REPEAT);
-	fur_tex3.initParams();
+	//SimpleTexture2D fur_tex3;
+	//fur_tex3.setFile("../resources/chameleon.jpg");
+	//fur_tex3.setWrap(GL_REPEAT);
+	//fur_tex3.initParams();
 
-	SimpleTexture2D fur_tex4;
-	fur_tex4.setFile("../resources/chameleon2.jpg");
-	fur_tex4.setWrap(GL_REPEAT);
-	fur_tex4.initParams();
+	//SimpleTexture2D fur_tex4;
+	//fur_tex4.setFile("../resources/chameleon2.jpg");
+	//fur_tex4.setWrap(GL_REPEAT);
+	//fur_tex4.initParams();
 
-	SimpleTexture2D fur_tex5;
-	fur_tex5.setFile("../resources/chameleon3.jpg");
-	fur_tex5.setWrap(GL_REPEAT);
-	fur_tex5.initParams();
+	//SimpleTexture2D fur_tex5;
+	//fur_tex5.setFile("../resources/chameleon3.jpg");
+	//fur_tex5.setWrap(GL_REPEAT);
+	//fur_tex5.initParams();
 
-	SimpleTexture2D fur_tex6;
-	fur_tex6.setFile("../resources/gecko.jpg");
-	fur_tex6.setWrap(GL_REPEAT);
-	fur_tex6.initParams();
+	//SimpleTexture2D fur_tex6;
+	//fur_tex6.setFile("../resources/gecko.jpg");
+	//fur_tex6.setWrap(GL_REPEAT);
+	//fur_tex6.initParams();
 
-	SimpleTexture2D fur_tex[] = {
-		fur_tex0,
-		fur_tex1,
-		fur_tex2,
-		fur_tex3,
-		fur_tex4,
-		fur_tex5,
-		fur_tex6
-	};
-	FurScene scene_fur(fur_tex);
-	scene_fur.init();
+	//SimpleTexture2D fur_tex[] = {
+	//	fur_tex0,
+	//	fur_tex1,
+	//	fur_tex2,
+	//	fur_tex3,
+	//	fur_tex4,
+	//	fur_tex5,
+	//	fur_tex6
+	//};
+	//FurScene scene_fur(fur_tex);
+	//scene_fur.init();
 
 	
 	anim_comps.push_back(fire_anim);
-	scene_comps.push_back(scene_lines);
-	scene_comps.push_back(scene_skeleton);
-	scene_comps.push_back(scene_fur);
+	scene_comps.emplace_back(scene_lines);
+	//scene_comps.push_back(scene_skeleton);
+	//scene_comps.push_back(scene_fur);
 
 	
 }
@@ -472,22 +468,22 @@ void Application::initProgs() {
 	screenproc->addAttribute("vertPos");
 	screenproc->addAttribute("vertTex");
 
-	//[TWOTEXTURES]
-	GLuint TexLoc;
-	//set the 2 textures to the correct samplers in the fragment shader:
-	glUseProgram(progfire->getPID());
-	TexLoc = glGetUniformLocation(progfire->getPID(), "tex");	glUniform1i(TexLoc, 0);
-	TexLoc = glGetUniformLocation(progfire->getPID(), "tex2");	glUniform1i(TexLoc, 1);
-	TexLoc = glGetUniformLocation(progfire->getPID(), "texA");	glUniform1i(TexLoc, 2);
-	TexLoc = glGetUniformLocation(progfire->getPID(), "texarr");	glUniform1i(TexLoc, 3);
+	////[TWOTEXTURES]
+	//GLuint TexLoc;
+	////set the 2 textures to the correct samplers in the fragment shader:
+	//glUseProgram(progfire->getPID());
+	//TexLoc = glGetUniformLocation(progfire->getPID(), "tex");	glUniform1i(TexLoc, 0);
+	//TexLoc = glGetUniformLocation(progfire->getPID(), "tex2");	glUniform1i(TexLoc, 1);
+	//TexLoc = glGetUniformLocation(progfire->getPID(), "texA");	glUniform1i(TexLoc, 2);
+	//TexLoc = glGetUniformLocation(progfire->getPID(), "texarr");	glUniform1i(TexLoc, 3);
 
-	glUseProgram(postprog->getPID());
-	TexLoc = glGetUniformLocation(postprog->getPID(), "tex");	glUniform1i(TexLoc, 0);
-	TexLoc = glGetUniformLocation(postprog->getPID(), "texmask");	glUniform1i(TexLoc, 1);
+	//glUseProgram(postprog->getPID());
+	//TexLoc = glGetUniformLocation(postprog->getPID(), "tex");	glUniform1i(TexLoc, 0);
+	//TexLoc = glGetUniformLocation(postprog->getPID(), "texmask");	glUniform1i(TexLoc, 1);
 
-	glUseProgram(progbody->getPID());
-	TexLoc = glGetUniformLocation(progbody->getPID(), "tex");	glUniform1i(TexLoc, 0);
-	TexLoc = glGetUniformLocation(progbody->getPID(), "tex2");	glUniform1i(TexLoc, 1);
+	//glUseProgram(progbody->getPID());
+	//TexLoc = glGetUniformLocation(progbody->getPID(), "tex");	glUniform1i(TexLoc, 0);
+	//TexLoc = glGetUniformLocation(progbody->getPID(), "tex2");	glUniform1i(TexLoc, 1);
 }
 
 void Application::generateFramebuffers()

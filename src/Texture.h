@@ -28,7 +28,7 @@ public:
 	void setDataType(GLushort data) { datatype = data; }
 	void setWrap(GLushort wrap_) { wrap_ = wrap; }
 	void setMinFilter(GLushort filter) { filter = minfilter; }
-	void setMagFilter(GLushort filter) { filter = magfilter; }
+	void setMagFilter(GLushort filter) { filter = magfilter;}
 	void deleteTexture() { glDeleteTextures(1, &textureID); }
 protected:
 	GLuint textureID;
@@ -47,7 +47,7 @@ protected:
 class SimpleTexture2D : public Texture {
 public:
 	SimpleTexture2D(){}
-	SimpleTexture2D(std::string resource_dir, std::string file);
+	SimpleTexture2D(std::string file);
 	void setTexName(const GLchar* name);
 	void setFile(std::string file);
 	void uploadToGPU(GLuint pid, int location_num);
@@ -61,9 +61,9 @@ private:
 class TextureArray : public Texture {
 public:
 	
-	TextureArray() {}
-	TextureArray(std::string resource_dir, std::string file) : Texture() {
-		strcpy(filepath, (resource_dir + file).c_str());
+	TextureArray(){}
+	TextureArray(std::string file) : Texture() {
+		strcpy(filepath,  file.c_str());
 		minfilter = GL_LINEAR;
 	}
 	void initParams();

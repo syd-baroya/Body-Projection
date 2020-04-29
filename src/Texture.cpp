@@ -54,8 +54,8 @@ void TextureArray::initSubImageParams() {
 	}
 }
 
-SimpleTexture2D::SimpleTexture2D(std::string resource_dir, std::string file) : Texture() {
-	strcpy(filepath, (resource_dir + file).c_str());
+SimpleTexture2D::SimpleTexture2D(std::string file) : Texture() {
+	strcpy(filepath, file.c_str());
 	data = stbi_load(filepath, &width, &height, &channels, 4);
 	wrap = GL_REPEAT;
 }

@@ -25,19 +25,27 @@ using namespace HelperFunctions;
 class SceneComponent : public Component {
 public:
 	SceneComponent(){}
-	SceneComponent(Texture tex) : scene_texture(tex) {}
+	SceneComponent(std::string tex_file) {
+		this->scene_texture = new SimpleTexture2D(tex_file);
+		this->scene_texture->initParams();
+	}
 
 	virtual void init() override;
 	virtual void update(double frametime) override;
 	virtual void draw(Program* prog) override;
 
-	virtual void activateTexture();
+	virtual void activateTexture(Program* prog);
+
+	SimpleTexture2D* getTexture() { return(scene_texture); }
 
 	void pauseAll();
 	void unpauseAll();
 	void reset();
 	float getTotalEffectTime() { return(effect_time); }
 
+	vec3 red_tone;
+	vec3 green_tone;
+	vec3 blue_tone;
 protected:
 
 	float effect_time = 0;
@@ -45,13 +53,10 @@ protected:
 	bool add_tones = false;
 	bool is_paused = false;
 
-	vec3 red_tone;
-	vec3 green_tone;
-	vec3 blue_tone;
 
 	dvec3 color_scaling;
 
-	Texture scene_texture;
+	SimpleTexture2D* scene_texture;
 
 
 
@@ -65,7 +70,7 @@ protected:
 
 class FurScene : public SceneComponent {
 public:
-	FurScene(Texture* tex) {}
+	FurScene(SimpleTexture2D* tex) {}
 
 
 	void init() override;
@@ -73,7 +78,7 @@ public:
 	void draw(Program* prog) override;
 
 private:
-	Texture scene_texture[FURMAXTEX];
+	SimpleTexture2D scene_texture[FURMAXTEX];
 	float blend;
 	vec3 actual_redtone;
 	vec3 actual_greentone;

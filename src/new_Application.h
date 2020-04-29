@@ -102,7 +102,7 @@ protected:
 
     std::vector<TrackedBodyEntity*> body_entities;
     std::unordered_map<std::string, TexturedMeshEntity*> fbo_entities;
-    std::vector<SceneComponent> scene_comps;
+    std::vector<SceneComponent*> scene_comps;
     std::vector<AnimationComponent> anim_comps;
     std::unordered_map<std::string, Framebuffer*> frame_buffers;
     //ShaderStorageBuffer ssbo;

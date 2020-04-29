@@ -63,7 +63,23 @@ void RenderSystem::processBodyToFBO(SceneComponent* scene, std::vector<TrackedBo
         scene->update(frametime);
         entity->update(frametime);
         progbody->bind();
-        scene->draw(progbody);
+        //scene->draw(progbody);
+
+        glUniform1f(progbody->getUniform("totaltime"), scene->getTotalEffectTime());
+        glUniform1f(progbody->getUniform("texblend"), 0);
+
+        //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+        glUniform3fv(progbody->getUniform("redmul"), 1, &scene->red_tone.x);
+        glUniform3fv(progbody->getUniform("greenmul"), 1, &scene->green_tone.x);
+        glUniform3fv(progbody->getUniform("bluemul"), 1, &scene->blue_tone.x);
+   
+        SimpleTexture2D* tex = scene->getTexture();
+        tex->uploadToGPU(progbody->getPID(), 0);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, tex->getTextureID());
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
         entity->draw(progbody);
         progbody->unbind();
     }

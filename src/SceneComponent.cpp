@@ -30,13 +30,14 @@ void SceneComponent::draw(Program* prog)
 	glUniform3fv(prog->getUniform("redmul"), 1, &red_tone.x);
 	glUniform3fv(prog->getUniform("greenmul"), 1, &green_tone.x);
 	glUniform3fv(prog->getUniform("bluemul"), 1, &blue_tone.x);
-	this->activateTexture();
+	this->activateTexture(prog);
 }
 
-void SceneComponent::activateTexture()
+void SceneComponent::activateTexture(Program* prog)
 {
+	scene_texture->uploadToGPU(prog->getPID(), 0);
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, this->scene_texture.getTextureID());
+	glBindTexture(GL_TEXTURE_2D, scene_texture->getTextureID());
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
