@@ -35,7 +35,7 @@ void SceneComponent::draw(Program* prog)
 
 void SceneComponent::activateTexture(Program* prog)
 {
-	scene_texture->uploadToGPU(prog->getPID(), 0);
+	//scene_texture->uploadToGPU(prog->getPID(), 0);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, scene_texture->getTextureID());
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);

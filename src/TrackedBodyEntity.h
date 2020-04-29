@@ -35,6 +35,8 @@ public:
 	TexturedMeshEntity(){}
 	virtual void draw(Program* prog) override;
 
+	void startDraw();
+
 };
 
 class TrackedBodyEntity : public TexturedMeshEntity

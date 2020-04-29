@@ -468,22 +468,22 @@ void Application::initProgs() {
 	screenproc->addAttribute("vertPos");
 	screenproc->addAttribute("vertTex");
 
-	////[TWOTEXTURES]
-	//GLuint TexLoc;
-	////set the 2 textures to the correct samplers in the fragment shader:
-	//glUseProgram(progfire->getPID());
-	//TexLoc = glGetUniformLocation(progfire->getPID(), "tex");	glUniform1i(TexLoc, 0);
-	//TexLoc = glGetUniformLocation(progfire->getPID(), "tex2");	glUniform1i(TexLoc, 1);
-	//TexLoc = glGetUniformLocation(progfire->getPID(), "texA");	glUniform1i(TexLoc, 2);
-	//TexLoc = glGetUniformLocation(progfire->getPID(), "texarr");	glUniform1i(TexLoc, 3);
+	//[TWOTEXTURES]
+	GLuint TexLoc;
+	//set the 2 textures to the correct samplers in the fragment shader:
+	glUseProgram(progfire->getPID());
+	TexLoc = glGetUniformLocation(progfire->getPID(), "tex");	glUniform1i(TexLoc, 0);
+	TexLoc = glGetUniformLocation(progfire->getPID(), "tex2");	glUniform1i(TexLoc, 1);
+	TexLoc = glGetUniformLocation(progfire->getPID(), "texA");	glUniform1i(TexLoc, 2);
+	TexLoc = glGetUniformLocation(progfire->getPID(), "texarr");	glUniform1i(TexLoc, 3);
 
-	//glUseProgram(postprog->getPID());
-	//TexLoc = glGetUniformLocation(postprog->getPID(), "tex");	glUniform1i(TexLoc, 0);
-	//TexLoc = glGetUniformLocation(postprog->getPID(), "texmask");	glUniform1i(TexLoc, 1);
+	glUseProgram(postprog->getPID());
+	TexLoc = glGetUniformLocation(postprog->getPID(), "tex");	glUniform1i(TexLoc, 0);
+	TexLoc = glGetUniformLocation(postprog->getPID(), "texmask");	glUniform1i(TexLoc, 1);
 
-	//glUseProgram(progbody->getPID());
-	//TexLoc = glGetUniformLocation(progbody->getPID(), "tex");	glUniform1i(TexLoc, 0);
-	//TexLoc = glGetUniformLocation(progbody->getPID(), "tex2");	glUniform1i(TexLoc, 1);
+	glUseProgram(progbody->getPID());
+	TexLoc = glGetUniformLocation(progbody->getPID(), "tex");	glUniform1i(TexLoc, 0);
+	TexLoc = glGetUniformLocation(progbody->getPID(), "tex2");	glUniform1i(TexLoc, 1);
 }
 
 void Application::generateFramebuffers()

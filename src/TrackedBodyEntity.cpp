@@ -13,6 +13,11 @@ void TexturedMeshEntity::draw(Program* prog)
 
 }
 
+void TexturedMeshEntity::startDraw() {
+	TexturedGeomComponent gc = this->getComponent<TexturedGeomComponent>();
+	gc.startGPUUpload();
+}
+
 void TrackedBodyEntity::draw(Program* prog)
 {
 	DrawableComponent dc = this->getComponent<DrawableComponent>();

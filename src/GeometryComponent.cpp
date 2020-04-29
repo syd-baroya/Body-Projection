@@ -17,7 +17,7 @@ void GeometryComponent::draw(Program* prog)
 	startGPUUpload();
 	GLuint body_size = getElements().size();
 	glDrawElements(GL_TRIANGLES, (int)body_size, GL_UNSIGNED_SHORT, (const void*)0);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
 void GeometryComponent::setupForDraw()
@@ -95,7 +95,7 @@ void TexturedGeomComponent::uploadData() {
 
 	glBindBuffer(GL_ARRAY_BUFFER, vertex_texture_buffer);
 	glBufferData(GL_ARRAY_BUFFER, cpu_texture_coords.size() * sizeof(glm::vec2), cpu_texture_coords.data(), tex_draw_type);
-	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
 }

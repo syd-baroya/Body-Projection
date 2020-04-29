@@ -37,7 +37,7 @@ protected:
 	int height = 0;
 	GLushort colororder = GL_RGBA;
 	GLushort datatype = GL_UNSIGNED_BYTE;
-	unsigned char* data;
+	unsigned char* data = NULL;
 	GLushort wrap = GL_CLAMP_TO_BORDER;
 	GLushort minfilter = GL_LINEAR_MIPMAP_LINEAR;
 	GLushort magfilter = GL_LINEAR;
