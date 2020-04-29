@@ -87,7 +87,7 @@ void RenderSystem::processBodyToFBO(SceneComponent* scene, std::vector<TrackedBo
     //fb_to_write->writeToDrawBuffers();
 }
 
-void RenderSystem::processFBOtoScreen(TexturedMeshEntity* screen_entity, Framebuffer* fb_to_draw, ShaderLibrary& shlib, ivec2 screensize, bool black)
+void RenderSystem::processFBOtoScreen(SceneComponent* scene, TexturedMeshEntity* screen_entity, Framebuffer* fb_to_draw, ShaderLibrary& shlib, ivec2 screensize, bool black)
 {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glClearColor(0.0, 0.0, 0.0, 1.0);
@@ -104,7 +104,7 @@ void RenderSystem::processFBOtoScreen(TexturedMeshEntity* screen_entity, Framebu
     }
     else
     {
-        glActiveTexture(GL_TEXTURE0);		glBindTexture(GL_TEXTURE_2D, fb_to_draw->getFBO("FBOcolor").getTextureID());
+        glActiveTexture(GL_TEXTURE0);		glBindTexture(GL_TEXTURE_2D, scene->getTexture()->getTextureID());
         glActiveTexture(GL_TEXTURE1);		glBindTexture(GL_TEXTURE_2D, fb_to_draw->getFBO("FBOmask").getTextureID());
     }
     screen_entity->draw(postprog);
@@ -124,14 +124,14 @@ void RenderSystem::process(SceneComponent* scene, AnimationComponent* anim, std:
 
     if (bodytracked > 0)
     {
-        processBodyToFBO(scene, body_entities, shlib, frame_buffers.at("fbbut"), frametime, screensize);
+        //processBodyToFBO(scene, body_entities, shlib, frame_buffers.at("fbbut"), frametime, screensize);
         //processFireToFBO(fbo_entities.at("rect"), anim, body_entities, shlib, frame_buffers.at("fb"), frame_buffers.at("fbbut"), frametime, screensize);
     }
 
     bool black = false;
     if (time_since_last_body_tracked > 1.0)
         black = true;
-    //processFBOtoScreen(fbo_entities.at("post_proc_rect"), frame_buffers.at("fb"), shlib, screensize, black);
+    processFBOtoScreen(scene, fbo_entities.at("post_proc_rect"), frame_buffers.at("fb"), shlib, screensize, false);
 }
 
 //void RenderSystem::processEntity(SceneComponent& scene, const MVPset& MVP, Entity* entity, Program* shader)

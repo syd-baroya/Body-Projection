@@ -7,7 +7,7 @@ in vec2 fragtex;
 void main()
 {
 vec2 texcoords = fragtex;
-texcoords.x = 1.-texcoords.x;
+//texcoords.x = 1.-texcoords.x;
 color.rgb= texture(tex, texcoords).rgb;
 float mask = texture(texmask, texcoords,0).r;// * texture(texmask, texcoords,3).r;
 color.a=1;
