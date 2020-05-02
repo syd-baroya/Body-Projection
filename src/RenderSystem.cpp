@@ -21,7 +21,7 @@ void RenderSystem::init(GLFWwindow* window)
 
 void RenderSystem::processFireToFBO(TexturedMeshEntity* screen_entity, AnimationComponent* anim, std::vector<TrackedBodyEntity*> body_entities, ShaderLibrary& shlib, Framebuffer* fb_to_write, Framebuffer* fb_to_draw, double frametime, ivec2 screensize)
 {
-    fb_to_write->setDrawBuffers(2);
+    //fb_to_write->setDrawBuffers();
     glViewport(0, 0, screensize.x, screensize.y);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glDisable(GL_DEPTH_TEST);
@@ -29,28 +29,28 @@ void RenderSystem::processFireToFBO(TexturedMeshEntity* screen_entity, Animation
 
     Program* screenproc = shlib.getPtr(screen_entity->getProgName());
     screenproc->bind();
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, fb_to_draw->getFBO("FBOcolorbut").getTextureID());
+    fb_to_draw->drawBuffers();
     screen_entity->draw(screenproc);
+    screenproc->unbind();
 
-    Program* progfire = shlib.getPtr("progfire");
-    for (TrackedBodyEntity* entity : body_entities)
-    {
-        anim->update(frametime);
-        entity->update(frametime);
-        progfire->bind();
-        anim->draw(progfire);
-        entity->draw(progfire);
-        progfire->unbind();
-    }
+    //Program* progfire = shlib.getPtr("progfire");
+    //for (TrackedBodyEntity* entity : body_entities)
+    //{
+    //    anim->update(frametime);
+    //    entity->update(frametime);
+    //    progfire->bind();
+    //    anim->draw(progfire);
+    //    entity->draw(progfire);
+    //    progfire->unbind();
+    //}
 
-    fb_to_write->writeToDrawBuffers();
+    //fb_to_write->writeToDrawBuffers();
 
 }
 
 void RenderSystem::processBodyToFBO(SceneComponent* scene, std::vector<TrackedBodyEntity*> body_entities, ShaderLibrary& shlib, Framebuffer* fb_to_write, double frametime, ivec2 screensize)
 {
-    fb_to_write->setDrawBuffers(1);
+    fb_to_write->setDrawBuffers();
     glViewport(0, 0, screensize.x, screensize.y);
     //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -91,8 +91,10 @@ void RenderSystem::processFBOtoScreen(TexturedMeshEntity* screen_entity, Framebu
     {
         /*glActiveTexture(GL_TEXTURE0);		glBindTexture(GL_TEXTURE_2D, fb_to_draw->getFBO("FBOcolor").getTextureID());
         glActiveTexture(GL_TEXTURE1);		glBindTexture(GL_TEXTURE_2D, fb_to_draw->getFBO("FBOmask").getTextureID());*/
-        glActiveTexture(GL_TEXTURE0);		glBindTexture(GL_TEXTURE_2D, fb_to_draw->getFBO("FBOcolorbut").getTextureID());
-        glActiveTexture(GL_TEXTURE1);		glBindTexture(GL_TEXTURE_2D, fb_to_draw->getFBO("FBOcolorbut").getTextureID());
+      /*  glActiveTexture(GL_TEXTURE0);		glBindTexture(GL_TEXTURE_2D, fb_to_draw->getFBO("FBOcolorbut")->getTextureID());
+        glActiveTexture(GL_TEXTURE1);		glBindTexture(GL_TEXTURE_2D, fb_to_draw->getFBO("FBOcolorbut")->getTextureID());*/
+
+        fb_to_draw->drawBuffers();
     }
     screen_entity->draw(postprog);
     postprog->unbind();
@@ -112,13 +114,13 @@ void RenderSystem::process(SceneComponent* scene, AnimationComponent* anim, std:
     if (bodytracked > 0)
     {
         processBodyToFBO(scene, body_entities, shlib, frame_buffers.at("fbbut"), frametime, screensize);
-        //processFireToFBO(fbo_entities.at("rect"), anim, body_entities, shlib, frame_buffers.at("fb"), frame_buffers.at("fbbut"), frametime, screensize);
+        processFireToFBO(fbo_entities.at("rect"), anim, body_entities, shlib, frame_buffers.at("fb"), frame_buffers.at("fbbut"), frametime, screensize);
     }
 
     bool black = false;
     if (time_since_last_body_tracked > 1.0)
         black = true;
-    processFBOtoScreen(fbo_entities.at("post_proc_rect"), frame_buffers.at("fbbut"), shlib, screensize, black);
+    //processFBOtoScreen(fbo_entities.at("post_proc_rect"), frame_buffers.at("fbbut"), shlib, screensize, black);
 }
 
 //void RenderSystem::processEntity(SceneComponent& scene, const MVPset& MVP, Entity* entity, Program* shader)

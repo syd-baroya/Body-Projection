@@ -23,23 +23,23 @@ public:
 
 class Framebuffer {
 public:
-	Framebuffer() {
-		glGenFramebuffers(1, &fbID);
-	}
+	Framebuffer(){}
+	Framebuffer(std::vector<std::string> fbos, bool has_depth_buffer, glm::ivec2 screen_size);
 
 	void bind();
 	void unbind();
-	void attach(Renderbuffer& rb, GLenum attachment);
-	void attach(FramebufferObject& fbo, std::string fbo_name, GLenum attachment, int level);
-	void setDrawBuffers(int num_buffers);
+	void attach(Renderbuffer* rb, GLenum attachment);
+	void attach(FramebufferObject* fbo, std::string fbo_name, GLenum attachment, int level);
+	void setDrawBuffers();
+	void drawBuffers();
 	void writeToDrawBuffers();
 	void deleteBuffer();
-	FramebufferObject getFBO(std::string name) { return(color_attachments.at(name)); }
+	FramebufferObject* getFBO(std::string name) { return(color_attachments.at(name)); }
 private:
 	GLuint fbID;
-	std::vector<GLenum> buffers;
-	std::map<std::string, FramebufferObject> color_attachments;
-	Renderbuffer depth_attachment;
+	GLenum* buffers;
+	std::map<std::string, FramebufferObject*> color_attachments;
+	Renderbuffer* depth_attachment;
 };
 
 

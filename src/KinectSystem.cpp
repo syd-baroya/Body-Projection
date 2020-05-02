@@ -117,11 +117,17 @@ int KinectSystem::process(float frametime, TrackedBodyEntity* tracked_body)
 					k4a_image_get_width_pixels(image),
 					k4a_image_get_stride_bytes(image));
 
-				depth_image_dim = ivec2(k4a_image_get_height_pixels(image),
-					k4a_image_get_width_pixels(image));
-
+				depth_image_dim = ivec2(k4a_image_get_width_pixels(image), k4a_image_get_height_pixels(image));
+				if (depth_image == NULL)
+					depth_image = new uint8_t[depth_image_dim.x * depth_image_dim.y];
+					
 				depth_image = k4a_image_get_buffer(image);
-
+				if (depth_image == NULL) {
+					cout << "depth image is null" << endl;
+					CloseSensor();
+					exit(1);
+				}
+					
 				// Release the image
 				k4a_image_release(image);
 			}

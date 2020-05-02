@@ -42,6 +42,8 @@ public:
 	uint32_t getDeviceCount();
 	void setDeviceCount(uint32_t device_count);
 	size_t getNumBodies();
+	uint8_t* getDepthImage() { return(depth_image); }
+	ivec2 getDepthImageDim() { return(depth_image_dim); }
 	KinectSystem()
 	{
 		num_bodies = 0;
@@ -61,7 +63,7 @@ private:
 	k4abt_tracker_configuration_t tracker_config;
 	uint32_t device_count;
 	size_t num_bodies;
-	uint8_t* depth_image;
+	uint8_t* depth_image = NULL;
 	ivec2 depth_image_dim;
 
 };

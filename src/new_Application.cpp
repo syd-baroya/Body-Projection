@@ -489,28 +489,9 @@ void Application::initProgs() {
 void Application::generateFramebuffers()
 {
 	ivec2 screen_size = getCurrScreenSize();
-	Framebuffer* fb = new Framebuffer();
-	fb->bind();
-	FramebufferObject FBOcolor(screen_size.x, screen_size.y);
-	FramebufferObject FBOmask(screen_size.x, screen_size.y);
-	Renderbuffer depth_rb;
-	FBOcolor.initParams();
-	FBOmask.initParams();
-	depth_rb.initParams();
-	fb->attach(FBOcolor, "FBOcolor", GL_COLOR_ATTACHMENT0, 0);
-	fb->attach(FBOmask, "FBOmask", GL_COLOR_ATTACHMENT1, 0);
-	fb->attach(depth_rb, GL_DEPTH_ATTACHMENT);
-	fb->unbind();
+	Framebuffer* fb = new Framebuffer({ "FBOcolor", "FBOmask" }, true, screen_size);
 
-	Framebuffer* fbbut = new Framebuffer();
-	fbbut->bind();
-	FramebufferObject FBOcolorbut(screen_size.x, screen_size.y);
-	Renderbuffer depth_rbbut;
-	FBOcolorbut.initParams();
-	depth_rbbut.initParams();
-	fbbut->attach(FBOcolorbut, "FBOcolorbut", GL_COLOR_ATTACHMENT0, 0);
-	fbbut->attach(depth_rbbut, GL_DEPTH_ATTACHMENT);
-	fbbut->unbind();
+	Framebuffer* fbbut = new Framebuffer({ "FBOcolorbut" }, true, screen_size);
 
 	frame_buffers.emplace("fb", fb);
 	frame_buffers.emplace("fbbut", fbbut);
