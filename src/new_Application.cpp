@@ -57,9 +57,29 @@ void Application::run()
 
 		else
 			time_since_last_body_tracked += frametime;
+
+		uint8_t* depth_data = kinect_system.getDepthImage();
+		ivec2 depth_dimensions = kinect_system.getDepthImageDim();
+
+		if (depth_image_texture == NULL)
+		{
+			depth_image_texture = new TextureBuffer(GL_DYNAMIC_DRAW);
+			depth_image_texture->bind();
+			depth_image_texture->bufferData(1, GL_R8UI, sizeof(uint8_t) * depth_dimensions.x * depth_dimensions.y, depth_data);
+			depth_image_texture->genTexture();
+			depth_image_texture->bindTexture();
+			depth_image_texture->texBuffer();
+		}
+		else {
+			depth_image_texture->bind();
+			depth_image_texture->bufferSubData(1, GL_R8UI, 0, sizeof(uint8_t) * depth_dimensions.x * depth_dimensions.y, depth_data);
+			depth_image_texture->bindTexture();
+			depth_image_texture->texBuffer();
+		}
+
 		
 
-		render_system.process(scene_comps.at(active_scene), &anim_comps.at(active_anim), body_entities, fbo_entities, frame_buffers, getCurrScreenSize(), frametime, time_since_last_body_tracked, bodytracked);
+		render_system.process(scene_comps.at(active_scene), &anim_comps.at(active_anim), body_entities, fbo_entities, frame_buffers, getCurrScreenSize(), frametime, time_since_last_body_tracked, bodytracked, depth_image_texture);
 
 
 
@@ -170,68 +190,70 @@ void Application::initScene()
 	SceneComponent* scene_lines = new SceneComponent("../resources/lines.jpg");
 	scene_lines->init();
 
-	////SCENE_SCELETON
-	//SimpleTexture2D skeleton_tex;
-	//skeleton_tex.setFile("../resources/skeleton.jpg");
-	//skeleton_tex.setWrap(GL_REPEAT);
-	//skeleton_tex.initParams();
-
-	//SceneComponent scene_skeleton(skeleton_tex);
-	//scene_skeleton.init();
-	//
-	////SCENE_FUR
-	//SimpleTexture2D fur_tex0;
-	//fur_tex0.setFile("../resources/fur.jpg");
-	//fur_tex0.setWrap(GL_REPEAT);
-	//fur_tex0.initParams();
-
-	//SimpleTexture2D fur_tex1;
-	//fur_tex1.setFile("../resources/snake.jpg");
-	//fur_tex1.setWrap(GL_REPEAT);
-	//fur_tex1.initParams();
-
-	//SimpleTexture2D fur_tex2;
-	//fur_tex2.setFile("../resources/zebra.jpg");
-	//fur_tex2.setWrap(GL_REPEAT);
-	//fur_tex2.initParams();
-
-	//SimpleTexture2D fur_tex3;
-	//fur_tex3.setFile("../resources/chameleon.jpg");
-	//fur_tex3.setWrap(GL_REPEAT);
-	//fur_tex3.initParams();
-
-	//SimpleTexture2D fur_tex4;
-	//fur_tex4.setFile("../resources/chameleon2.jpg");
-	//fur_tex4.setWrap(GL_REPEAT);
-	//fur_tex4.initParams();
-
-	//SimpleTexture2D fur_tex5;
-	//fur_tex5.setFile("../resources/chameleon3.jpg");
-	//fur_tex5.setWrap(GL_REPEAT);
-	//fur_tex5.initParams();
-
-	//SimpleTexture2D fur_tex6;
-	//fur_tex6.setFile("../resources/gecko.jpg");
-	//fur_tex6.setWrap(GL_REPEAT);
-	//fur_tex6.initParams();
-
-	//SimpleTexture2D fur_tex[] = {
-	//	fur_tex0,
-	//	fur_tex1,
-	//	fur_tex2,
-	//	fur_tex3,
-	//	fur_tex4,
-	//	fur_tex5,
-	//	fur_tex6
-	//};
-	//FurScene scene_fur(fur_tex);
-	//scene_fur.init();
-
-	
 	anim_comps.push_back(fire_anim);
 	scene_comps.emplace_back(scene_lines);
-	//scene_comps.push_back(scene_skeleton);
-	//scene_comps.push_back(scene_fur);
+
+								////SCENE_SCELETON
+								//SimpleTexture2D skeleton_tex;
+								//skeleton_tex.setFile("../resources/skeleton.jpg");
+								//skeleton_tex.setWrap(GL_REPEAT);
+								//skeleton_tex.initParams();
+
+								//SceneComponent scene_skeleton(skeleton_tex);
+								//scene_skeleton.init();
+								//
+								////SCENE_FUR
+								//SimpleTexture2D fur_tex0;
+								//fur_tex0.setFile("../resources/fur.jpg");
+								//fur_tex0.setWrap(GL_REPEAT);
+								//fur_tex0.initParams();
+
+								//SimpleTexture2D fur_tex1;
+								//fur_tex1.setFile("../resources/snake.jpg");
+								//fur_tex1.setWrap(GL_REPEAT);
+								//fur_tex1.initParams();
+
+								//SimpleTexture2D fur_tex2;
+								//fur_tex2.setFile("../resources/zebra.jpg");
+								//fur_tex2.setWrap(GL_REPEAT);
+								//fur_tex2.initParams();
+
+								//SimpleTexture2D fur_tex3;
+								//fur_tex3.setFile("../resources/chameleon.jpg");
+								//fur_tex3.setWrap(GL_REPEAT);
+								//fur_tex3.initParams();
+
+								//SimpleTexture2D fur_tex4;
+								//fur_tex4.setFile("../resources/chameleon2.jpg");
+								//fur_tex4.setWrap(GL_REPEAT);
+								//fur_tex4.initParams();
+
+								//SimpleTexture2D fur_tex5;
+								//fur_tex5.setFile("../resources/chameleon3.jpg");
+								//fur_tex5.setWrap(GL_REPEAT);
+								//fur_tex5.initParams();
+
+								//SimpleTexture2D fur_tex6;
+								//fur_tex6.setFile("../resources/gecko.jpg");
+								//fur_tex6.setWrap(GL_REPEAT);
+								//fur_tex6.initParams();
+
+								//SimpleTexture2D fur_tex[] = {
+								//	fur_tex0,
+								//	fur_tex1,
+								//	fur_tex2,
+								//	fur_tex3,
+								//	fur_tex4,
+								//	fur_tex5,
+								//	fur_tex6
+								//};
+								//FurScene scene_fur(fur_tex);
+								//scene_fur.init();
+
+	
+
+								//scene_comps.push_back(scene_skeleton);
+								//scene_comps.push_back(scene_fur);
 
 	
 }
@@ -355,26 +377,6 @@ void Application::initGeom()
 	rect->setProgName("screenproc");
 	post_proc_rect->setProgName("postprog");
 
-	//TexturedGeomComponent tex_geom_comp2(GL_STATIC_DRAW, GL_STATIC_DRAW, GL_DYNAMIC_DRAW);
-	//vector<vec3>& rect_pos = tex_geom_comp2.getMutableVertices();
-	//std::vector<GLushort>& rect_elems = tex_geom_comp2.getMutableElements();
-	//vector<vec2>& rect_tex = tex_geom_comp2.getMutableTextures();
-
-	//rect_pos.push_back(vec3(-1, -1, 0));
-	//rect_pos.push_back(vec3(1, -1, 0));
-	//rect_pos.push_back(vec3(-1, 1, 0));
-	//rect_pos.push_back(vec3(1, 1, 0));
-	//rect_tex.push_back(vec2(0, 0));
-	//rect_tex.push_back(vec2(1, 0));
-	//rect_tex.push_back(vec2(0, 1));
-	//rect_tex.push_back(vec2(1, 1));
-	//rect_elems.push_back(0);
-	//rect_elems.push_back(1);
-	//rect_elems.push_back(2);
-	//rect_elems.push_back(1);
-	//rect_elems.push_back(3);
-	//rect_elems.push_back(2);
-
 	TexturedGeomComponent* gc_rect = rect->addComponent<TexturedGeomComponent>(GL_STATIC_DRAW, GL_STATIC_DRAW, GL_DYNAMIC_DRAW);
 	vector<vec3>& rect_pos = gc_rect->getMutableVertices();
 	std::vector<GLushort>& rect_elems = gc_rect->getMutableElements();
@@ -478,8 +480,9 @@ void Application::initProgs() {
 	TexLoc = glGetUniformLocation(progfire->getPID(), "texarr");	glUniform1i(TexLoc, 3);
 
 	glUseProgram(postprog->getPID());
-	TexLoc = glGetUniformLocation(postprog->getPID(), "tex");	glUniform1i(TexLoc, 0);
-	TexLoc = glGetUniformLocation(postprog->getPID(), "texmask");	glUniform1i(TexLoc, 1);
+	//TexLoc = glGetUniformLocation(postprog->getPID(), "tex");	glUniform1i(TexLoc, 0);
+	//TexLoc = glGetUniformLocation(postprog->getPID(), "texmask");	glUniform1i(TexLoc, 1);
+	TexLoc = glGetUniformLocation(postprog->getPID(), "depth_data");	glUniform1i(TexLoc, 0);
 
 	glUseProgram(progbody->getPID());
 	TexLoc = glGetUniformLocation(progbody->getPID(), "tex");	glUniform1i(TexLoc, 0);

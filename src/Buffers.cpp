@@ -6,26 +6,26 @@ void SimpleBuffer::bufferData(GLuint npe, GLenum type, GLsizeiptr size, const vo
 {
 	num_per_elem = npe;
 	elem_type = type;
-	bind();
+	//bind();
 	glBufferData(buffer_type, size, data, draw_type);
-	unbind();
+	//unbind();
 }
 
 void SimpleBuffer::bufferSubData(GLuint npe, GLenum type, GLintptr offset, GLsizeiptr size, const void* data)
 {
 	num_per_elem = npe;
 	elem_type = type;
-	bind();
+	//bind();
 	glBufferSubData(buffer_type, offset, size, data);
-	unbind();
+	//unbind();
 }
 
 void ComplexBuffer::bufferData(GLsizeiptr size, const void* data)
 {
-	bind();
+	//bind();
 	glBufferData(getBufferType(), size, data, GL_DYNAMIC_DRAW);
 	bindBufferBase(0);
-	unbind();
+	//unbind();
 }
 
 auto* ComplexBuffer::mapBufferRange(GLintptr offset, GLsizeiptr length, GLbitfield access)
@@ -97,4 +97,25 @@ void ShaderStorageBuffer::get_SSBO_back(ssbo_data& ssbo_data)
 	int siz = sizeof(ssbo_data);
 	memcpy(&ssbo_data, p, siz);
 	unMapBuffer();
+}
+
+void TextureBuffer::genTexture()
+{
+	glGenTextures(1, &texture);
+}
+
+void TextureBuffer::bindTexture()
+{
+	glBindTexture(GL_TEXTURE_BUFFER, texture);
+}
+
+void TextureBuffer::texBuffer()
+{
+	glTexBuffer(GL_TEXTURE_BUFFER, getElemType(), this->getID());
+}
+
+void TextureBuffer::draw()
+{
+	glActiveTexture(GL_TEXTURE0);		
+	glBindTexture(GL_TEXTURE_2D, texture);
 }

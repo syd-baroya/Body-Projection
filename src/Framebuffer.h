@@ -14,8 +14,8 @@ using namespace HelperFunctions;
 class FramebufferObject : public Texture {
 public:
 	FramebufferObject(int w, int h) : Texture() {
-		width = w;
-		height = h;
+		this->width = w;
+		this->height = h;
 	}
 
 };

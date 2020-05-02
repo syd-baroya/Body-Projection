@@ -17,7 +17,7 @@ Framebuffer::Framebuffer(std::vector<std::string> fbos, bool has_depth_buffer, i
 	}
 	if (has_depth_buffer)
 	{
-		this->depth_attachment = new Renderbuffer();
+		this->depth_attachment = new Renderbuffer(screen_size.x, screen_size.y);
 		this->depth_attachment->initParams();
 		this->attach(depth_attachment, GL_DEPTH_ATTACHMENT);
 	}

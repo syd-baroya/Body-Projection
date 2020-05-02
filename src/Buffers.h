@@ -14,7 +14,7 @@ public:
 	SimpleBuffer(GLenum buffer_type, GLenum draw_type) : buffer_type(buffer_type), draw_type(draw_type) {
 		glGenBuffers(1, &id);
 		bind();
-		unbind();
+		//unbind();
 	}
 
 	virtual void bind() { glBindBuffer(buffer_type, id); }
@@ -84,4 +84,19 @@ public:
 	void create_SSBO(ssbo_data& ssbo_data);
 	void get_SSBO_back(ssbo_data& ssbo_data);
 };
+
+class TextureBuffer : public SimpleBuffer {
+public:
+	TextureBuffer() : SimpleBuffer() {}
+	TextureBuffer(GLenum draw_type) : SimpleBuffer(GL_TEXTURE_BUFFER, draw_type){}
+
+	void genTexture();
+	void bindTexture();
+	void texBuffer();
+	void draw();
+
+private:
+	GLuint texture;
+};
+
 #endif

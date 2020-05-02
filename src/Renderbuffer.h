@@ -7,8 +7,10 @@
 
 class Renderbuffer{
 public:
-	Renderbuffer() {
+	Renderbuffer(int w, int h) {
 		glGenRenderbuffers(1, &rbID);
+		this->width = w;
+		this->height = h;
 	}
 
 	void initParams();

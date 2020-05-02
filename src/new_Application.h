@@ -108,6 +108,8 @@ protected:
     //ShaderStorageBuffer ssbo;
     ssbo_data ssbo_CPUMEM;
 
+    TextureBuffer* depth_image_texture = NULL;
+
     struct Configuration {
         StartupState startup_state;
         int w_width = 1280;

@@ -44,6 +44,7 @@ void RenderSystem::processFireToFBO(TexturedMeshEntity* screen_entity, Animation
     //    progfire->unbind();
     //}
 
+
     //fb_to_write->writeToDrawBuffers();
 
 }
@@ -89,11 +90,6 @@ void RenderSystem::processFBOtoScreen(TexturedMeshEntity* screen_entity, Framebu
     }
     else
     {
-        /*glActiveTexture(GL_TEXTURE0);		glBindTexture(GL_TEXTURE_2D, fb_to_draw->getFBO("FBOcolor").getTextureID());
-        glActiveTexture(GL_TEXTURE1);		glBindTexture(GL_TEXTURE_2D, fb_to_draw->getFBO("FBOmask").getTextureID());*/
-      /*  glActiveTexture(GL_TEXTURE0);		glBindTexture(GL_TEXTURE_2D, fb_to_draw->getFBO("FBOcolorbut")->getTextureID());
-        glActiveTexture(GL_TEXTURE1);		glBindTexture(GL_TEXTURE_2D, fb_to_draw->getFBO("FBOcolorbut")->getTextureID());*/
-
         fb_to_draw->drawBuffers();
     }
     screen_entity->draw(postprog);
@@ -101,8 +97,23 @@ void RenderSystem::processFBOtoScreen(TexturedMeshEntity* screen_entity, Framebu
 
 }
 
+void RenderSystem::processDepthtoScreen(TextureBuffer* depth_image, TexturedMeshEntity* screen_entity, ShaderLibrary& shlib, ivec2 screensize)
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glClearColor(0.0, 0.0, 0.0, 1.0);
+    glViewport(0, 0, screensize.x, screensize.y);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glDisable(GL_DEPTH_TEST);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    Program* postprog = shlib.getPtr(screen_entity->getProgName());
+    postprog->bind();
+    depth_image->draw();
+    screen_entity->draw(postprog);
+    postprog->unbind();
+}
+
 void RenderSystem::process(SceneComponent* scene, AnimationComponent* anim, std::vector<TrackedBodyEntity*> body_entities, std::unordered_map<std::string,
-    TexturedMeshEntity*> fbo_entities, std::unordered_map<std::string, Framebuffer*> frame_buffers, ivec2 screensize, double frametime, double time_since_last_body_tracked, int bodytracked)
+    TexturedMeshEntity*> fbo_entities, std::unordered_map<std::string, Framebuffer*> frame_buffers, ivec2 screensize, double frametime, double time_since_last_body_tracked, int bodytracked, TextureBuffer* depth_image)
 {
 
     // Clear framebuffer.
@@ -111,18 +122,20 @@ void RenderSystem::process(SceneComponent* scene, AnimationComponent* anim, std:
 
     ShaderLibrary& shlib = ShaderLibrary::getInstance();
 
-    if (bodytracked > 0)
-    {
-        processBodyToFBO(scene, body_entities, shlib, frame_buffers.at("fbbut"), frametime, screensize);
-        processFireToFBO(fbo_entities.at("rect"), anim, body_entities, shlib, frame_buffers.at("fb"), frame_buffers.at("fbbut"), frametime, screensize);
-    }
+    //need to create a new entity and program and swap it for this one
+    processDepthtoScreen(depth_image, fbo_entities.at("post_proc_rect"), shlib, screensize);
 
-    bool black = false;
-    if (time_since_last_body_tracked > 1.0)
-        black = true;
-    //processFBOtoScreen(fbo_entities.at("post_proc_rect"), frame_buffers.at("fbbut"), shlib, screensize, black);
+                              /*  if (bodytracked > 0)
+                                {
+                                    processBodyToFBO(scene, body_entities, shlib, frame_buffers.at("fbbut"), frametime, screensize);
+                                    processFireToFBO(fbo_entities.at("rect"), anim, body_entities, shlib, frame_buffers.at("fb"), frame_buffers.at("fbbut"), frametime, screensize);
+                                }
+
+                                bool black = false;
+                                if (time_since_last_body_tracked > 1.0)
+                                    black = true;*/
+                                //processFBOtoScreen(fbo_entities.at("post_proc_rect"), frame_buffers.at("fb"), shlib, screensize, black);
+
+
 }
 
-//void RenderSystem::processEntity(SceneComponent& scene, const MVPset& MVP, Entity* entity, Program* shader)
-//{
-//}
