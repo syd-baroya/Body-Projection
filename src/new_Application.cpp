@@ -58,28 +58,8 @@ void Application::run()
 		else
 			time_since_last_body_tracked += frametime;
 
-		uint8_t* depth_data = kinect_system.getDepthImage();
-		ivec2 depth_dimensions = kinect_system.getDepthImageDim();
 
-		if (depth_image_texture == NULL)
-		{
-			depth_image_texture = new TextureBuffer(GL_DYNAMIC_DRAW);
-			depth_image_texture->bind();
-			depth_image_texture->bufferData(1, GL_R8UI, sizeof(uint8_t) * depth_dimensions.x * depth_dimensions.y, depth_data);
-			depth_image_texture->genTexture();
-			depth_image_texture->bindTexture();
-			depth_image_texture->texBuffer();
-		}
-		else {
-			depth_image_texture->bind();
-			depth_image_texture->bufferSubData(1, GL_R8UI, 0, sizeof(uint8_t) * depth_dimensions.x * depth_dimensions.y, depth_data);
-			depth_image_texture->bindTexture();
-			depth_image_texture->texBuffer();
-		}
-
-		
-
-		render_system.process(scene_comps.at(active_scene), &anim_comps.at(active_anim), body_entities, fbo_entities, frame_buffers, getCurrScreenSize(), frametime, time_since_last_body_tracked, bodytracked, depth_image_texture);
+		render_system.process(scene_comps.at(active_scene), &anim_comps.at(active_anim), body_entities, fbo_entities, frame_buffers, getCurrScreenSize(), frametime, time_since_last_body_tracked, bodytracked);
 
 
 
