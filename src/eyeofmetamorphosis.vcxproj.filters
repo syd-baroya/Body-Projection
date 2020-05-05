@@ -16,9 +16,6 @@
     <ClCompile Include="MatrixStack.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="new_body.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="Program.cpp">
       <Filter>Source</Filter>
     </ClCompile>
@@ -79,6 +76,21 @@
     <ClCompile Include="main.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="WindowController.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="PointCloudRenderer.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="RendererBase.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ViewControl.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilties.cpp">
+      <Filter>helpers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="helper_includes\BodyTrackingHelpers.h">
@@ -97,9 +109,6 @@
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="MatrixStack.h">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="new_body.h">
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="Program.h">
@@ -180,6 +189,30 @@
     <ClInclude Include="DrawableComponent.h">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="linmath.h">
+      <Filter>helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowController.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="PointCloudRenderer.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="RendererBase.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="PointCloudShaders.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="GlShaderDefs.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ViewControl.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="App3DTypes.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ext">
@@ -248,6 +281,8 @@
     <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />
     <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />
     <None Include="dnn_model_2_0.onnx" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\resources\shaders.txt">

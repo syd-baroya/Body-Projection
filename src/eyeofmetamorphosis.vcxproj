@@ -33,20 +33,25 @@
     <ClCompile Include="old_main.cpp" />
     <ClCompile Include="MatrixStack.cpp" />
     <ClCompile Include="new_Application.cpp" />
-    <ClCompile Include="new_body.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="PointCloudRenderer.cpp" />
     <ClCompile Include="Program.cpp" />
     <ClCompile Include="Renderbuffer.cpp" />
+    <ClCompile Include="RendererBase.cpp" />
     <ClCompile Include="RenderSystem.cpp" />
     <ClCompile Include="SceneComponent.cpp" />
     <ClCompile Include="ShaderLibrary.cpp" />
     <ClCompile Include="Shape.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="TrackedBodyEntity.cpp" />
+    <ClCompile Include="Utilties.cpp" />
     <ClCompile Include="VertexArrayObject.cpp" />
+    <ClCompile Include="ViewControl.cpp" />
+    <ClCompile Include="WindowController.cpp" />
     <ClCompile Include="WindowManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="App3DTypes.h" />
     <ClInclude Include="AnimationComponent.h" />
     <ClInclude Include="AnimationSystem.h" />
     <ClInclude Include="Application.h" />
@@ -58,16 +63,20 @@
     <ClInclude Include="Entity.h" />
     <ClInclude Include="Framebuffer.h" />
     <ClInclude Include="GeometryComponent.h" />
+    <ClInclude Include="GlShaderDefs.h" />
     <ClInclude Include="GLSL.h" />
     <ClInclude Include="HelperFunctions.h" />
     <ClInclude Include="helper_includes\BodyTrackingHelpers.h" />
     <ClInclude Include="helper_includes\Utilities.h" />
     <ClInclude Include="KinectSystem.h" />
+    <ClInclude Include="linmath.h" />
     <ClInclude Include="MatrixStack.h" />
     <ClInclude Include="new_Application.h" />
-    <ClInclude Include="new_body.h" />
+    <ClInclude Include="PointCloudRenderer.h" />
+    <ClInclude Include="PointCloudShaders.h" />
     <ClInclude Include="Program.h" />
     <ClInclude Include="Renderbuffer.h" />
+    <ClInclude Include="RendererBase.h" />
     <ClInclude Include="RenderSystem.h" />
     <ClInclude Include="SceneComponent.h" />
     <ClInclude Include="ShaderLibrary.hpp" />
@@ -79,6 +88,8 @@
     <ClInclude Include="tiny_obj_loader.h" />
     <ClInclude Include="TrackedBodyEntity.h" />
     <ClInclude Include="VertexArrayObject.h" />
+    <ClInclude Include="ViewControl.h" />
+    <ClInclude Include="WindowController.h" />
     <ClInclude Include="WindowManager.h" />
   </ItemGroup>
   <ItemGroup>
@@ -168,6 +179,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(GLM_DIR);$(GLFW_DIR);$(PROJECT_DIR)\src\helper_includes;$(PROJECT_DIR)\ext\glad\include;$(PROJECT_DIR)\packages\$(CURR_MAK_SENSOR)$(PACK_BUILD_PATH);$(PROJECT_DIR)\packages\$(CURR_MAK_BT)$(PACK_BUILD_PATH);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>glfw3.lib;k4a.lib;k4abt.lib;%(AdditionalDependencies)</AdditionalDependencies>

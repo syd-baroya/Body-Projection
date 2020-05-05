@@ -9,26 +9,26 @@ static void resize_callback(GLFWwindow* window, int in_width, int in_height) { }
 
 void Application::init(int argc, char** argv)
 {
-	config.startup_state = StartupState(argc, argv);
-	initGLFW();
-	initGL();
-	initShaders();
-	initScene();
-	initProgs();
-	initGeom();
+	//config.startup_state = StartupState(argc, argv);
+	//initGLFW();
+	//initGL();
+	//initShaders();
+	//initScene();
+	//initProgs();
+	//initGeom();
 }
 
 void Application::run()
 {
-	RenderSystem& render_system = RenderSystem::getInstance();
+	//RenderSystem& render_system = RenderSystem::getInstance();
 
-	KinectSystem& kinect_system = KinectSystem::getInstance();
 
 	Time globalTime;
 
 
-	kinect_system.InitializeDefaultSensor();
-	render_system.init(_window);
+	kinect_system.init();
+	kinect_system.initDevice(window3d);
+	//render_system.init(_window);
 
 	//std::vector<Entity*> new_entities(entities);
 
@@ -41,46 +41,38 @@ void Application::run()
 
 	// Loop until the user closes the window.
 
-	while (!glfwWindowShouldClose(_window))
+	while (!glfwWindowShouldClose(window3d.m_window3d.m_window))
 
 	{
 		frametime = globalTime.getElapsedTime();
 		//active_scene = rand() % scene_comps.size();
 		//active_anim = rand() % anim_comps.size();
 
-		TrackedBodyEntity* tb = body_entities.at(0);
+		//TrackedBodyEntity* tb = body_entities.at(0);
 
-		int bodytracked = kinect_system.process(frametime, tb);
+		kinect_system.processFromDevice(this->window3d);
 
-		if (bodytracked > 0)
+	/*	if (bodytracked > 0)
 			time_since_last_body_tracked = 0;
 
 		else
 			time_since_last_body_tracked += frametime;
 
 
-		render_system.process(scene_comps.at(active_scene), &anim_comps.at(active_anim), body_entities, fbo_entities, frame_buffers, getCurrScreenSize(), frametime, time_since_last_body_tracked, bodytracked);
+		render_system.process(scene_comps.at(active_scene), &anim_comps.at(active_anim), body_entities, fbo_entities, frame_buffers, getCurrScreenSize(), frametime, time_since_last_body_tracked, bodytracked);*/
 
-
-
-		// Swap front and back buffers.
-
-		glfwSwapBuffers(_window);
-
-		// Poll for and process events.
-
-		glfwPollEvents();
+		/*window3d.SetLayout3d(s_layoutMode);
+		window3d.SetJointFrameVisualization(s_visualizeJointFrame);*/
+		window3d.Render();
 
 	}
 }
 
 void Application::cleanup()
 {
-	KinectSystem& kinect_system = KinectSystem::getInstance();
-	kinect_system.CloseSensor();
-	glfwHideWindow(_window);
-	glfwDestroyWindow(_window);
-	glfwTerminate();
+	window3d.Delete();
+	kinect_system.shutdown();
+	//glfwTerminate();
 }
 
 bool Application::shouldExit() const

@@ -8,26 +8,20 @@
 
 #define GLFW_INCLUDE_NONE
 
-#include <GLFW/glfw3.h>
-
 #include <glm/glm.hpp>
-
-#include <vector>
 
 #include <string>
 
-#include <array>
-
-#include "Shape.h"
+//#include "Shape.h"
 
 #include "RenderSystem.h"
 
-#include "CameraEntity.h"
+//#include "CameraEntity.h"
 
 #include <iostream>
 #include "Time.h"
 #include "KinectSystem.h"
-#include "Framebuffer.h"
+//#include "Framebuffer.h"
 
 /**
 
@@ -83,7 +77,7 @@ public:
 
     void operator=(Application const&) = delete;
 
-    CameraEntity camera;
+    //CameraEntity camera;
 
 protected:
 
@@ -121,8 +115,12 @@ protected:
     GLFWmonitor* _monitor = nullptr;
 
 private:
+
     ShaderLibrary& shlib = ShaderLibrary::getInstance();
     bool fullscreen_mode = false;
+    // Initialize the 3d window controller
+    WindowManager window3d;
+    KinectSystem& kinect_system = KinectSystem::getInstance();
 
 };
 

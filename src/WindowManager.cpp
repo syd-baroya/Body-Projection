@@ -1,148 +1,353 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
 
 #include "WindowManager.h"
-#include "GLSL.h"
-
-#include <iostream>
 
 
-void error_callback(int error, const char *description)
+
+const float MillimeterToMeter = 0.001f;
+
+void ConvertMillimeterToMeter(k4a_float3_t positionInMM, linmath::vec3 outPositionInMeter)
 {
-	std::cerr << description << std::endl;
-}
-
-WindowManager * WindowManager::instance = nullptr;
-
-WindowManager::WindowManager()
-{
-	if (instance)
-	{
-		std::cerr << "One instance of WindowManager has already been created, event callbacks of new instance will not work." << std::endl;
-	}
-
-	instance = this;
+    outPositionInMeter[0] = positionInMM.v[0] * MillimeterToMeter;
+    outPositionInMeter[1] = positionInMM.v[1] * MillimeterToMeter;
+    outPositionInMeter[2] = positionInMM.v[2] * MillimeterToMeter;
 }
 
 WindowManager::~WindowManager()
 {
-	if (instance == this)
-	{
-		instance = nullptr;
-	}
+    Delete();
 }
-bool WindowManager::IsFullscreen()
-	{
-	return glfwGetWindowMonitor(windowHandle) != nullptr;
-	}
-void WindowManager::SetFullScreen(bool fullscreen)
-	{
-	if (fullscreen_mode == fullscreen)
-		return;
 
-	if (fullscreen)
-		{
-		// backup windwo position and window size
-		glfwGetWindowPos(windowHandle, &_wndPos[0], &_wndPos[1]);
-		glfwGetWindowSize(windowHandle, &_wndSize[0], &_wndSize[1]);
-
-		// get reolution of monitor
-		const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-
-		// swithc to full screen
-		glfwSetWindowMonitor(windowHandle, _monitor, 0, 0, mode->width, mode->height, 0);
-		fullscreen_mode = true;
-		}
-	else
-		{
-		// restore last window size and position
-		glfwSetWindowMonitor(windowHandle, nullptr, _wndPos[0], _wndPos[1], _wndSize[0], _wndSize[1], 0);
-		fullscreen_mode = false;
-		}
-
-
-	}
-bool WindowManager::init(int const width, int const height)
+void WindowManager::Create(
+    const char* name,
+    k4a_depth_mode_t depthMode,
+    int windowWidth,
+    int windowHeight)
 {
-	glfwSetErrorCallback(error_callback);
+    m_window3d.Create(name, true, windowWidth, windowHeight);
+    m_window3d.SetMirrorMode(true);
 
-	// Initialize glfw library
-	if (!glfwInit())
-	{
-		return false;
-	}
-
-	//request the highest possible version of OGL - important for mac
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-
-	// Create a windowed mode window and its OpenGL context.
-	windowHandle = glfwCreateWindow(width, height, "eye of metamorphosis", nullptr, nullptr);
-	if (! windowHandle)
-	{
-		glfwTerminate();
-		return false;
-	}
-
-	glfwMakeContextCurrent(windowHandle);
-
-	// Initialize GLAD
-	if (!gladLoadGL())
-	{
-		std::cerr << "Failed to initialize GLAD" << std::endl;
-		return false;
-	}
-
-	std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
-	std::cout << "GLSL version: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
-
-	// Set vsync
-	glfwSwapInterval(1);
-
-	glfwSetKeyCallback(windowHandle, key_callback);
-	glfwSetMouseButtonCallback(windowHandle, mouse_callback);
-	glfwSetFramebufferSizeCallback(windowHandle, resize_callback);
-
-	return true;
+    switch (depthMode)
+    {
+    case K4A_DEPTH_MODE_WFOV_UNBINNED:
+    case K4A_DEPTH_MODE_WFOV_2X2BINNED:
+        m_window3d.SetDefaultVerticalFOV(120.0f);
+        break;
+    case K4A_DEPTH_MODE_NFOV_2X2BINNED:
+    case K4A_DEPTH_MODE_NFOV_UNBINNED:
+    default:
+        m_window3d.SetDefaultVerticalFOV(65.0f);
+        break;
+    }
 }
 
-void WindowManager::shutdown()
+void WindowManager::Create(
+    const char* name,
+    const k4a_calibration_t& sensorCalibration)
 {
-	glfwHideWindow(windowHandle);
-	glfwDestroyWindow(windowHandle);
-	glfwTerminate();
+    Create(name, sensorCalibration.depth_mode);
+    InitializeCalibration(sensorCalibration);
 }
 
-void WindowManager::setEventCallbacks(EventCallbacks * callbacks_in)
+//void WindowManager::SetCloseCallback(
+//    Visualization::CloseCallbackType closeCallback,
+//    void* closeCallbackContext)
+//{
+//    m_window3d.SetCloseCallback(closeCallback, closeCallbackContext);
+//}
+//
+//void WindowManager::SetKeyCallback(
+//    Visualization::KeyCallbackType keyCallback,
+//    void* keyCallbackContext)
+//{
+//    m_window3d.SetKeyCallback(keyCallback, keyCallbackContext);
+//}
+
+void WindowManager::Delete()
 {
-	callbacks = callbacks_in;
+    m_window3d.Delete();
+
+    if (m_transformationHandle != nullptr)
+    {
+        k4a_transformation_destroy(m_transformationHandle);
+        m_transformationHandle = nullptr;
+    }
+
+    if (m_pointCloudImage != nullptr)
+    {
+        k4a_image_release(m_pointCloudImage);
+        m_pointCloudImage = nullptr;
+    }
 }
 
-GLFWwindow * WindowManager::getHandle()
+void WindowManager::UpdatePointClouds(k4a_image_t depthImage, std::vector<Color> pointCloudColors)
 {
-	return windowHandle;
+    m_pointCloudUpdated = true;
+    VERIFY(k4a_transformation_depth_image_to_point_cloud(m_transformationHandle,
+        depthImage,
+        K4A_CALIBRATION_TYPE_DEPTH,
+        m_pointCloudImage), "Transform depth image to point clouds failed!");
+
+    int width = k4a_image_get_width_pixels(m_pointCloudImage);
+    int height = k4a_image_get_height_pixels(m_pointCloudImage);
+
+    int16_t* pointCloudImageBuffer = (int16_t*)k4a_image_get_buffer(m_pointCloudImage);
+
+    for (int h = 0; h < height; h++)
+    {
+        for (int w = 0; w < width; w++)
+        {
+            int pixelIndex = h * width + w;
+            k4a_float3_t position = {
+                static_cast<float>(pointCloudImageBuffer[3 * pixelIndex + 0]),
+                static_cast<float>(pointCloudImageBuffer[3 * pixelIndex + 1]),
+                static_cast<float>(pointCloudImageBuffer[3 * pixelIndex + 2]) };
+
+            // When the point cloud is invalid, the z-depth value is 0.
+            if (position.v[2] == 0)
+            {
+                continue;
+            }
+
+            linmath::vec4 color = { 0.8f, 0.8f, 0.8f, 0.6f };
+            linmath::ivec2 pixelLocation = { w, h };
+
+            if (pointCloudColors.size() > 0)
+            {
+                BlendBodyColor(color, pointCloudColors[pixelIndex]);
+            }
+
+            linmath::vec3 positionInMeter;
+            ConvertMillimeterToMeter(position, positionInMeter);
+            Visualization::PointCloudVertex pointCloud;
+            linmath::vec3_copy(pointCloud.Position, positionInMeter);
+            linmath::vec4_copy(pointCloud.Color, color);
+            pointCloud.PixelLocation[0] = pixelLocation[0];
+            pointCloud.PixelLocation[1] = pixelLocation[1];
+
+            m_pointClouds.push_back(pointCloud);
+        }
+    }
+
+    UpdateDepthBuffer(depthImage);
 }
 
-void WindowManager::key_callback(GLFWwindow * window, int key, int scancode, int action, int mods)
+void WindowManager::CleanJointsAndBones()
 {
-	if (instance && instance->callbacks)
-	{
-		instance->callbacks->keyCallback(window, key, scancode, action, mods);
-	}
+    m_window3d.CleanJointsAndBones();
 }
 
-void WindowManager::mouse_callback(GLFWwindow * window, int button, int action, int mods)
+void WindowManager::AddJoint(k4a_float3_t position, k4a_quaternion_t orientation, Color color)
 {
-	if (instance && instance->callbacks)
-	{
-		instance->callbacks->mouseCallback(window, button, action, mods);
-	}
+    linmath::vec3 jointPositionInMeter;
+    ConvertMillimeterToMeter(position, jointPositionInMeter);
+    m_window3d.AddJoint({
+        {jointPositionInMeter[0], jointPositionInMeter[1], jointPositionInMeter[2]},
+        {orientation.v[0], orientation.v[1], orientation.v[2], orientation.v[3]},
+        {color.r, color.g, color.b, color.a} });
 }
 
-void WindowManager::resize_callback(GLFWwindow * window, int in_width, int in_height)
+void WindowManager::AddBone(k4a_float3_t joint1Position, k4a_float3_t joint2Position, Color color)
 {
-	if (instance && instance->callbacks)
-	{
-		instance->callbacks->resizeCallback(window, in_width, in_height);
-	}
+    linmath::vec3 joint1PositionInMeter;
+    ConvertMillimeterToMeter(joint1Position, joint1PositionInMeter);
+    linmath::vec3 joint2PositionInMeter;
+    ConvertMillimeterToMeter(joint2Position, joint2PositionInMeter);
+    Visualization::Bone bone;
+    linmath::vec4_copy(bone.Joint1Position, joint1PositionInMeter);
+    linmath::vec4_copy(bone.Joint2Position, joint2PositionInMeter);
+    bone.Color[0] = color.r;
+    bone.Color[1] = color.g;
+    bone.Color[2] = color.b;
+    bone.Color[3] = color.a;
+
+    m_window3d.AddBone(bone);
 }
+
+void WindowManager::AddBody(const k4abt_body_t& body, Color color)
+{
+    Color lowConfidenceColor = color;
+    lowConfidenceColor.a = color.a / 4;
+
+    for (int joint = 0; joint < static_cast<int>(K4ABT_JOINT_COUNT); joint++)
+    {
+        if (body.skeleton.joints[joint].confidence_level >= K4ABT_JOINT_CONFIDENCE_LOW)
+        {
+            const k4a_float3_t& jointPosition = body.skeleton.joints[joint].position;
+            const k4a_quaternion_t& jointOrientation = body.skeleton.joints[joint].orientation;
+
+            AddJoint(
+                jointPosition,
+                jointOrientation,
+                body.skeleton.joints[joint].confidence_level >= K4ABT_JOINT_CONFIDENCE_MEDIUM ? color : lowConfidenceColor);
+        }
+    }
+
+    for (size_t boneIdx = 0; boneIdx < g_boneList.size(); boneIdx++)
+    {
+        k4abt_joint_id_t joint1 = g_boneList[boneIdx].first;
+        k4abt_joint_id_t joint2 = g_boneList[boneIdx].second;
+
+        if (body.skeleton.joints[joint1].confidence_level >= K4ABT_JOINT_CONFIDENCE_LOW &&
+            body.skeleton.joints[joint2].confidence_level >= K4ABT_JOINT_CONFIDENCE_LOW)
+        {
+            bool confidentBone = body.skeleton.joints[joint1].confidence_level >= K4ABT_JOINT_CONFIDENCE_MEDIUM &&
+                body.skeleton.joints[joint2].confidence_level >= K4ABT_JOINT_CONFIDENCE_MEDIUM;
+            const k4a_float3_t& joint1Position = body.skeleton.joints[joint1].position;
+            const k4a_float3_t& joint2Position = body.skeleton.joints[joint2].position;
+
+            AddBone(joint1Position, joint2Position, confidentBone ? color : lowConfidenceColor);
+        }
+    }
+}
+
+void WindowManager::Render()
+{
+    if (m_pointCloudUpdated || m_pointClouds.size() != 0)
+    {
+        m_window3d.UpdatePointClouds(m_pointClouds.data(), (uint32_t)m_pointClouds.size(), m_depthBuffer.data(), m_depthWidth, m_depthHeight);
+        m_pointClouds.clear();
+        m_pointCloudUpdated = false;
+    }
+
+    m_window3d.Render();
+}
+
+void WindowManager::SetWindowPosition(int xPos, int yPos)
+{
+    m_window3d.SetWindowPosition(xPos, yPos);
+}
+
+
+void WindowManager::SetLayout3d(Visualization::Layout3d layout3d)
+{
+    m_window3d.SetLayout3d(layout3d);
+}
+
+void WindowManager::SetJointFrameVisualization(bool enableJointFrameVisualization)
+{
+    Visualization::SkeletonRenderMode skeletonRenderMode = enableJointFrameVisualization ?
+        Visualization::SkeletonRenderMode::SkeletonOverlayWithJointFrame : Visualization::SkeletonRenderMode::SkeletonOverlay;
+
+    m_window3d.SetSkeletonRenderMode(skeletonRenderMode);
+}
+
+void WindowManager::SetFloorRendering(bool enableFloorRendering, float floorPositionX, float floorPositionY, float floorPositionZ)
+{
+    linmath::vec3 position = { floorPositionX, floorPositionY, floorPositionZ };
+    m_window3d.SetFloorRendering(enableFloorRendering, position, { 1.f, 0.f, 0.f, 0.f });
+}
+
+void WindowManager::SetFloorRendering(bool enableFloorRendering, float floorPositionX, float floorPositionY, float floorPositionZ, float normalX, float normalY, float normalZ)
+{
+    linmath::vec3 position = { floorPositionX, floorPositionY, floorPositionZ };
+    linmath::vec3 n = { normalX , normalY , normalZ };
+    linmath::vec3_norm(n, n);
+    linmath::vec3 up = { 0, -1, 0 };
+
+    linmath::vec3 ax;
+    linmath::vec3_mul_cross(ax, up, n);
+    linmath::vec3_norm(ax, ax);
+
+    float ang = acos(linmath::vec3_mul_inner(up, n));
+    float hs = sin(ang / 2);
+    linmath::quaternion q = { cos(ang / 2), hs * ax[0], hs * ax[1], hs * ax[2] };
+    m_window3d.SetFloorRendering(enableFloorRendering, position, q);
+}
+
+void WindowManager::InitializeCalibration(const k4a_calibration_t& sensorCalibration)
+{
+
+    m_depthWidth = static_cast<uint32_t>(sensorCalibration.depth_camera_calibration.resolution_width);
+    m_depthHeight = static_cast<uint32_t>(sensorCalibration.depth_camera_calibration.resolution_height);
+
+    // Cache the 2D to 3D unprojection table
+    EXIT_IF(!CreateXYDepthTable(sensorCalibration), "Create XY Depth Table failed!");
+    m_window3d.InitializePointCloudRenderer(
+        true,   // Enable point cloud shading for better visualization effect
+        reinterpret_cast<float*>(m_xyDepthTable.data()),
+        m_depthWidth,
+        m_depthHeight);
+
+    // Create transformation handle
+    if (m_transformationHandle == nullptr)
+    {
+        m_transformationHandle = k4a_transformation_create(&sensorCalibration);
+
+        if (m_pointCloudImage == nullptr)
+        {
+            VERIFY(k4a_image_create(K4A_IMAGE_FORMAT_CUSTOM,
+                m_depthWidth,
+                m_depthHeight,
+                m_depthWidth * 3 * (int)sizeof(int16_t),
+                &m_pointCloudImage), "Create Point Cloud Image failed!");
+        }
+    }
+}
+
+void WindowManager::BlendBodyColor(linmath::vec4 color, Color bodyColor)
+{
+    float darkenRatio = 0.8f;
+    float instanceAlpha = 0.8f;
+
+    color[0] = bodyColor.r * instanceAlpha + color[0] * darkenRatio;
+    color[1] = bodyColor.g * instanceAlpha + color[1] * darkenRatio;
+    color[2] = bodyColor.b * instanceAlpha + color[2] * darkenRatio;
+}
+
+void WindowManager::UpdateDepthBuffer(k4a_image_t depthFrame)
+{
+    int width = k4a_image_get_width_pixels(depthFrame);
+    int height = k4a_image_get_height_pixels(depthFrame);
+    uint16_t* depthFrameBuffer = (uint16_t*)k4a_image_get_buffer(depthFrame);
+    m_depthBuffer.assign(depthFrameBuffer, depthFrameBuffer + width * height);
+}
+
+bool WindowManager::CreateXYDepthTable(const k4a_calibration_t& sensorCalibration)
+{
+    int width = sensorCalibration.depth_camera_calibration.resolution_width;
+    int height = sensorCalibration.depth_camera_calibration.resolution_height;
+
+    m_xyDepthTable.resize(width * height);
+
+    auto xyTablePtr = m_xyDepthTable.begin();
+
+    k4a_float3_t pt3;
+    for (int h = 0; h < height; h++)
+    {
+        for (int w = 0; w < width; w++)
+        {
+            k4a_float2_t pt = { static_cast<float>(w), static_cast<float>(h) };
+            int valid = 0;
+            k4a_result_t result = k4a_calibration_2d_to_3d(&sensorCalibration,
+                &pt,
+                1.f,
+                K4A_CALIBRATION_TYPE_DEPTH,
+                K4A_CALIBRATION_TYPE_DEPTH,
+                &pt3,
+                &valid);
+            if (result != K4A_RESULT_SUCCEEDED)
+            {
+                return false;
+            }
+
+            if (valid == 0)
+            {
+                // Set the invalid xy table to be (0, 0)
+                xyTablePtr->x = 0.f;
+                xyTablePtr->y = 0.f;
+            }
+            else
+            {
+                xyTablePtr->x = pt3.xyz.x;
+                xyTablePtr->y = pt3.xyz.y;
+            }
+
+            ++xyTablePtr;
+        }
+    }
+
+    return true;
+}
+

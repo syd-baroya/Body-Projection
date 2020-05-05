@@ -1,90 +1,93 @@
-/*
- * Window Management helpers
- *
- * This class contains most of the GLFW3 code necessary to interface with the
- * operating system. Tasks include creating a window and handling event
- * callback, though GLFW3 is capable of more.
- *
- * You don't really need to worry about this file or WindowManager.cpp.
- *
- * Once you become more comfortable with C++ and would like to expand the
- * functionality of your application, there are a few things you might be
- * able to add or change here.
- *
- * Written by Ian Dunn, 9/24/2017
- */
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
 
-#pragma  once
+#pragma once
+#ifndef WINDOW_MANAGER_H
+#define WINDOW_MANAGER_H
 
-#ifndef LAB471_WINDOW_H_INCLUDED
-#define LAB471_WINDOW_H_INCLUDED
+#include "BodyTrackingHelpers.h"
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include "WindowController.h"
+#include <k4a/k4a.h>
 
-
-#include <array>
-#include <stdexcept>
-// This interface let's us write our own class that can be notified by input
-// events, such as key presses and mouse movement.
-class EventCallbacks
-{
-
-public:
-
-
-	virtual void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods) = 0;
-
-	virtual void mouseCallback(GLFWwindow *window, int button, int action, int mods) = 0;
-
-	virtual void resizeCallback(GLFWwindow *window, int in_width, int in_height) = 0;
-
-};
-
-// This class is responsible for all window management code, i.e. GLFW3 code
-// You shouldn't have to touch this code for any of the early lab assignments
+// This is a wrapper library that convert the types from the k4abt types to the window3d visualization library types
 class WindowManager
 {
-
 public:
+    ~WindowManager();
 
-	WindowManager();
-	~WindowManager();
-	bool IsFullscreen();
-	void SetFullScreen(bool fullscreen);
-	std::array< int, 2 > _wndPos{ 0, 0 };
-	std::array< int, 2 > _wndSize{ 0, 0 };
-	// Go ahead and ignore these two lines :-) for now
-	WindowManager(const WindowManager&) = delete;
-	WindowManager& operator= (const WindowManager&) = delete;
+    // Create Window3d wrapper without point cloud shading
+    void Create(
+        const char* name,
+        k4a_depth_mode_t depthMode,
+        int windowWidth = -1,
+        int windowHeight = -1);
 
-	bool init(int const width, int const height);
-	void shutdown();
+    // Create Window3d wrapper with point cloud shading
+    void Create(
+        const char* name,
+        const k4a_calibration_t& sensorCalibration);
 
-	void setEventCallbacks(EventCallbacks *callbacks);
+    //void SetCloseCallback(
+    //    Visualization::CloseCallbackType closeCallback,
+    //    void* closeCallbackContext = nullptr);
 
-	GLFWwindow *getHandle();
+    //void SetKeyCallback(
+    //    Visualization::KeyCallbackType keyCallback,
+    //    void* keyCallbackContext = nullptr);
 
-protected:
+    void Delete();
 
-	// This class implements the singleton design pattern
-	static WindowManager * instance;
-	GLFWmonitor* _monitor = nullptr;
-	GLFWwindow *windowHandle = nullptr;
-	EventCallbacks *callbacks = nullptr;
+    void UpdatePointClouds(k4a_image_t depthImage, std::vector<Color> pointCloudColors = std::vector<Color>());
+
+    void CleanJointsAndBones();
+
+    void AddJoint(k4a_float3_t position, k4a_quaternion_t orientation, Color color);
+
+    void AddBone(k4a_float3_t joint1Position, k4a_float3_t joint2Position, Color color);
+
+    // Helper function to directly add the whole body for rendering instead of adding separate joints and bones
+    void AddBody(const k4abt_body_t& body, Color color);
+
+    void Render();
+
+    // Window Configuration Functions
+    void SetFloorRendering(bool enableFloorRendering, float floorPositionX, float floorPositionY, float floorPositionZ);
+    void SetFloorRendering(bool enableFloorRendering, float floorPositionX, float floorPositionY, float floorPositionZ, float normalX, float normalY, float normalZ);
+
+    void SetWindowPosition(int xPos, int yPos);
+
+    // Render Setting Functions
+    void SetLayout3d(Visualization::Layout3d layout3d);
+    void SetJointFrameVisualization(bool enableJointFrameVisualization);
+    Visualization::WindowController m_window3d;
+
 
 private:
-	bool fullscreen_mode = false;
-	// What are these?!
-	//
-	// GLFW3 expects C-style callbacks, but we want to be able to use C++-style
-	// callbacks so that we can avoid global variables.
-	//
-	// This is a common trick or `idiom` that makes it possible
-	static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
-	static void mouse_callback(GLFWwindow *window, int button, int action, int mods);
-	static void resize_callback(GLFWwindow *window, int in_width, int in_height);
+    void InitializeCalibration(const k4a_calibration_t& sensorCalibration);
 
+    void BlendBodyColor(linmath::vec4 color, Color bodyColor);
+
+    void UpdateDepthBuffer(k4a_image_t depthImage);
+
+    bool CreateXYDepthTable(const k4a_calibration_t& sensorCalibration);
+
+private:
+
+    bool m_pointCloudUpdated = false;
+    std::vector<uint16_t> m_depthBuffer;
+    std::vector<Visualization::PointCloudVertex> m_pointClouds;
+
+    struct XY
+    {
+        float x;
+        float y;
+    };
+    std::vector<XY> m_xyDepthTable;
+    uint32_t m_depthWidth = 0;
+    uint32_t m_depthHeight = 0;
+    k4a_transformation_t m_transformationHandle = nullptr;
+    k4a_image_t m_pointCloudImage = nullptr;
 };
 
 #endif
