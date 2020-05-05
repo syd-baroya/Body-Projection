@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 #include "WindowManager.h"
+#include <iostream>
 
 
 
@@ -110,7 +111,7 @@ void WindowManager::UpdatePointClouds(k4a_image_t depthImage, std::vector<Color>
                 continue;
             }
 
-            linmath::vec4 color = { 0.8f, 0.8f, 0.8f, 0.6f };
+            linmath::vec4 color = { 1.f, 1.f, 1.f, 1.0f };
             linmath::ivec2 pixelLocation = { w, h };
 
             if (pointCloudColors.size() > 0)
@@ -291,9 +292,9 @@ void WindowManager::BlendBodyColor(linmath::vec4 color, Color bodyColor)
     float darkenRatio = 0.8f;
     float instanceAlpha = 0.8f;
 
-    color[0] = bodyColor.r * instanceAlpha + color[0] * darkenRatio;
-    color[1] = bodyColor.g * instanceAlpha + color[1] * darkenRatio;
-    color[2] = bodyColor.b * instanceAlpha + color[2] * darkenRatio;
+    color[0] = bodyColor.r * instanceAlpha;// +color[0] * darkenRatio;
+    color[1] = bodyColor.g * instanceAlpha;// + color[1] * darkenRatio;
+    color[2] = bodyColor.b * instanceAlpha;// + color[2] * darkenRatio;
 }
 
 void WindowManager::UpdateDepthBuffer(k4a_image_t depthFrame)

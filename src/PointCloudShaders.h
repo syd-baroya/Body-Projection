@@ -64,30 +64,30 @@ void main()
 {
     gl_Position = projection * view * vec4(vertexPosition, 1);
 
-    if (enableShading)
-    {
-        const vec3 lightPosition = vec3(0, 0, 0);
-        vec3 vertexNormal = ComputeNormal(pixelLocation);
-        float diffuse = 0.f;
-        if (dot(vertexNormal, vertexNormal) != 0.f)
-        {
-            vec3 lightDirection = normalize(lightPosition - vertexPosition);
-            // Use mix function to reduce the strength of the diffuse effect
-            float defuseRatio = 0.7f;
-            diffuse = mix(1.0f, abs(dot(normalize(vertexNormal), lightDirection)), defuseRatio);
-        }
+    //if (enableShading)
+    //{
+    //    const vec3 lightPosition = vec3(0, 0, 0);
+    //    vec3 vertexNormal = ComputeNormal(pixelLocation);
+    //    float diffuse = 0.f;
+    //    if (dot(vertexNormal, vertexNormal) != 0.f)
+    //    {
+    //        vec3 lightDirection = normalize(lightPosition - vertexPosition);
+    //        // Use mix function to reduce the strength of the diffuse effect
+    //        float defuseRatio = 0.7f;
+    //        diffuse = mix(1.0f, abs(dot(normalize(vertexNormal), lightDirection)), defuseRatio);
+    //    }
 
-        float distance = length(lightPosition - vertexPosition);
-        // Attenuation term for light source that covers distance up to 50 meters
-        // http://wiki.ogre3d.org/tiki-index.php?page=-Point+Light+Attenuation
-        float attenuation = 1.0 / (1.0 + 0.09 * distance + 0.032 * distance * distance);
+    //    float distance = length(lightPosition - vertexPosition);
+    //    // Attenuation term for light source that covers distance up to 50 meters
+    //    // http://wiki.ogre3d.org/tiki-index.php?page=-Point+Light+Attenuation
+    //    float attenuation = 1.0 / (1.0 + 0.09 * distance + 0.032 * distance * distance);
 
-        fragmentColor = vec4(attenuation * diffuse * vertexColor.rgb, vertexColor.a);
-    }
-    else
-    {
+    //    fragmentColor = vec4(attenuation * diffuse * vertexColor.rgb, vertexColor.a);
+    //}
+    //else
+    //{
         fragmentColor = vertexColor;
-    }
+    //}
 }
 
 );  // GLSL_STRING
