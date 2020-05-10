@@ -189,9 +189,6 @@
     <ClInclude Include="DrawableComponent.h">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="linmath.h">
-      <Filter>helpers</Filter>
-    </ClInclude>
     <ClInclude Include="WindowController.h">
       <Filter>Headers</Filter>
     </ClInclude>
@@ -283,6 +280,13 @@
     <None Include="dnn_model_2_0.onnx" />
     <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />
     <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />
+    <None Include="..\resources\point_cloud.frag">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="..\resources\point_cloud.vert">
+      <Filter>shader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\resources\shaders.txt">

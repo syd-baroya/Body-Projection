@@ -69,7 +69,6 @@
     <ClInclude Include="helper_includes\BodyTrackingHelpers.h" />
     <ClInclude Include="helper_includes\Utilities.h" />
     <ClInclude Include="KinectSystem.h" />
-    <ClInclude Include="linmath.h" />
     <ClInclude Include="MatrixStack.h" />
     <ClInclude Include="new_Application.h" />
     <ClInclude Include="PointCloudRenderer.h" />
@@ -98,6 +97,8 @@
     <None Include="..\resources\compute.glsl" />
     <None Include="..\resources\frag.glsl" />
     <None Include="..\resources\fragscreen.glsl" />
+    <None Include="..\resources\point_cloud.frag" />
+    <None Include="..\resources\point_cloud.vert" />
     <None Include="..\resources\shader_body.glsl" />
     <None Include="..\resources\shader_fragment.glsl" />
     <None Include="..\resources\shader_vertex.glsl" />

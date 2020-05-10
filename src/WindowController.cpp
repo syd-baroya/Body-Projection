@@ -533,10 +533,10 @@ void WindowController::ChangeCameraPivotPoint(ViewControl& viewControl, vec2 scr
     //const auto& joints = m_skeletonRenderer.GetJoints();
    /* for (auto j : joints)
     {
-        linmath::vec2 screen;
+        glm::vec2 screen;
         if (viewControl.ProjectToScreen(screen, j.Position))
         {
-            linmath::vec2 delta;
+            glm::vec2 delta;
             vec2_sub(delta, screenPos, screen);
             if (vec2_len(delta) < minDist)
             {

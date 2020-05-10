@@ -4,8 +4,8 @@
 #pragma once
 #ifndef RENDERER_BASE_H
 #define RENDERER_BASE_H
+#include "Program.h"
 #include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
 
 namespace Visualization
 {
@@ -20,8 +20,6 @@ namespace Visualization
             glm::mat4 view,
             glm::mat4 projection);
 
-        static void mat4_dup(glm::mat4 M, glm::mat4 N);
-
         virtual void Render() = 0;
 
     protected:
@@ -32,9 +30,13 @@ namespace Visualization
 
         // Basic OpenGL resources
         GLFWwindow* m_window;
-        GLuint m_shaderProgram;
-        GLuint m_vertexShader;
-        GLuint m_fragmentShader;
+        //GLuint m_shaderProgram;
+        //GLuint m_vertexShader;
+        //GLuint m_fragmentShader;
+
+        Program* VSFSProgram;
+        std::string vertShaderPath = "../resources/";
+        std::string fragShaderPath = "../resources/";
     };
 }
 #endif

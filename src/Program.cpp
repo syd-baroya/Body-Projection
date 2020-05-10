@@ -23,6 +23,13 @@ Program::Program() :
 {
 }
 
+void Program::Delete()
+{
+	glDeleteShader(VS);
+	glDeleteShader(FS);
+	glDeleteProgram(pid);
+}
+
 
 Program::Program(const std::string& vpath, const std::string& fpath)
 {
@@ -60,14 +67,20 @@ ComputeProgram::ComputeProgram(GLuint x, GLuint y, GLuint z, const std::string& 
 	buildSuccess = true;
 }
 
+void ComputeProgram::Delete()
+{
+	glDeleteShader(CS);
+	glDeleteProgram(pid);
+}
+
 
 bool Program::buildProgram(std::istream& vertex, std::istream& fragment)
 {
 	GLint rc;
 
 	// Create shader handles
-	GLuint VS = glCreateShader(GL_VERTEX_SHADER);
-	GLuint FS = glCreateShader(GL_FRAGMENT_SHADER);
+	VS = glCreateShader(GL_VERTEX_SHADER);
+	FS = glCreateShader(GL_FRAGMENT_SHADER);
 
 	// Read shader sources
 	std::string vShaderString = readFile(vertex);
@@ -105,7 +118,7 @@ bool ComputeProgram::buildProgram(std::istream& compute)
 	//load the compute shader
 	std::string cShaderString = readFile(compute);
 	const char* cshader = cShaderString.c_str();
-	GLuint CS = glCreateShader(GL_COMPUTE_SHADER);
+	CS = glCreateShader(GL_COMPUTE_SHADER);
 	glShaderSource(CS, 1, &cshader, nullptr);
 
 	if (!GLSL::compileAndCheck(CS, verbose)) {

@@ -24,6 +24,9 @@ PointCloudRenderer::PointCloudRenderer()
 {
     m_view = mat4(1);
     m_projection = mat4(1);
+
+    vertShaderPath += "point_cloud.vert";
+    fragShaderPath += "point_cloud.frag";
 }
 
 PointCloudRenderer::~PointCloudRenderer()
@@ -42,7 +45,9 @@ void PointCloudRenderer::Create(GLFWwindow* window)
     // Context Settings
     glEnable(GL_PROGRAM_POINT_SIZE);
 
-    m_vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    VSFSProgram = new Program(vertShaderPath, fragShaderPath);
+
+   /* m_vertexShader = glCreateShader(GL_VERTEX_SHADER);
     const GLchar* vertexShaderSources[] = { glslShaderVersion, glslPointCloudVertexShader };
     int numVertexShaderSources = sizeof(vertexShaderSources) / sizeof(*vertexShaderSources);
     glShaderSource(m_vertexShader, numVertexShaderSources, vertexShaderSources, NULL);
@@ -60,16 +65,16 @@ void PointCloudRenderer::Create(GLFWwindow* window)
     glAttachShader(m_shaderProgram, m_vertexShader);
     glAttachShader(m_shaderProgram, m_fragmentShader);
     glLinkProgram(m_shaderProgram);
-    ValidateProgram(m_shaderProgram);
+    ValidateProgram(m_shaderProgram);*/
 
     glGenVertexArrays(1, &m_vertexArrayObject);
     glBindVertexArray(m_vertexArrayObject);
     glGenBuffers(1, &m_vertexBufferObject);
-    m_viewIndex = glGetUniformLocation(m_shaderProgram, "view");
-    m_projectionIndex = glGetUniformLocation(m_shaderProgram, "projection");
-    m_enableShadingIndex = glGetUniformLocation(m_shaderProgram, "enableShading");
-    m_xyTableSamplerIndex = glGetUniformLocation(m_shaderProgram, "xyTable");
-    m_depthSamplerIndex = glGetUniformLocation(m_shaderProgram, "depth");
+    m_viewIndex = glGetUniformLocation(VSFSProgram->getPID(), "view");
+    m_projectionIndex = glGetUniformLocation(VSFSProgram->getPID(), "projection");
+    m_enableShadingIndex = glGetUniformLocation(VSFSProgram->getPID(), "enableShading");
+    m_xyTableSamplerIndex = glGetUniformLocation(VSFSProgram->getPID(), "xyTable");
+    m_depthSamplerIndex = glGetUniformLocation(VSFSProgram->getPID(), "depth");
 }
 
 void PointCloudRenderer::Delete()
@@ -82,9 +87,7 @@ void PointCloudRenderer::Delete()
     m_initialized = false;
     glDeleteBuffers(1, &m_vertexBufferObject);
 
-    glDeleteShader(m_vertexShader);
-    glDeleteShader(m_fragmentShader);
-    glDeleteProgram(m_shaderProgram);
+    VSFSProgram->Delete();
 }
 
 void PointCloudRenderer::InitializeDepthXYTable(const float* xyTableInterleaved, uint32_t width, uint32_t height)
@@ -192,7 +195,8 @@ void PointCloudRenderer::Render(int width, int height)
     }
     glPointSize(pointSize);
 
-    glUseProgram(m_shaderProgram);
+    //glUseProgram(m_shaderProgram);
+    VSFSProgram->bind();
 
     // Update model/view/projective matrices in shader
     glUniformMatrix4fv(m_viewIndex, 1, GL_FALSE, &m_view[0][0]);
@@ -205,6 +209,8 @@ void PointCloudRenderer::Render(int width, int height)
     glBindVertexArray(m_vertexArrayObject);
     glDrawArrays(GL_POINTS, 0, m_drawArraySize);
     glBindVertexArray(0);
+    
+    VSFSProgram->unbind();
 }
 
 void PointCloudRenderer::ChangePointCloudSize(float pointCloudSize)

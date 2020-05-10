@@ -3,12 +3,6 @@
 
 #include "Utilities.h"
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdarg.h>
-
-#include "GLFW/glfw3.h"
-
 //// ASSERT METHODS
 void FailedValidation(const char* message)
 {
@@ -52,30 +46,4 @@ void CheckAssert(bool condition, const char* message, ...)
 void CheckAssert(bool condition)
 {
     CheckAssert(condition, "Missing Assert description");
-}
-
-
-// Shader validation functions
-void ValidateShader(GLuint shaderIndex)
-{
-    GLint success = GL_FALSE;
-    char infoLog[512];
-    glGetShaderiv(shaderIndex, GL_COMPILE_STATUS, &success);
-    if (!success)
-    {
-        glGetShaderInfoLog(shaderIndex, 512, NULL, infoLog);
-        Fail("Shader Error: %s", infoLog);
-    }
-}
-
-void ValidateProgram(GLuint programIndex)
-{
-    GLint success = GL_FALSE;
-    char infoLog[512];
-    glGetProgramiv(programIndex, GL_LINK_STATUS, &success);
-    if (!success)
-    {
-        glGetProgramInfoLog(programIndex, 512, NULL, infoLog);
-        Fail("Shader Error: %s", infoLog);
-    }
 }

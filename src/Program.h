@@ -24,6 +24,7 @@ class Program
 public:
 
 	Program();
+	virtual void Delete();
 	Program(const std::string& vpath, const std::string& fpath);
 
 	void setVerbose(const bool v) { verbose = v; }
@@ -46,7 +47,7 @@ protected:
 	bool verbose;
 	bool buildSuccess = false;
 private:
-
+	GLuint VS, FS;
 	std::map<std::string, GLint> attributes;
 	std::map<std::string, GLint> uniforms;
 	std::string vShaderName;
@@ -61,10 +62,11 @@ public:
 		num_groups_z = z;
 	}
 	ComputeProgram(GLuint x, GLuint y, GLuint z, const std::string& cpath);
-
+	void Delete() override;
 	bool buildProgram(std::istream& compute);
 	void dispatch(AtomicCounterBuffer acbo, ShaderStorageBuffer ssbo);
 private:
+	GLuint CS;
 	std::string cShaderName;
 	GLuint num_groups_x;
 	GLuint num_groups_y;

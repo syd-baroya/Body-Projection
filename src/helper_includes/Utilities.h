@@ -2,8 +2,11 @@
 // Licensed under the MIT License.
 
 #pragma once
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdarg.h>
 
-#include "glad/glad.h"
+#include "GLFW/glfw3.h"
 
 void FailedValidation(const char* message);
 
@@ -12,11 +15,6 @@ void Fail(const char* message, ...);
 void CheckAssert(bool condition, const char* message, ...);
 
 void CheckAssert(bool condition);
-
-// Shader validation functions
-void ValidateShader(GLuint shaderIndex);
-
-void ValidateProgram(GLuint programIndex);
 
 #define RETURN_IF_GL_ERRORS  { bool glErr = false; while (glGetError() != GL_NO_ERROR) { glErr = true; } if (glErr) { return GPU_ERROR_FROM_API; } }
 

@@ -7,10 +7,9 @@
 #include <mutex>
 #include <array>
 
-#include "PointCloudShaders.h"
+#include "RendererBase.h"
 #include "Utilities.h"
 #include "App3DTypes.h"
-#include "RendererBase.h"
 #include <optional>
 
 namespace Visualization
