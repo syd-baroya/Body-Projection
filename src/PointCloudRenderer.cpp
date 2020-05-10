@@ -4,27 +4,26 @@
 #include "PointCloudRenderer.h"
 
 
-
-using namespace linmath;
+using namespace glm;
 using namespace Visualization;
 
 PointCloudVertex testVertices[] =
 {
-    {{-0.5f, -0.5f, -2.5f}, {1.0f, 0.0f, 0.0f, 1.0f}, {10, 0}},
-    {{ 0.5f, -0.5f, -2.5f}, {0.0f, 1.0f, 0.0f, 1.0f}, {20, 0}},
-    {{-0.5f,  0.5f, -2.5f}, {0.0f, 0.0f, 1.0f, 1.0f}, {30, 0}},
-    {{ 0.5f,  0.5f, -2.5f}, {1.0f, 1.0f, 0.0f, 1.0f}, {40, 0}},
+    {vec3(-0.5f, -0.5f, -2.5f), vec4(1.0f, 0.0f, 0.0f, 1.0f), ivec2(10, 0)},
+    {vec3(0.5f, -0.5f, -2.5f), vec4(0.0f, 1.0f, 0.0f, 1.0f), ivec2(20, 0)},
+    {vec3(-0.5f,  0.5f, -2.5f), vec4(0.0f, 0.0f, 1.0f, 1.0f), ivec2(30, 0)},
+    { vec3(0.5f,  0.5f, -2.5f), vec4(1.0f, 1.0f, 0.0f, 1.0f), ivec2(40, 0) },
 
-    {{-0.5f, -0.5f, -3.5f}, {0.0f, 1.0f, 1.0f, 1.0f}, {50, 0}},
-    {{ 0.5f, -0.5f, -3.5f}, {1.0f, 0.0f, 1.0f, 1.0f}, {60, 0}},
-    {{-0.5f,  0.5f, -3.5f}, {1.0f, 1.0f, 0.5f, 1.0f}, {70, 0}},
-    {{ 0.5f,  0.5f, -3.5f}, {0.5f, 0.5f, 1.0f, 1.0f}, {80, 0}}
+    { vec3(-0.5f, -0.5f, -3.5f), vec4(0.0f, 1.0f, 1.0f, 1.0f), ivec2(50, 0)},
+    { vec3(0.5f, -0.5f, -3.5f), vec4(1.0f, 0.0f, 1.0f, 1.0f), ivec2(60, 0)},
+    { vec3(-0.5f,  0.5f, -3.5f), vec4(1.0f, 1.0f, 0.5f, 1.0f), ivec2(70, 0)},
+    { vec3(0.5f,  0.5f, -3.5f), vec4(0.5f, 0.5f, 1.0f, 1.0f), ivec2(80, 0)}
 };
 
 PointCloudRenderer::PointCloudRenderer()
 {
-    mat4x4_identity(m_view);
-    mat4x4_identity(m_projection);
+    m_view = mat4(1);
+    m_projection = mat4(1);
 }
 
 PointCloudRenderer::~PointCloudRenderer()
@@ -196,8 +195,8 @@ void PointCloudRenderer::Render(int width, int height)
     glUseProgram(m_shaderProgram);
 
     // Update model/view/projective matrices in shader
-    glUniformMatrix4fv(m_viewIndex, 1, GL_FALSE, (const GLfloat*)m_view);
-    glUniformMatrix4fv(m_projectionIndex, 1, GL_FALSE, (const GLfloat*)m_projection);
+    glUniformMatrix4fv(m_viewIndex, 1, GL_FALSE, &m_view[0][0]);
+    glUniformMatrix4fv(m_projectionIndex, 1, GL_FALSE, &m_projection[0][0]);
 
     // Update render settings in shader
     glUniform1i(m_enableShadingIndex, (GLint)m_enableShading);

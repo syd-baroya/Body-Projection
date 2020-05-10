@@ -9,6 +9,7 @@
 #include "ViewControl.h"
 #include "PointCloudRenderer.h"
 #include <vector>
+#include <glm/gtc/quaternion.hpp>
 //#include "SkeletonRenderer.h"
 //#include "FloorRenderer.h"
 
@@ -85,7 +86,7 @@ namespace Visualization
 
         void ChangePointCloudSize(float pointCloudSize);
 
-        void SetFloorRendering(bool enableFloorRendering, linmath::vec3 floorPosition, linmath::quaternion floorOrientation);
+        void SetFloorRendering(bool enableFloorRendering, glm::vec3 floorPosition, glm::quat floorOrientation);
 
         // Methods to set external callback functions
         void SetCloseCallback(CloseCallbackType callback, void* context);
@@ -105,10 +106,10 @@ namespace Visualization
     private:
         void RenderScene(ViewControl& viewControl, Viewport viewport);
         void TriggerCameraPivotPointRendering();
-        void ChangeCameraPivotPoint(ViewControl& viewControl, linmath::vec2 screenPos);
-        void GetCursorPosInScreenCoordinates(GLFWwindow* window, linmath::vec2 outScreenPos);
-        void GetCursorPosInScreenCoordinates(double cursorPosX, double cursorPosY, linmath::vec2 outScreenPos);
-        void UpdateRenderersViewProjection(linmath::mat4x4 view, linmath::mat4x4 projection);
+        void ChangeCameraPivotPoint(ViewControl& viewControl, glm::vec2 screenPos);
+        glm::vec2 GetCursorPosInScreenCoordinates(GLFWwindow* window);
+        glm::vec2 GetCursorPosInScreenCoordinates(double cursorPosX, double cursorPosY);
+        void UpdateRenderersViewProjection(glm::mat4 view, glm::mat4 projection);
 
         bool m_initialized = false;
 
@@ -147,7 +148,7 @@ namespace Visualization
         bool m_mouseButtonLeftPressed = false;
         bool m_mouseButtonRightPressed = false;
         int m_cameraPivotPointRenderCount = 0;
-        linmath::vec2 m_prevMouseScreenPos = { 0.f, 0.f };
+        glm::vec2 m_prevMouseScreenPos = { 0.f, 0.f };
 
         // External Callback functions
         CloseCallbackType m_closeCallback = nullptr;

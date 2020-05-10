@@ -6,7 +6,7 @@
 
 //#include "Helpers.h"
 
-using namespace linmath;
+using namespace glm;
 using namespace Visualization;
 
 class GLFWEnvironmentSingleton
@@ -253,11 +253,8 @@ void WindowController::RenderScene(ViewControl& viewControl, Viewport viewport)
     glViewport(viewport.x, viewport.y, viewport.width, viewport.height);
 
     // Update view/projection matrix
-    linmath::mat4x4 projection;
-    linmath::mat4x4 view;
-
-    viewControl.GetPerspectiveMatrix(projection);
-    viewControl.GetViewMatrix(view);
+    mat4 projection = viewControl.GetPerspectiveMatrix();
+    mat4 view = viewControl.GetViewMatrix();
 
     UpdateRenderersViewProjection(view, projection);
 
@@ -298,8 +295,7 @@ void WindowController::RenderScene(ViewControl& viewControl, Viewport viewport)
     {
         m_cameraPivotPointRenderCount = std::max(0, m_cameraPivotPointRenderCount - 1);
 
-        vec3 targetPos;
-        m_viewControl.GetTargetPosition(targetPos);
+        vec3 targetPos = m_viewControl.GetTargetPosition();
         // Render Camera Pivot Point the shape of a joint, but red.
         vec4 red = { 1.0f, 0.0f, 0.0f, 1.0f };
         //m_skeletonRenderer.RenderJoint(targetPos, red);
@@ -408,7 +404,7 @@ void WindowController::ChangePointCloudSize(float pointCloudSize)
     m_pointCloudRenderer.ChangePointCloudSize(pointCloudSize);
 }
 
-void WindowController::SetFloorRendering(bool enableFloorRendering, linmath::vec3 floorPosition, linmath::quaternion floorOrientation)
+void WindowController::SetFloorRendering(bool enableFloorRendering, vec3 floorPosition, quat floorOrientation)
 {
    /* if (!m_enableFloorRendering && enableFloorRendering)
     {
@@ -449,7 +445,7 @@ void WindowController::FrameBufferSizeCallback(GLFWwindow* /*window*/, int width
     m_windowHeight = height;
 }
 
-void WindowController::GetCursorPosInScreenCoordinates(GLFWwindow* window, linmath::vec2 outScreenPos)
+vec2 WindowController::GetCursorPosInScreenCoordinates(GLFWwindow* window)
 {
     // NOTE: Cursor coordinates are relative to the upper-left corner of the window content area.
     double cursorPosX, cursorPosY;
@@ -457,20 +453,19 @@ void WindowController::GetCursorPosInScreenCoordinates(GLFWwindow* window, linma
 
     // Convert cursor coordinates to OpenGL screen coordinates.
     // NOTE: OpenGL screen coordinates are relative to the lower-left corner of the window content area.
-    GetCursorPosInScreenCoordinates(cursorPosX, cursorPosY, outScreenPos);
+    return GetCursorPosInScreenCoordinates(cursorPosX, cursorPosY);
 }
 
-void WindowController::GetCursorPosInScreenCoordinates(double cursorPosX, double cursorPosY, linmath::vec2 outScreenPos)
+vec2 WindowController::GetCursorPosInScreenCoordinates(double cursorPosX, double cursorPosY)
 {
     // NOTE: Cursor coordinates are relative to the upper-left corner of the window content area.
 
     // Convert cursor coordinates to OpenGL screen coordinates.
     // NOTE: OpenGL screen coordinates are relative to the lower-left corner of the window content area.
-    outScreenPos[0] = (float)cursorPosX;
-    outScreenPos[1] = (float)(m_windowHeight - cursorPosY - 1.);
+    return vec2((float)cursorPosX, (float)(m_windowHeight - cursorPosY - 1.));
 }
 
-void WindowController::UpdateRenderersViewProjection(linmath::mat4x4 view, linmath::mat4x4 projection)
+void WindowController::UpdateRenderersViewProjection(mat4 view, mat4 projection)
 {
     m_pointCloudRenderer.UpdateViewProjection(view, projection);
     //m_skeletonRenderer.UpdateViewProjection(view, projection);
@@ -486,7 +481,7 @@ void WindowController::MouseButtonCallback(GLFWwindow* window, int button, int a
     // Keep track of mouse movement for camera rotation/translation when left button is pressed.
     if (button == GLFW_MOUSE_BUTTON_LEFT)
     {
-        GetCursorPosInScreenCoordinates(window, m_prevMouseScreenPos);
+        m_prevMouseScreenPos = GetCursorPosInScreenCoordinates(window);
         m_mouseButtonLeftPressed = action == GLFW_PRESS;
     }
 
@@ -496,8 +491,7 @@ void WindowController::MouseButtonCallback(GLFWwindow* window, int button, int a
         m_mouseButtonRightPressed = action == GLFW_PRESS;
         if (action == GLFW_PRESS)
         {
-            vec2 screenPos;
-            GetCursorPosInScreenCoordinates(window, screenPos);
+            vec2 screenPos = GetCursorPosInScreenCoordinates(window);
 
             if (m_viewControl.GetViewport().ContainsScreenPoint(screenPos))
             {
@@ -515,8 +509,7 @@ void WindowController::MouseMovementCallback(GLFWwindow* window, double xpos, do
         return;
     }
 
-    vec2 screenPos;
-    GetCursorPosInScreenCoordinates(xpos, ypos, screenPos);
+    vec2 screenPos = GetCursorPosInScreenCoordinates(xpos, ypos);
 
     const bool ctrl = glfwGetKey(window, GLFW_KEY_LEFT_CONTROL);
     if (ctrl)
@@ -525,19 +518,18 @@ void WindowController::MouseMovementCallback(GLFWwindow* window, double xpos, do
     }
     else
     {
-        vec2 offset;
-        vec2_sub(offset, screenPos, m_prevMouseScreenPos);
+        vec2 offset = screenPos - m_prevMouseScreenPos;
 
         m_viewControl.ProcessRotationalMovement(offset);
     }
 
-    vec2_copy(m_prevMouseScreenPos, screenPos);
+    m_prevMouseScreenPos = vec2(screenPos.x, screenPos.y);
 }
 
-void WindowController::ChangeCameraPivotPoint(ViewControl& viewControl, linmath::vec2 screenPos)
+void WindowController::ChangeCameraPivotPoint(ViewControl& viewControl, vec2 screenPos)
 {
-    float minDist = std::numeric_limits<float>::max();
-    vec3 selectedPoint;
+    /*float minDist = std::numeric_limits<float>::max();
+    vec3 selectedPoint;*/
     //const auto& joints = m_skeletonRenderer.GetJoints();
    /* for (auto j : joints)
     {
@@ -553,10 +545,10 @@ void WindowController::ChangeCameraPivotPoint(ViewControl& viewControl, linmath:
             }
         }
     }*/
-    if (minDist != std::numeric_limits<float>::max())
+   /* if (minDist != std::numeric_limits<float>::max())
     {
         viewControl.SetViewTarget(selectedPoint);
-    }
+    }*/
 }
 
 void WindowController::MouseScrollCallback(GLFWwindow* window, double /*xoffset*/, double yoffset)

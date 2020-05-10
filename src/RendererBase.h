@@ -5,7 +5,7 @@
 #ifndef RENDERER_BASE_H
 #define RENDERER_BASE_H
 #include <GLFW/glfw3.h>
-#include "linmath.h"
+#include <glm/glm.hpp>
 
 namespace Visualization
 {
@@ -17,16 +17,18 @@ namespace Visualization
         virtual void Delete() = 0;
 
         virtual void UpdateViewProjection(
-            linmath::mat4x4 view,
-            linmath::mat4x4 projection);
+            glm::mat4 view,
+            glm::mat4 projection);
+
+        static void mat4_dup(glm::mat4 M, glm::mat4 N);
 
         virtual void Render() = 0;
 
     protected:
         bool m_initialized = false;
 
-        linmath::mat4x4 m_view;
-        linmath::mat4x4 m_projection;
+        glm::mat4 m_view;
+        glm::mat4 m_projection;
 
         // Basic OpenGL resources
         GLFWwindow* m_window;

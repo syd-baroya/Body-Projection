@@ -8,7 +8,8 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include "linmath.h" // https://github.com/datenwolf/linmath.h
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <algorithm>
 #include <stdio.h>
 enum class ViewPoint
@@ -37,16 +38,16 @@ struct ViewParameters
     void PrintViewInfo();
 
     // Primary Camera Attributes
-    linmath::vec3 targetPos; // Location the camera points to.
+    glm::vec3 targetPos; // Location the camera points to.
     float targetDepth;
-    linmath::vec3 worldUp;
+    glm::vec3 worldUp;
     float yaw;               // Euler Angles relative to forward direction.
     float pitch;
 
     // Dependent Properties
-    linmath::vec3 front;
-    linmath::vec3 up;
-    linmath::vec3 right;
+    glm::vec3 front;
+    glm::vec3 up;
+    glm::vec3 right;
 };
 
 
@@ -62,7 +63,7 @@ struct Viewport
     int height;
 
     // Screen coordinates are relative to the lower-left corner of the window content area.
-    bool ContainsScreenPoint(linmath::vec2 screenPos) const;
+    bool ContainsScreenPoint(glm::vec2 screenPos) const;
 };
 
 
@@ -78,23 +79,23 @@ public:
     void SetDefaultVerticalFOV(float degrees);
 
     // Returns the view matrix calculated using Euler Angles and the LookAt Matrix
-    void GetViewMatrix(linmath::mat4x4 viewMatrix);
+    glm::mat4 GetViewMatrix();
 
-    void GetPerspectiveMatrix(linmath::mat4x4 perspectiveMatrix);
+    glm::mat4 GetPerspectiveMatrix();
 
-    void GetTargetPosition(linmath::vec3 targetPos);
+    glm::vec3 GetTargetPosition();
 
     // Processes input received from a mouse input system. Expects the offset value in both the x and y direction.
-    void ProcessRotationalMovement(const linmath::vec2 screenOffset);
+    void ProcessRotationalMovement(const glm::vec2 screenOffset);
 
     // Processes input received from a mouse input system for camera translation.
-    void ProcessPositionalMovement(const linmath::vec2 startScreenPos, const linmath::vec2 endScreenPos);
+    void ProcessPositionalMovement(const glm::vec2 startScreenPos, const glm::vec2 endScreenPos);
 
     // Processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
     void ProcessMouseScroll(GLFWwindow* window, float yoffset);
 
     // Set the location the camera points to.
-    void SetViewTarget(const linmath::vec3 target);
+    void SetViewTarget(const glm::vec3 target);
 
     void Reset();
 
@@ -104,10 +105,10 @@ public:
 
     // Project 3D point to screen coordinates.
     // Screen coordinates are relative to the lower-left corner of the window content area.
-    bool ProjectToScreen(linmath::vec2 screen, const linmath::vec3 viewPoint);
+    bool ProjectToScreen(glm::vec2* screen, const glm::vec3 viewPoint);
 
     // Convert 2D screen coordinate to 3D camera ray.
-    void UnprojectFromScreen(linmath::vec3 ray, const linmath::vec2 screen, float zDepth);
+    glm::vec3 UnprojectFromScreen(const glm::vec2 screen, float zDepth);
 
 private:
     float PerspectiveTargetDepthForRendering();

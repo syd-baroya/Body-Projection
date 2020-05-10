@@ -4,42 +4,42 @@
 #pragma once
 #ifndef APP_3D_TYPES_H
 #define APP_3D_TYPES_H
-#include "linmath.h"
-
+#include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
 namespace Visualization
 {
     struct PointCloudVertex
     {
-        linmath::vec3 Position;         // The position of the point cloud vertex specified in meters
-        linmath::vec4 Color;
-        linmath::ivec2 PixelLocation;   // Pixel location of point cloud in the depth map (w, h)
+        glm::vec3 Position;         // The position of the point cloud vertex specified in meters
+        glm::vec4 Color;
+        glm::ivec2 PixelLocation;   // Pixel location of point cloud in the depth map (w, h)
     };
 
     struct MonoVertex
     {
-        linmath::vec3 Position;         // The position of the mono vertex specified in meters
-        linmath::vec3 Normal;
+        glm::vec3 Position;         // The position of the mono vertex specified in meters
+        glm::vec3 Normal;
     };
 
     struct ColorVertex
     {
-        linmath::vec3 Position;         // The position of the color vertex specified in meters
-        linmath::vec3 Normal;
-        linmath::vec4 Color;
+        glm::vec3 Position;         // The position of the color vertex specified in meters
+        glm::vec3 Normal;
+        glm::vec4 Color;
     };
 
     struct Joint
     {
-        linmath::vec3 Position;          // The position of the joint specified in meters
-        linmath::quaternion Orientation; // The orientation of the joint specified in normalized quaternion
-        linmath::vec4 Color;
+        glm::vec3 Position;          // The position of the joint specified in meters
+        glm::quat Orientation; // The orientation of the joint specified in normalized quaternion
+        glm::vec4 Color;
     };
 
     struct Bone
     {
-        linmath::vec3 Joint1Position;
-        linmath::vec3 Joint2Position;
-        linmath::vec4 Color;
+        glm::vec3 Joint1Position;
+        glm::vec3 Joint2Position;
+        glm::vec4 Color;
     };
 }
 #endif

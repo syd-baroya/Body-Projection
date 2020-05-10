@@ -8,11 +8,9 @@
 
 const float MillimeterToMeter = 0.001f;
 
-void ConvertMillimeterToMeter(k4a_float3_t positionInMM, linmath::vec3 outPositionInMeter)
+glm::vec3 ConvertMillimeterToMeter(k4a_float3_t positionInMM)
 {
-    outPositionInMeter[0] = positionInMM.v[0] * MillimeterToMeter;
-    outPositionInMeter[1] = positionInMM.v[1] * MillimeterToMeter;
-    outPositionInMeter[2] = positionInMM.v[2] * MillimeterToMeter;
+    return glm::vec3(positionInMM.v[0] * MillimeterToMeter, positionInMM.v[1] * MillimeterToMeter, positionInMM.v[2] * MillimeterToMeter);
 }
 
 WindowManager::~WindowManager()
@@ -111,21 +109,20 @@ void WindowManager::UpdatePointClouds(k4a_image_t depthImage, std::vector<Color>
                 continue;
             }
 
-            linmath::vec4 color = { 1.f, 1.f, 1.f, 1.0f };
-            linmath::ivec2 pixelLocation = { w, h };
+            glm::vec4 color = glm::vec4(1.f, 1.f, 1.f, 1.0f );
+            glm::ivec2 pixelLocation = glm::ivec2(w, h );
 
             if (pointCloudColors.size() > 0)
             {
-                BlendBodyColor(color, pointCloudColors[pixelIndex]);
+                color = BlendBodyColor(color, pointCloudColors[pixelIndex]);
             }
 
-            linmath::vec3 positionInMeter;
-            ConvertMillimeterToMeter(position, positionInMeter);
+            glm::vec3 positionInMeter = ConvertMillimeterToMeter(position);
             Visualization::PointCloudVertex pointCloud;
-            linmath::vec3_copy(pointCloud.Position, positionInMeter);
-            linmath::vec4_copy(pointCloud.Color, color);
-            pointCloud.PixelLocation[0] = pixelLocation[0];
-            pointCloud.PixelLocation[1] = pixelLocation[1];
+            pointCloud.Position = glm::vec3(positionInMeter.x, positionInMeter.y, positionInMeter.z);
+            pointCloud.Color = glm::vec4(color.x, color.y, color.z, color.a);
+            pointCloud.PixelLocation.x = pixelLocation.x;
+            pointCloud.PixelLocation.y = pixelLocation.y;
 
             m_pointClouds.push_back(pointCloud);
         }
@@ -141,27 +138,24 @@ void WindowManager::CleanJointsAndBones()
 
 void WindowManager::AddJoint(k4a_float3_t position, k4a_quaternion_t orientation, Color color)
 {
-    linmath::vec3 jointPositionInMeter;
-    ConvertMillimeterToMeter(position, jointPositionInMeter);
+    glm::vec3 jointPositionInMeter = ConvertMillimeterToMeter(position);
     m_window3d.AddJoint({
-        {jointPositionInMeter[0], jointPositionInMeter[1], jointPositionInMeter[2]},
-        {orientation.v[0], orientation.v[1], orientation.v[2], orientation.v[3]},
-        {color.r, color.g, color.b, color.a} });
+        glm::vec3(jointPositionInMeter.x, jointPositionInMeter.y, jointPositionInMeter.z),
+        glm::quat(orientation.v[0], orientation.v[1], orientation.v[2], orientation.v[3]),
+        glm::vec4(color.r, color.g, color.b, color.a) });
 }
 
 void WindowManager::AddBone(k4a_float3_t joint1Position, k4a_float3_t joint2Position, Color color)
 {
-    linmath::vec3 joint1PositionInMeter;
-    ConvertMillimeterToMeter(joint1Position, joint1PositionInMeter);
-    linmath::vec3 joint2PositionInMeter;
-    ConvertMillimeterToMeter(joint2Position, joint2PositionInMeter);
+    glm::vec3 joint1PositionInMeter = ConvertMillimeterToMeter(joint1Position);
+    glm::vec3 joint2PositionInMeter = ConvertMillimeterToMeter(joint2Position);
     Visualization::Bone bone;
-    linmath::vec4_copy(bone.Joint1Position, joint1PositionInMeter);
-    linmath::vec4_copy(bone.Joint2Position, joint2PositionInMeter);
-    bone.Color[0] = color.r;
-    bone.Color[1] = color.g;
-    bone.Color[2] = color.b;
-    bone.Color[3] = color.a;
+    bone.Joint1Position = glm::vec3(joint1PositionInMeter.x, joint1PositionInMeter.y, joint1PositionInMeter.z);
+    bone.Joint2Position = glm::vec3(joint2PositionInMeter.x, joint2PositionInMeter.y, joint2PositionInMeter.z);
+    bone.Color.x = color.r;
+    bone.Color.y = color.g;
+    bone.Color.z = color.b;
+    bone.Color.a = color.a;
 
     m_window3d.AddBone(bone);
 }
@@ -236,24 +230,23 @@ void WindowManager::SetJointFrameVisualization(bool enableJointFrameVisualizatio
 
 void WindowManager::SetFloorRendering(bool enableFloorRendering, float floorPositionX, float floorPositionY, float floorPositionZ)
 {
-    linmath::vec3 position = { floorPositionX, floorPositionY, floorPositionZ };
-    m_window3d.SetFloorRendering(enableFloorRendering, position, { 1.f, 0.f, 0.f, 0.f });
+    glm::vec3 position = glm::vec3(floorPositionX, floorPositionY, floorPositionZ);
+    m_window3d.SetFloorRendering(enableFloorRendering, position, glm::quat(1.f, 0.f, 0.f, 0.f ));
 }
 
 void WindowManager::SetFloorRendering(bool enableFloorRendering, float floorPositionX, float floorPositionY, float floorPositionZ, float normalX, float normalY, float normalZ)
 {
-    linmath::vec3 position = { floorPositionX, floorPositionY, floorPositionZ };
-    linmath::vec3 n = { normalX , normalY , normalZ };
-    linmath::vec3_norm(n, n);
-    linmath::vec3 up = { 0, -1, 0 };
+    glm::vec3 position = glm::vec3(floorPositionX, floorPositionY, floorPositionZ);
+    glm::vec3  n = glm::vec3(normalX, normalY, normalZ);
+    n = glm::normalize(n);
+    glm::vec3 up = glm::vec3(0, -1, 0);
 
-    linmath::vec3 ax;
-    linmath::vec3_mul_cross(ax, up, n);
-    linmath::vec3_norm(ax, ax);
+    glm::vec3 ax = glm::cross(up, n);
+    ax = glm::normalize(ax);
 
-    float ang = acos(linmath::vec3_mul_inner(up, n));
+    float ang = acos(glm::dot(up, n));
     float hs = sin(ang / 2);
-    linmath::quaternion q = { cos(ang / 2), hs * ax[0], hs * ax[1], hs * ax[2] };
+    glm::quat q = { cos(ang / 2), hs * ax[0], hs * ax[1], hs * ax[2] };
     m_window3d.SetFloorRendering(enableFloorRendering, position, q);
 }
 
@@ -287,14 +280,16 @@ void WindowManager::InitializeCalibration(const k4a_calibration_t& sensorCalibra
     }
 }
 
-void WindowManager::BlendBodyColor(linmath::vec4 color, Color bodyColor)
+glm::vec4 WindowManager::BlendBodyColor(glm::vec4 blendColor, Color bodyColor)
 {
     float darkenRatio = 0.8f;
     float instanceAlpha = 0.8f;
-
-    color[0] = bodyColor.r * instanceAlpha;// +color[0] * darkenRatio;
-    color[1] = bodyColor.g * instanceAlpha;// + color[1] * darkenRatio;
-    color[2] = bodyColor.b * instanceAlpha;// + color[2] * darkenRatio;
+    glm::vec4 color;
+    color.x = bodyColor.r * instanceAlpha;// +blendColor.x * darkenRatio;
+    color.y = bodyColor.g * instanceAlpha;// + blendColor.y * darkenRatio;
+    color.z = bodyColor.b * instanceAlpha;// + blendColor.z * darkenRatio;
+    color.a = blendColor.a;
+    return color;
 }
 
 void WindowManager::UpdateDepthBuffer(k4a_image_t depthFrame)

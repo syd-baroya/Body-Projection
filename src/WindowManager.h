@@ -66,7 +66,7 @@ public:
 private:
     void InitializeCalibration(const k4a_calibration_t& sensorCalibration);
 
-    void BlendBodyColor(linmath::vec4 color, Color bodyColor);
+    glm::vec4 BlendBodyColor(glm::vec4 blendColor, Color bodyColor);
 
     void UpdateDepthBuffer(k4a_image_t depthImage);
 
