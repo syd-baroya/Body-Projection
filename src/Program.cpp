@@ -180,18 +180,15 @@ GLint Program::getUniform(const std::string &name) const
 	return uniform->second;
 }
 
-void ComputeProgram::dispatch(AtomicCounterBuffer acbo, ShaderStorageBuffer ssbo)
+void ComputeProgram::startUpload()
 {
 	GLuint block_index = 0;
 	block_index = glGetProgramResourceIndex(pid, GL_SHADER_STORAGE_BLOCK, "shader_data");
 	GLuint ssbo_binding_point_index = 0;
 	glShaderStorageBlockBinding(pid, block_index, ssbo_binding_point_index);
-	ssbo.bindBufferBase(0);
-	glUseProgram(pid);
-	//activate atomic counter
-	acbo.bind();
-	acbo.bindBufferBase(0);
+}
 
+void ComputeProgram::dispatch()
+{
 	glDispatchCompute(num_groups_x, num_groups_y, num_groups_z);				//start compute shader
-	ssbo.unbindBufferBase(0);
 }

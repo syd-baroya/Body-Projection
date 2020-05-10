@@ -1,8 +1,9 @@
 #pragma once
 #ifndef BUFFERS_H
 #define BUFFERS_H
-#include <glad\glad.h>
+#include <glad/glad.h>
 #include <glm/glm.hpp>
+#include <iostream>
 
 class SimpleBuffer {
 public:
@@ -13,7 +14,7 @@ public:
 	}
 	SimpleBuffer(GLenum buffer_type, GLenum draw_type) : buffer_type(buffer_type), draw_type(draw_type) {
 		glGenBuffers(1, &id);
-		bind();
+		//bind();
 		//unbind();
 	}
 
@@ -26,11 +27,11 @@ public:
 	virtual void deleteBuffer() {	glDeleteBuffers(1, &id);	}
 	inline GLuint getNumPerElem() { return(num_per_elem); }
 	inline GLenum getElemType() { return(elem_type); }
-private:
-	GLuint num_per_elem;
-	GLenum elem_type;
-	GLenum buffer_type = GL_INVALID_ENUM;
+protected:
+	GLuint num_per_elem = 0;
 	GLuint id;
+	GLenum elem_type = GL_INVALID_ENUM;
+	GLenum buffer_type = GL_INVALID_ENUM;
 	GLenum draw_type = GL_INVALID_ENUM;
 };
 
@@ -69,20 +70,28 @@ public:
 	ElementArrayBuffer(GLenum draw_type) : SimpleBuffer(GL_ELEMENT_ARRAY_BUFFER, draw_type){}
 };
 
-#define ssbo_size 1024
-
-class ssbo_data
-{
-public:
-	glm::ivec4 positions_list[ssbo_size];
-};
-
 
 class ShaderStorageBuffer : public ComplexBuffer {
 public:
 	ShaderStorageBuffer() : ComplexBuffer(GL_SHADER_STORAGE_BUFFER, GL_DYNAMIC_DRAW) {}
-	void create_SSBO(ssbo_data& ssbo_data);
-	void get_SSBO_back(ssbo_data& ssbo_data);
+	template<class T>
+	void create_SSBO(T& ssbo_data)
+	{
+		bind();
+		bufferData(sizeof(T), &ssbo_data);
+		unbind();
+	}
+
+	template<class T>
+	void get_SSBO_back(T& ssbo_data)
+	{
+		// Get SSBO back
+		bind();
+		GLvoid* p = mapBuffer(GL_READ_ONLY);
+		int siz = sizeof(T);
+		memcpy(&ssbo_data, p, siz);
+		unMapBuffer();
+	}
 };
 
 class TextureBuffer : public SimpleBuffer {

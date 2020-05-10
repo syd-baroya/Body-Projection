@@ -64,7 +64,9 @@ public:
 	ComputeProgram(GLuint x, GLuint y, GLuint z, const std::string& cpath);
 	void Delete() override;
 	bool buildProgram(std::istream& compute);
-	void dispatch(AtomicCounterBuffer acbo, ShaderStorageBuffer ssbo);
+	void startUpload();
+	void dispatch();
+	glm::vec3 getNumGroups() { return(glm::vec3(num_groups_x, num_groups_y, num_groups_z)); }
 private:
 	GLuint CS;
 	std::string cShaderName;

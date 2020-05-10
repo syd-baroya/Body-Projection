@@ -16,11 +16,10 @@ layout (std430, binding=0) volatile buffer shader_data
 };
 uniform int sizeofbuffer;
 void main() 
-	{
+{
 	uint index = gl_LocalInvocationID.x;
 	vec3 data = positions_list[index].xyz;
 	positions_list[index].y = int(data.x)*3;
 	atomicAdd(positions_list[0].y,1);
 	//barrier();
-	//
-	}
+}

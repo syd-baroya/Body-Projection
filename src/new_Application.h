@@ -99,8 +99,8 @@ protected:
     std::vector<SceneComponent*> scene_comps;
     std::vector<AnimationComponent> anim_comps;
     std::unordered_map<std::string, Framebuffer*> frame_buffers;
-    //ShaderStorageBuffer ssbo;
-    ssbo_data ssbo_CPUMEM;
+    ////ShaderStorageBuffer ssbo;
+    //ssbo_data ssbo_CPUMEM;
 
     TextureBuffer* depth_image_texture = NULL;
 

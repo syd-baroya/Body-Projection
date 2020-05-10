@@ -12,6 +12,9 @@
 #include "App3DTypes.h"
 #include <optional>
 
+
+
+
 namespace Visualization
 {
     class PointCloudRenderer : public RendererBase
@@ -41,6 +44,13 @@ namespace Visualization
         void ChangePointCloudSize(float pointCloudSize);
 
     private:
+        int ssbo_size = 1024;
+        class ssbo_data
+        {
+        public:
+            glm::ivec4 positions_list[1024];
+        };
+        ssbo_data ssbo_CPUMEM;
         // Render settings
         const GLfloat m_defaultPointCloudSize = 0.5f;
         std::optional<GLfloat> m_pointCloudSize;
@@ -65,9 +75,15 @@ namespace Visualization
         GLuint m_enableShadingIndex = 0;
         GLuint m_xyTableSamplerIndex = 0;
         GLuint m_depthSamplerIndex = 0;
-
+        GLuint m_bufferSize = 0;
         // Lock
         std::mutex m_mutex;
+
+        ComputeProgram* computeProgram;
+        std::string computeShaderPath = "../resources/";
+
+        AtomicCounterBuffer* atomicCounterBuff;
+        ShaderStorageBuffer* ssBuffObject;
     };
 }
 #endif

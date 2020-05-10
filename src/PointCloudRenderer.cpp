@@ -27,6 +27,8 @@ PointCloudRenderer::PointCloudRenderer()
 
     vertShaderPath += "point_cloud.vert";
     fragShaderPath += "point_cloud.frag";
+    computeShaderPath += "compute.glsl";
+
 }
 
 PointCloudRenderer::~PointCloudRenderer()
@@ -46,7 +48,9 @@ void PointCloudRenderer::Create(GLFWwindow* window)
     glEnable(GL_PROGRAM_POINT_SIZE);
 
     VSFSProgram = new Program(vertShaderPath, fragShaderPath);
-
+    computeProgram = new ComputeProgram(2, 1, 1, computeShaderPath);
+    atomicCounterBuff = new AtomicCounterBuffer();
+    ssBuffObject = new ShaderStorageBuffer();
    /* m_vertexShader = glCreateShader(GL_VERTEX_SHADER);
     const GLchar* vertexShaderSources[] = { glslShaderVersion, glslPointCloudVertexShader };
     int numVertexShaderSources = sizeof(vertexShaderSources) / sizeof(*vertexShaderSources);
@@ -70,11 +74,23 @@ void PointCloudRenderer::Create(GLFWwindow* window)
     glGenVertexArrays(1, &m_vertexArrayObject);
     glBindVertexArray(m_vertexArrayObject);
     glGenBuffers(1, &m_vertexBufferObject);
+    
+    for (int i = 0; i < ssbo_size; i++) {
+        ssbo_CPUMEM.positions_list[i] = glm::ivec4(i, 0, 0, 0);
+    }
+    ssBuffObject->create_SSBO<Visualization::PointCloudRenderer::ssbo_data>(ssbo_CPUMEM);
+    atomicCounterBuff->bind();
+    atomicCounterBuff->bufferData(sizeof(GLuint) * 1, NULL);
+    atomicCounterBuff->unbind();
+
     m_viewIndex = glGetUniformLocation(VSFSProgram->getPID(), "view");
     m_projectionIndex = glGetUniformLocation(VSFSProgram->getPID(), "projection");
     m_enableShadingIndex = glGetUniformLocation(VSFSProgram->getPID(), "enableShading");
     m_xyTableSamplerIndex = glGetUniformLocation(VSFSProgram->getPID(), "xyTable");
     m_depthSamplerIndex = glGetUniformLocation(VSFSProgram->getPID(), "depth");
+
+    m_bufferSize = glGetUniformLocation(computeProgram->getPID(), "sizeofbuffer");
+
 }
 
 void PointCloudRenderer::Delete()
@@ -179,6 +195,27 @@ void PointCloudRenderer::Render(int width, int height)
     // Enable blending
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+
+
+    computeProgram->startUpload();
+    ssBuffObject->bindBufferBase(0);
+    computeProgram->bind();
+    glUniform1f(m_bufferSize, 1024);
+
+    //activate atomic counter
+    atomicCounterBuff->bind();
+    atomicCounterBuff->bindBufferBase(0);
+    computeProgram->dispatch();
+    ssBuffObject->unbindBufferBase(0);
+    computeProgram->unbind();
+
+    ssBuffObject->get_SSBO_back<Visualization::PointCloudRenderer::ssbo_data>(ssbo_CPUMEM);
+    for (int i = 0; i < ssbo_size; i++)
+    {
+        std::cout << "POSITION LIST[" << i << "]: (" << ssbo_CPUMEM.positions_list[i].x << ", " << ssbo_CPUMEM.positions_list[i].y << ", " << ssbo_CPUMEM.positions_list[i].z << ")" << std::endl << std::endl;
+    }
+    atomicCounterBuff->read_atomic();
 
     float pointSize;
     if (m_pointCloudSize)

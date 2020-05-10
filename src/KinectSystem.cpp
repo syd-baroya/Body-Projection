@@ -7,7 +7,7 @@ void KinectSystem::VisualizeResult(k4abt_frame_t bodyFrame, WindowManager& windo
     k4a_capture_t originalCapture = k4abt_frame_get_capture(bodyFrame);
     k4a_image_t depthImage = k4a_capture_get_depth_image(originalCapture);
 
-    std::vector<Color> pointCloudColors(depthWidth * depthHeight, { 0.f, 0.f, 0.f, 1.f });
+    std::vector<Color> pointCloudColors(depthWidth * depthHeight, { 1.f, 1.f, 1.f, 1.f });
 
     // Read body index map and assign colors
     k4a_image_t bodyIndexMap = k4abt_frame_get_body_index_map(bodyFrame);
@@ -251,7 +251,7 @@ void KinectSystem::initDevice(WindowManager& window3d)
 
 void KinectSystem::init()
 {
-    deviceConfig.depth_mode = K4A_DEPTH_MODE_NFOV_UNBINNED;
+    deviceConfig.depth_mode = K4A_DEPTH_MODE_NFOV_2X2BINNED;
     deviceConfig.color_resolution = K4A_COLOR_RESOLUTION_OFF;
     tracker_config.processing_mode = K4ABT_TRACKER_PROCESSING_MODE_CPU;
 

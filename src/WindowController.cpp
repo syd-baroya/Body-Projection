@@ -61,8 +61,8 @@ void WindowController::Create(const char* name, bool showWindow, int width, int 
     // Should be called in main
     GLFWEnvironmentSingleton::InitGLFW();
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     if (!showWindow)
     {
         glfwWindowHint(GLFW_VISIBLE, GL_FALSE);

@@ -75,27 +75,9 @@ void  AtomicCounterBuffer::read_atomic()
 	// again we map the buffer to userCounters, but this time for read-only access
 	userCounters = mapBufferRange(0, sizeof(GLuint), GL_MAP_READ_BIT);
 	// copy the values to other variables because...
-	//cout << endl << *userCounters << endl;
+	std::cout << std::endl << *userCounters << std::endl;
 	// ... as soon as we unmap the buffer
 	// the pointer userCounters becomes invalid.
-	unMapBuffer();
-}
-
-void ShaderStorageBuffer::create_SSBO(ssbo_data& ssbo_data)
-{
-	for (int i = 0; i < sizeof(ssbo_data); i++) {
-		ssbo_data.positions_list[i] = glm::ivec4(i, 0, 0, 0);
-	}
-	bufferData(sizeof(ssbo_data), &ssbo_data);
-}
-
-void ShaderStorageBuffer::get_SSBO_back(ssbo_data& ssbo_data)
-{
-	// Get SSBO back
-	bind();
-	GLvoid* p = mapBuffer(GL_READ_ONLY);
-	int siz = sizeof(ssbo_data);
-	memcpy(&ssbo_data, p, siz);
 	unMapBuffer();
 }
 
