@@ -48,41 +48,15 @@ void PointCloudRenderer::Create(GLFWwindow* window)
     glEnable(GL_PROGRAM_POINT_SIZE);
 
     VSFSProgram = new Program(vertShaderPath, fragShaderPath);
-    computeProgram = new ComputeProgram(2, 1, 1, computeShaderPath);
+    computeProgram = new ComputeProgram(4, 18, 1, computeShaderPath);
     atomicCounterBuff = new AtomicCounterBuffer();
     ssBuffObject = new ShaderStorageBuffer();
-   /* m_vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    const GLchar* vertexShaderSources[] = { glslShaderVersion, glslPointCloudVertexShader };
-    int numVertexShaderSources = sizeof(vertexShaderSources) / sizeof(*vertexShaderSources);
-    glShaderSource(m_vertexShader, numVertexShaderSources, vertexShaderSources, NULL);
-    glCompileShader(m_vertexShader);
-    ValidateShader(m_vertexShader);
 
-    m_fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    const GLchar* fragmentShaderSources[] = { glslShaderVersion, glslPointCloudFragmentShader };
-    int numFragmentShaderSources = sizeof(fragmentShaderSources) / sizeof(*fragmentShaderSources);
-    glShaderSource(m_fragmentShader, numFragmentShaderSources, fragmentShaderSources, NULL);
-    glCompileShader(m_fragmentShader);
-    ValidateShader(m_fragmentShader);
-
-    m_shaderProgram = glCreateProgram();
-    glAttachShader(m_shaderProgram, m_vertexShader);
-    glAttachShader(m_shaderProgram, m_fragmentShader);
-    glLinkProgram(m_shaderProgram);
-    ValidateProgram(m_shaderProgram);*/
 
     glGenVertexArrays(1, &m_vertexArrayObject);
     glBindVertexArray(m_vertexArrayObject);
     glGenBuffers(1, &m_vertexBufferObject);
     
-    for (int i = 0; i < ssbo_size; i++) {
-        ssbo_CPUMEM.positions_list[i] = glm::ivec4(i, 0, 0, 0);
-    }
-    ssBuffObject->create_SSBO<Visualization::PointCloudRenderer::ssbo_data>(ssbo_CPUMEM);
-    atomicCounterBuff->bind();
-    atomicCounterBuff->bufferData(sizeof(GLuint) * 1, NULL);
-    atomicCounterBuff->unbind();
-
     m_viewIndex = glGetUniformLocation(VSFSProgram->getPID(), "view");
     m_projectionIndex = glGetUniformLocation(VSFSProgram->getPID(), "projection");
     m_enableShadingIndex = glGetUniformLocation(VSFSProgram->getPID(), "enableShading");
@@ -101,6 +75,7 @@ void PointCloudRenderer::Delete()
     }
 
     m_initialized = false;
+
     glDeleteBuffers(1, &m_vertexBufferObject);
 
     VSFSProgram->Delete();
@@ -121,9 +96,32 @@ void PointCloudRenderer::InitializeDepthXYTable(const float* xyTableInterleaved,
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
+void PointCloudRenderer::InitializeSSBO()
+{
+
+
+    for (int i = 0; i < 320 * 288; i++) {
+
+        ssbo_CPUMEM.colorInput[i] = ivec4(i, 0, 0, 0);
+
+    }
+    ssBuffObject->create_SSBO<PointCloudRenderer::ssbo_data>(&ssbo_CPUMEM, sizeof(ssbo_CPUMEM));
+    atomicCounterBuff->bind();
+    atomicCounterBuff->bufferData(sizeof(GLuint) * 1, (const void *) 0);
+    atomicCounterBuff->unbind();
+
+}
+
+void PointCloudRenderer::addColor(glm::vec4 color)
+{
+    ssbo_CPUMEM.colorInput[ssbo_index] = glm::vec4(color.x, color.y, color.z, color.a);
+    ssbo_CPUMEM.colorOutput[ssbo_index] = glm::vec4(0);
+    ssbo_index++;
+}
+
 void PointCloudRenderer::UpdatePointClouds(
     GLFWwindow* window,
-    const PointCloudVertex* point3ds,
+    PointCloudVertex* point3ds,
     uint32_t numPoints,
     const uint16_t* depthFrame,
     uint32_t width, uint32_t height,
@@ -146,6 +144,35 @@ void PointCloudRenderer::UpdatePointClouds(
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_width, m_height, GL_RED_INTEGER, GL_UNSIGNED_SHORT, depthFrame);
     glBindImageTexture(1, m_depthTextureObject, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R16UI);
 
+
+    ssBuffObject->load_SSBO<PointCloudRenderer::ssbo_data>(&ssbo_CPUMEM, 0, sizeof(ssbo_CPUMEM));
+    ssbo_index = 0;
+
+    computeProgram->startUpload();
+
+    ssBuffObject->bindBufferBase(0);
+    computeProgram->bind();
+    glUniform1i(m_bufferSize, numPoints);
+
+    //activate atomic counter
+    atomicCounterBuff->bind();
+    atomicCounterBuff->bindBufferBase(0);
+    computeProgram->dispatch();
+    ssBuffObject->unbindBufferBase(0);
+    computeProgram->unbind();
+
+
+    ssBuffObject->get_SSBO_back<PointCloudRenderer::ssbo_data>(&ssbo_CPUMEM, sizeof(ssbo_CPUMEM));
+
+
+    for (int i = 0; i < numPoints; i++)
+    {
+        point3ds[i].Color = glm::vec4(ssbo_CPUMEM.colorOutput[i].x, ssbo_CPUMEM.colorOutput[i].y, ssbo_CPUMEM.colorOutput[i].z, ssbo_CPUMEM.colorOutput[i].a);
+    }
+
+
+    atomicCounterBuff->read_atomic();
+
     glBindVertexArray(m_vertexArrayObject);
     // Create buffers and bind the geometry
     glBindBuffer(GL_ARRAY_BUFFER, m_vertexBufferObject);
@@ -166,6 +193,7 @@ void PointCloudRenderer::UpdatePointClouds(
     // Vertex Colors
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(PointCloudVertex), (void*)offsetof(PointCloudVertex, Color));
+    //glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(PointCloudVertex), (void*)offsetof(PointCloudVertex, Color));
     // Vertex Pixel Location
     // Notice: For GL_INT type, we need to use glVertexAttribIPointer instead of glVertexAttribPointer
     glEnableVertexAttribArray(2);
@@ -196,26 +224,6 @@ void PointCloudRenderer::Render(int width, int height)
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-
-
-    computeProgram->startUpload();
-    ssBuffObject->bindBufferBase(0);
-    computeProgram->bind();
-    glUniform1f(m_bufferSize, 1024);
-
-    //activate atomic counter
-    atomicCounterBuff->bind();
-    atomicCounterBuff->bindBufferBase(0);
-    computeProgram->dispatch();
-    ssBuffObject->unbindBufferBase(0);
-    computeProgram->unbind();
-
-    ssBuffObject->get_SSBO_back<Visualization::PointCloudRenderer::ssbo_data>(ssbo_CPUMEM);
-    for (int i = 0; i < ssbo_size; i++)
-    {
-        std::cout << "POSITION LIST[" << i << "]: (" << ssbo_CPUMEM.positions_list[i].x << ", " << ssbo_CPUMEM.positions_list[i].y << ", " << ssbo_CPUMEM.positions_list[i].z << ")" << std::endl << std::endl;
-    }
-    atomicCounterBuff->read_atomic();
 
     float pointSize;
     if (m_pointCloudSize)
@@ -256,3 +264,4 @@ void PointCloudRenderer::ChangePointCloudSize(float pointCloudSize)
 
     m_pointCloudSize = pointCloudSize;
 }
+

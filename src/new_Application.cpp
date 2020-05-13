@@ -25,7 +25,6 @@ void Application::run()
 
 	Time globalTime;
 
-
 	kinect_system.init();
 	kinect_system.initDevice(window3d);
 	//render_system.init(_window);

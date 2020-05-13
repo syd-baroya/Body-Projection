@@ -57,11 +57,13 @@ namespace Visualization
             int width, int height);
 
         void UpdatePointClouds(
-            const Visualization::PointCloudVertex* point3d,
+            Visualization::PointCloudVertex* point3d,
             uint32_t numPoints,
             const uint16_t* depthFrame,
             uint32_t width, uint32_t height,
             bool useTestPointClouds = false);
+
+        void addColor(glm::vec4 color);
 
         void CleanJointsAndBones();
 
@@ -92,6 +94,7 @@ namespace Visualization
         void SetCloseCallback(CloseCallbackType callback, void* context);
 
         void SetKeyCallback(KeyCallbackType callback, void* context);
+
         // OpenGL resources
         GLFWwindow* m_window = nullptr;
 

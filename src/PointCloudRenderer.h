@@ -13,8 +13,6 @@
 #include <optional>
 
 
-
-
 namespace Visualization
 {
     class PointCloudRenderer : public RendererBase
@@ -28,9 +26,13 @@ namespace Visualization
 
         void InitializeDepthXYTable(const float* xyTableInterleaved, uint32_t width, uint32_t height);
 
+        void InitializeSSBO();
+
+        void addColor(glm::vec4 color);
+
         void UpdatePointClouds(
             GLFWwindow* window,
-            const Visualization::PointCloudVertex* point3ds,
+            Visualization::PointCloudVertex* point3ds,
             uint32_t numPoints,
             const uint16_t* depthFrame,
             uint32_t width, uint32_t height,
@@ -44,11 +46,18 @@ namespace Visualization
         void ChangePointCloudSize(float pointCloudSize);
 
     private:
-        int ssbo_size = 1024;
+
+        /*
+        * make note in header class that we change the max point cloud size (aka resolution)
+        * based on the depth mode the that is chosen. It can be dynamically changed on CPU side
+        * but must be explicitly changed in the compute shader
+        */
+        int ssbo_index = 0;
         class ssbo_data
         {
         public:
-            glm::ivec4 positions_list[1024];
+            glm::vec4 colorInput[320 * 288];
+            glm::vec4 colorOutput[320 * 288];
         };
         ssbo_data ssbo_CPUMEM;
         // Render settings

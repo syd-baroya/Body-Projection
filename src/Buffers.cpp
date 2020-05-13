@@ -2,32 +2,6 @@
 #include <vcruntime_string.h>
 
 
-void SimpleBuffer::bufferData(GLuint npe, GLenum type, GLsizeiptr size, const void* data)
-{
-	num_per_elem = npe;
-	elem_type = type;
-	//bind();
-	glBufferData(buffer_type, size, data, draw_type);
-	//unbind();
-}
-
-void SimpleBuffer::bufferSubData(GLuint npe, GLenum type, GLintptr offset, GLsizeiptr size, const void* data)
-{
-	num_per_elem = npe;
-	elem_type = type;
-	//bind();
-	glBufferSubData(buffer_type, offset, size, data);
-	//unbind();
-}
-
-void ComplexBuffer::bufferData(GLsizeiptr size, const void* data)
-{
-	//bind();
-	glBufferData(getBufferType(), size, data, GL_DYNAMIC_DRAW);
-	bindBufferBase(0);
-	//unbind();
-}
-
 auto* ComplexBuffer::mapBufferRange(GLintptr offset, GLsizeiptr length, GLbitfield access)
 {
 	GLuint* userCounters;

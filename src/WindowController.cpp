@@ -214,19 +214,25 @@ bool WindowController::InitializePointCloudRenderer(
         }
 
         m_pointCloudRenderer.InitializeDepthXYTable(depthXyTableInterleaved, width, height);
+        m_pointCloudRenderer.InitializeSSBO();
     }
 
     return true;
 }
 
 void WindowController::UpdatePointClouds(
-    const PointCloudVertex* point3d,
+    PointCloudVertex* point3d,
     uint32_t numPoints,
     const uint16_t* depthFrame,
     uint32_t width, uint32_t height,
     bool useTestPointClouds)
 {
     m_pointCloudRenderer.UpdatePointClouds(m_window, point3d, numPoints, depthFrame, width, height, useTestPointClouds);
+}
+
+void WindowController::addColor(glm::vec4 color) 
+{
+    m_pointCloudRenderer.addColor(color);
 }
 
 void WindowController::CleanJointsAndBones()

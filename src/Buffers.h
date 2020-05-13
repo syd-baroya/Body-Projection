@@ -20,13 +20,29 @@ public:
 
 	virtual void bind() { glBindBuffer(buffer_type, id); }
 	virtual void unbind() { glBindBuffer(buffer_type, 0); }
-	virtual void bufferData(GLuint npe, GLenum type, GLsizeiptr size, const void* data);
-	virtual void bufferSubData(GLuint npe, GLenum type, GLintptr offset, GLsizeiptr size, const void* data);
 	inline GLenum getBufferType() const { return(buffer_type); }
 	inline GLuint getID() const { return(id); }
 	virtual void deleteBuffer() {	glDeleteBuffers(1, &id);	}
 	inline GLuint getNumPerElem() { return(num_per_elem); }
 	inline GLenum getElemType() { return(elem_type); }
+
+	template<class T>
+	void bufferData(GLsizeiptr size, T* data)
+	{
+		//bind();
+		glBufferData(buffer_type, size, data, draw_type);
+		//unbind();
+	}
+
+	template<class T>
+	void bufferSubData(GLintptr offset, GLsizeiptr size, T* data)
+	{
+		//bind();
+		glBufferSubData(buffer_type, offset, size, data);
+		//unbind();
+	}
+
+
 protected:
 	GLuint num_per_elem = 0;
 	GLuint id;
@@ -39,12 +55,20 @@ class ComplexBuffer : public SimpleBuffer {
 public:
 	ComplexBuffer() : SimpleBuffer(){}
 	ComplexBuffer(GLenum buffer_type, GLenum draw_type) : SimpleBuffer(buffer_type, draw_type) {}
-	void bufferData(GLsizeiptr size, const void* data);
 	auto* mapBufferRange(GLintptr offset, GLsizeiptr length, GLbitfield access);
 	GLvoid* mapBuffer(GLenum access);
 	void unMapBuffer();
 	void bindBufferBase(GLuint index);
 	void unbindBufferBase(GLuint index);
+
+	template<class T>
+	void bufferData(GLsizeiptr size, T* data)
+	{
+		//bind();
+		glBufferData(getBufferType(), size, data, GL_DYNAMIC_DRAW);
+		bindBufferBase(0);
+		//unbind();
+	}
 };
 
 class ArrayBuffer : public SimpleBuffer {
@@ -74,23 +98,38 @@ public:
 class ShaderStorageBuffer : public ComplexBuffer {
 public:
 	ShaderStorageBuffer() : ComplexBuffer(GL_SHADER_STORAGE_BUFFER, GL_DYNAMIC_DRAW) {}
-	template<class T>
-	void create_SSBO(T& ssbo_data)
+
+	void create_SSBO(int total_size)
 	{
-		bind();
-		bufferData(sizeof(T), &ssbo_data);
-		unbind();
+		this->bind();
+		glBufferData(getBufferType(), total_size, NULL, GL_DYNAMIC_DRAW);
+		this->unbind();
 	}
 
 	template<class T>
-	void get_SSBO_back(T& ssbo_data)
+	void create_SSBO(T* ssbo_data, int total_size)
+	{
+		this->bind();
+		glBufferData(getBufferType(), total_size, ssbo_data, GL_DYNAMIC_DRAW);
+		this->unbind();
+	}
+
+	template<class T>
+	void load_SSBO(T* ssbo_data, int offset, int total_size)
+	{
+		this->bind();
+		glBufferSubData(getBufferType(), offset, total_size, ssbo_data);
+		this->unbind();
+	}
+
+	template<class T>
+	void get_SSBO_back(T* ssbo_data, int total_size)
 	{
 		// Get SSBO back
-		bind();
-		GLvoid* p = mapBuffer(GL_READ_ONLY);
-		int siz = sizeof(T);
-		memcpy(&ssbo_data, p, siz);
-		unMapBuffer();
+		this->bind();
+		GLvoid* p = this->mapBuffer(GL_READ_ONLY);
+		memcpy(ssbo_data, p, total_size);
+		this->unMapBuffer();
 	}
 };
 

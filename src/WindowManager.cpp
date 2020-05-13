@@ -109,7 +109,7 @@ void WindowManager::UpdatePointClouds(k4a_image_t depthImage, std::vector<Color>
                 continue;
             }
 
-            glm::vec4 color = glm::vec4(1.f, 1.f, 1.f, 1.0f );
+            glm::vec4 color = glm::vec4(0.f, 0.f, 0.f, 1.0f );
             glm::ivec2 pixelLocation = glm::ivec2(w, h );
 
             if (pointCloudColors.size() > 0)
@@ -125,6 +125,7 @@ void WindowManager::UpdatePointClouds(k4a_image_t depthImage, std::vector<Color>
             pointCloud.PixelLocation.y = pixelLocation.y;
 
             m_pointClouds.push_back(pointCloud);
+            m_window3d.addColor(pointCloud.Color);
         }
     }
 
