@@ -63,8 +63,6 @@ void PointCloudRenderer::Create(GLFWwindow* window)
     m_xyTableSamplerIndex = glGetUniformLocation(VSFSProgram->getPID(), "xyTable");
     m_depthSamplerIndex = glGetUniformLocation(VSFSProgram->getPID(), "depth");
 
-    m_bufferSize = glGetUniformLocation(computeProgram->getPID(), "sizeofbuffer");
-
 }
 
 void PointCloudRenderer::Delete()
@@ -162,7 +160,6 @@ void PointCloudRenderer::UpdatePointClouds(
 
     ssBuffObject->get_SSBO_back<PointCloudRenderer::ssbo_data>(&ssbo_CPUMEM, sizeof(ssbo_CPUMEM));
 
-    ssbo_CPUMEM.colorOutputIndex = ssbo_index;
     int point3dsIndex = 0;
     for (int i = 0; i < ssbo_index; i++)
     {

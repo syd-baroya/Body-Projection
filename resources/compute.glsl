@@ -22,19 +22,14 @@ layout (std430, binding=0) volatile buffer shader_data
   vec4 colorInput[  320 * 288 ];
   vec4 colorOutput[ 320 * 288];
   int colorIndex[320 * 288];
-  int colorOutputIndex;
 };
 
-uniform int sizeofbuffer;
 void main() 
 {
-	uint lid_index_x = gl_LocalInvocationID.x;
-	uint lid_index_y = gl_LocalInvocationID.y;
 	uint gid_index_x = gl_GlobalInvocationID.x;
 	uint gid_index_y = gl_GlobalInvocationID.y;
 
 
-//	uint index = ( gid_index_x * 45 ) + lid_index_x + ( gid_index_y * 16 * 8 * 45 ) + ( lid_index_y * 8 * 45 );
 	uint index = gid_index_x*288 + gid_index_y;
 
 
@@ -66,5 +61,4 @@ void main()
 	}
 
 
-	//barrier();
 }
