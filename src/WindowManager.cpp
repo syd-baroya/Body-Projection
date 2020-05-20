@@ -106,6 +106,7 @@ void WindowManager::UpdatePointClouds(k4a_image_t depthImage, std::vector<Color>
             // When the point cloud is invalid, the z-depth value is 0.
             if (position.v[2] == 0)
             {
+                m_window3d.addColor(glm::vec4(0,0,0,1), false);
                 continue;
             }
 
@@ -125,7 +126,7 @@ void WindowManager::UpdatePointClouds(k4a_image_t depthImage, std::vector<Color>
             pointCloud.PixelLocation.y = pixelLocation.y;
 
             m_pointClouds.push_back(pointCloud);
-            m_window3d.addColor(pointCloud.Color);
+            m_window3d.addColor(pointCloud.Color, true);
         }
     }
 

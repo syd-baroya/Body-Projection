@@ -28,7 +28,7 @@ namespace Visualization
 
         void InitializeSSBO();
 
-        void addColor(glm::vec4 color);
+        void addColor(glm::vec4 color, bool in_point_cloud);
 
         void UpdatePointClouds(
             GLFWwindow* window,
@@ -58,6 +58,8 @@ namespace Visualization
         public:
             glm::vec4 colorInput[320 * 288];
             glm::vec4 colorOutput[320 * 288];
+            int colorIndex[320 * 288] = { 0 };
+            int colorOutputIndex = 0;;
         };
         ssbo_data ssbo_CPUMEM;
         // Render settings

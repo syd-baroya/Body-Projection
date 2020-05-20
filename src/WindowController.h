@@ -63,7 +63,7 @@ namespace Visualization
             uint32_t width, uint32_t height,
             bool useTestPointClouds = false);
 
-        void addColor(glm::vec4 color);
+        void addColor(glm::vec4 color, bool in_point_cloud);
 
         void CleanJointsAndBones();
 

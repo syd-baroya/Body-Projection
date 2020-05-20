@@ -230,9 +230,9 @@ void WindowController::UpdatePointClouds(
     m_pointCloudRenderer.UpdatePointClouds(m_window, point3d, numPoints, depthFrame, width, height, useTestPointClouds);
 }
 
-void WindowController::addColor(glm::vec4 color) 
+void WindowController::addColor(glm::vec4 color, bool in_point_cloud) 
 {
-    m_pointCloudRenderer.addColor(color);
+    m_pointCloudRenderer.addColor(color, in_point_cloud);
 }
 
 void WindowController::CleanJointsAndBones()

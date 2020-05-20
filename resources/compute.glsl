@@ -1,6 +1,6 @@
 #version 450 
 #extension GL_ARB_shader_storage_buffer_object : require
-layout(local_size_x = 90, local_size_y = 16) in;	
+layout(local_size_x = 40, local_size_y = 16) in;	
 layout (binding = 0, offset = 0) uniform atomic_uint ac;
 
 //	for texture handling
@@ -21,7 +21,8 @@ layout (std430, binding=0) volatile buffer shader_data
 { 
   vec4 colorInput[  320 * 288 ];
   vec4 colorOutput[ 320 * 288];
-
+  int colorIndex[320 * 288];
+  int colorOutputIndex;
 };
 
 uniform int sizeofbuffer;
@@ -33,42 +34,37 @@ void main()
 	uint gid_index_y = gl_GlobalInvocationID.y;
 
 
-	uint index = ( gid_index_x * 90 ) + lid_index_x + ( gid_index_y * 90 * 72 * 4 ) + ( lid_index_y * 90 * 4 );
+//	uint index = ( gid_index_x * 45 ) + lid_index_x + ( gid_index_y * 16 * 8 * 45 ) + ( lid_index_y * 8 * 45 );
+	uint index = gid_index_x*288 + gid_index_y;
 
 
-	if(index < sizeofbuffer )
+	if( colorInput[index].rgb != vec3(0))
 	{
+		vec4 up, down, left, right;
+		up = down = left = right = vec4(1);
 
-		if( colorInput[index].rgb != vec3(0))
-		{
-			vec4 up, down, left, right;
-			up = down = left = right = vec4(1);
-
-			//check if up is valid
-			if( gid_index_y > 0 && lid_index_y > 0 )
-				up = colorInput[ index - ( 4 * 90 ) ];
+		//check if up is valid
+		if( index >= 320)
+			up = colorInput[ index - 320 ];
 		
-			//check if down is valid
-			if( gid_index_y < 4 && lid_index_y < 72 )
-				down = colorInput[ index + ( 4 * 90 ) ];
+		//check if down is valid
+		if( index < (320*288 -320) )
+			down = colorInput[ index + 320 ];
 
-			//check if left is valid
-			if( gid_index_x > 0 && lid_index_x > 0 )
-				left = colorInput[ index - 1 ];
+		//check if left is valid
+		if( index%320 != 0  )
+			left = colorInput[ index - 1 ];
 		
-			//check if right is valid
-			if( gid_index_x < 4 && lid_index_x < 90 )
-				right = colorInput[ index + 1 ];
+		//check if right is valid
+		if( index%320 != 319 )
+			right = colorInput[ index + 1 ];
 
-			if( (up.rgb == vec3(0)) || (down.rgb == vec3(0)) || (left.rgb == vec3(0)) || (right.rgb == vec3(0)) ) 
-				colorOutput[index] = colorInput[index];
-
-			else
-				colorOutput[index] = vec4(0,0,0,1);
-
+		if( (up.rgb == vec3(0)) || (down.rgb == vec3(0)) || (left.rgb == vec3(0)) || (right.rgb == vec3(0)) ) {
+			colorOutput[index] = colorInput[index];
 		}
 
-
 	}
+
+
 	//barrier();
 }

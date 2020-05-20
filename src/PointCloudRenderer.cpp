@@ -48,7 +48,7 @@ void PointCloudRenderer::Create(GLFWwindow* window)
     glEnable(GL_PROGRAM_POINT_SIZE);
 
     VSFSProgram = new Program(vertShaderPath, fragShaderPath);
-    computeProgram = new ComputeProgram(4, 18, 1, computeShaderPath);
+    computeProgram = new ComputeProgram(8, 18, 1, computeShaderPath);
     atomicCounterBuff = new AtomicCounterBuffer();
     ssBuffObject = new ShaderStorageBuffer();
 
@@ -99,12 +99,6 @@ void PointCloudRenderer::InitializeDepthXYTable(const float* xyTableInterleaved,
 void PointCloudRenderer::InitializeSSBO()
 {
 
-
-    for (int i = 0; i < 320 * 288; i++) {
-
-        ssbo_CPUMEM.colorInput[i] = ivec4(i, 0, 0, 0);
-
-    }
     ssBuffObject->create_SSBO<PointCloudRenderer::ssbo_data>(&ssbo_CPUMEM, sizeof(ssbo_CPUMEM));
     atomicCounterBuff->bind();
     atomicCounterBuff->bufferData(sizeof(GLuint) * 1, (const void *) 0);
@@ -112,10 +106,15 @@ void PointCloudRenderer::InitializeSSBO()
 
 }
 
-void PointCloudRenderer::addColor(glm::vec4 color)
+void PointCloudRenderer::addColor(glm::vec4 color, bool in_point_cloud)
 {
+    if (in_point_cloud)
+        ssbo_CPUMEM.colorIndex[ssbo_index] = 1;
+    else
+        ssbo_CPUMEM.colorIndex[ssbo_index] = 0;
+
     ssbo_CPUMEM.colorInput[ssbo_index] = glm::vec4(color.x, color.y, color.z, color.a);
-    ssbo_CPUMEM.colorOutput[ssbo_index] = glm::vec4(0);
+    ssbo_CPUMEM.colorOutput[ssbo_index] = glm::vec4(0,0,0,1);
     ssbo_index++;
 }
 
@@ -146,7 +145,6 @@ void PointCloudRenderer::UpdatePointClouds(
 
 
     ssBuffObject->load_SSBO<PointCloudRenderer::ssbo_data>(&ssbo_CPUMEM, 0, sizeof(ssbo_CPUMEM));
-    ssbo_index = 0;
 
     computeProgram->startUpload();
 
@@ -164,14 +162,20 @@ void PointCloudRenderer::UpdatePointClouds(
 
     ssBuffObject->get_SSBO_back<PointCloudRenderer::ssbo_data>(&ssbo_CPUMEM, sizeof(ssbo_CPUMEM));
 
-
-    for (int i = 0; i < numPoints; i++)
+    ssbo_CPUMEM.colorOutputIndex = ssbo_index;
+    int point3dsIndex = 0;
+    for (int i = 0; i < ssbo_index; i++)
     {
-        point3ds[i].Color = glm::vec4(ssbo_CPUMEM.colorOutput[i].x, ssbo_CPUMEM.colorOutput[i].y, ssbo_CPUMEM.colorOutput[i].z, ssbo_CPUMEM.colorOutput[i].a);
+        if (ssbo_CPUMEM.colorIndex[i]) {
+            point3ds[point3dsIndex].Color = glm::vec4(ssbo_CPUMEM.colorOutput[i].x, ssbo_CPUMEM.colorOutput[i].y, ssbo_CPUMEM.colorOutput[i].z, ssbo_CPUMEM.colorOutput[i].a);
+            point3dsIndex++;
+        }
+
     }
 
+    ssbo_index = 0;
 
-    atomicCounterBuff->read_atomic();
+    //atomicCounterBuff->read_atomic();
 
     glBindVertexArray(m_vertexArrayObject);
     // Create buffers and bind the geometry
