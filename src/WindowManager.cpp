@@ -39,6 +39,7 @@ void WindowManager::Create(
         m_window3d.SetDefaultVerticalFOV(65.0f);
         break;
     }
+    m_window3d.InitializeScenes();
 }
 
 void WindowManager::Create(

@@ -19,11 +19,18 @@ PointCloudVertex testVertices[] =
     { vec3(-0.5f,  0.5f, -3.5f), vec4(1.0f, 1.0f, 0.5f, 1.0f), ivec2(70, 0)},
     { vec3(0.5f,  0.5f, -3.5f), vec4(0.5f, 0.5f, 1.0f, 1.0f), ivec2(80, 0)}
 };
-static const GLfloat billboard_buffer_data[] = {
- -0.5f, -0.5f, 0.0f,
- 0.5f, -0.5f, 0.0f,
- -0.5f, 0.5f, 0.0f,
- 0.5f, 0.5f, 0.0f,
+static const GLfloat billboard_position_data[] = {
+ -0.005f, -0.005f, 0.0f,
+ 0.005f, -0.005f, 0.0f,
+ -0.005f, 0.005f, 0.0f,
+ 0.005f, 0.005f, 0.0f,
+};
+
+static const GLfloat billboard_texture_data[] = {
+ 0.0f, 0.0f,
+ 1.0f, 0.0f,
+ 0.0f, 1.0f,
+ 1.0f, 1.0f,
 };
 
 PointCloudRenderer::PointCloudRenderer()
@@ -64,8 +71,15 @@ void PointCloudRenderer::Create(GLFWwindow* window)
     glBindVertexArray(m_vertexArrayObject);
     glGenBuffers(1, &m_vertexBufferObject);
 
-    glGenBuffers(1, &billboard_vertex_buffer);
-    
+    glGenBuffers(1, &billboard_position_buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, billboard_position_buffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(billboard_position_data), billboard_position_data, GL_STATIC_DRAW);
+    glGenBuffers(1, &billboard_texture_buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, billboard_texture_buffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(billboard_texture_data), billboard_texture_data, GL_STATIC_DRAW);
+
+    VSFSProgram->bind();
+
     m_viewIndex = glGetUniformLocation(VSFSProgram->getPID(), "view");
     m_projectionIndex = glGetUniformLocation(VSFSProgram->getPID(), "projection");
     m_enableShadingIndex = glGetUniformLocation(VSFSProgram->getPID(), "enableShading");
@@ -186,23 +200,9 @@ void PointCloudRenderer::UpdatePointClouds(
 
     glBindVertexArray(m_vertexArrayObject);
     // Create buffers and bind the geometry
-    glBindBuffer(GL_ARRAY_BUFFER, billboard_vertex_buffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(billboard_buffer_data), billboard_buffer_data, GL_STATIC_DRAW);
-
-
-    glBindBuffer(GL_ARRAY_BUFFER, m_vertexBufferObject);
-
-    if (!useTestPointClouds)
-    {
-        glBufferData(GL_ARRAY_BUFFER, numPoints * sizeof(PointCloudVertex), point3ds, GL_STREAM_DRAW);
-    }
-    else
-    {
-        glBufferData(GL_ARRAY_BUFFER, sizeof(testVertices), testVertices, GL_STREAM_DRAW);
-    }
-
+  
     glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, billboard_vertex_buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, billboard_position_buffer);
     glVertexAttribPointer(
         0, // attribute. No particular reason for 0, but must match the layout in the shader.
         3, // size
@@ -211,18 +211,41 @@ void PointCloudRenderer::UpdatePointClouds(
         0, // stride
         (void*)0 // array buffer offset
     );
+    glEnableVertexAttribArray(1);
+    glBindBuffer(GL_ARRAY_BUFFER, billboard_texture_buffer);
+    glVertexAttribPointer(
+        1, // attribute. No particular reason for 0, but must match the layout in the shader.
+        2, // size
+        GL_FLOAT, // type
+        GL_FALSE, // normalized?
+        0, // stride
+        (void*)0 // array buffer offset
+    );
+
+    glBindBuffer(GL_ARRAY_BUFFER, m_vertexBufferObject);
+
+    if (!useTestPointClouds)
+    {
+        glBufferData(GL_ARRAY_BUFFER, point3dsIndex * sizeof(PointCloudVertex), point3ds, GL_STREAM_DRAW);
+    }
+    else
+    {
+        glBufferData(GL_ARRAY_BUFFER, sizeof(testVertices), testVertices, GL_STREAM_DRAW);
+    }
+
+  
 
     // Set the vertex attribute pointers
     // Vertex Positions
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(PointCloudVertex), (void*)0);
-    // Vertex Colors
     glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(PointCloudVertex), (void*)offsetof(PointCloudVertex, Color));
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(PointCloudVertex), (void*)0);
+    // Vertex Colors
+    glEnableVertexAttribArray(3);
+    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(PointCloudVertex), (void*)offsetof(PointCloudVertex, Color));
     // Vertex Pixel Location
     // Notice: For GL_INT type, we need to use glVertexAttribIPointer instead of glVertexAttribPointer
-    glEnableVertexAttribArray(3);
-    glVertexAttribIPointer(3, 2, GL_INT, sizeof(PointCloudVertex), (void*)offsetof(PointCloudVertex, PixelLocation));
+    glEnableVertexAttribArray(4);
+    glVertexAttribIPointer(4, 2, GL_INT, sizeof(PointCloudVertex), (void*)offsetof(PointCloudVertex, PixelLocation));
 
     glBindVertexArray(0);
 
@@ -263,7 +286,7 @@ void PointCloudRenderer::Render(SceneComponent* scene, int width, int height)
     {
         pointSize = std::min(2.f * width / (float)m_width, 2.f * height / (float)m_height);
     }
-    glPointSize(pointSize);
+    //glPointSize(pointSize);
 
     //glUseProgram(m_shaderProgram);
     VSFSProgram->bind();
@@ -274,12 +297,20 @@ void PointCloudRenderer::Render(SceneComponent* scene, int width, int height)
 
     // Update render settings in shader
     glUniform1i(m_enableShadingIndex, (GLint)m_enableShading);
-    if(scene!=nullptr)
+    /*if(scene!=nullptr)
+        scene->draw(VSFSProgram);*/
+    if (scene != nullptr)
         scene->draw(VSFSProgram);
 
     // Render point cloud
     glBindVertexArray(m_vertexArrayObject);
     //glDrawArrays(GL_POINTS, 0, m_drawArraySize);
+    glVertexAttribDivisor(0, 0); // particles vertices : always reuse the same 4 vertices -> 0
+    glVertexAttribDivisor(1, 0); // positions : one per quad (its center) -> 1
+    glVertexAttribDivisor(2, 1); // color : one per quad -> 1
+    glVertexAttribDivisor(3, 1); // pixel location : one per quad -> 1
+    glVertexAttribDivisor(4, 1); // pixel location : one per quad -> 1
+
     glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, m_drawArraySize);
     glBindVertexArray(0);
     

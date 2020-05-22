@@ -77,7 +77,8 @@ namespace Visualization
         // OpenGL resources
         GLuint m_vertexArrayObject = 0;
         GLuint m_vertexBufferObject = 0;
-        GLuint billboard_vertex_buffer = 0;
+        GLuint billboard_position_buffer = 0;
+        GLuint billboard_texture_buffer = 0;
 
 
         GLuint m_xyTableTextureObject = 0;
