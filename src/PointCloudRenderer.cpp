@@ -78,15 +78,22 @@ void PointCloudRenderer::Create(GLFWwindow* window)
     glBindBuffer(GL_ARRAY_BUFFER, billboard_texture_buffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(billboard_texture_data), billboard_texture_data, GL_STATIC_DRAW);
 
-    VSFSProgram->bind();
 
-    m_viewIndex = glGetUniformLocation(VSFSProgram->getPID(), "view");
-    m_projectionIndex = glGetUniformLocation(VSFSProgram->getPID(), "projection");
-    m_enableShadingIndex = glGetUniformLocation(VSFSProgram->getPID(), "enableShading");
-    m_xyTableSamplerIndex = glGetUniformLocation(VSFSProgram->getPID(), "xyTable");
-    m_depthSamplerIndex = glGetUniformLocation(VSFSProgram->getPID(), "depth");
-    m_sceneTextureIndex = glGetUniformLocation(VSFSProgram->getPID(), "scene_tex");
-    glUniform1i(m_sceneTextureIndex, 0);
+
+    VSFSProgram->addUniform("model");
+    VSFSProgram->addUniform("view");
+    VSFSProgram->addUniform("projection");
+    VSFSProgram->addUniform("enableShading");
+    VSFSProgram->addUniform("xyTable");
+    VSFSProgram->addUniform("depth");
+    VSFSProgram->addUniform("totaltime");
+    VSFSProgram->addUniform("texoffset");
+
+
+    VSFSProgram->bind();
+    GLuint TexLoc;
+    TexLoc = glGetUniformLocation(VSFSProgram->getPID(), "scene_tex");
+    glUniform1i(TexLoc, 0);
 
 }
 
@@ -292,14 +299,18 @@ void PointCloudRenderer::Render(SceneComponent* scene, int width, int height)
     VSFSProgram->bind();
 
     // Update model/view/projective matrices in shader
-    glUniformMatrix4fv(m_viewIndex, 1, GL_FALSE, &m_view[0][0]);
-    glUniformMatrix4fv(m_projectionIndex, 1, GL_FALSE, &m_projection[0][0]);
+
+    glUniformMatrix4fv(VSFSProgram->getUniform("view"), 1, GL_FALSE, &m_view[0][0]);
+    glUniformMatrix4fv(VSFSProgram->getUniform("projection"), 1, GL_FALSE, &m_projection[0][0]);
+
+    glm::mat4 model = glm::scale(glm::mat4(1), glm::vec3(1.0f, 1.0f, 1.0f));
+    glUniformMatrix4fv(VSFSProgram->getUniform("model"), 1, GL_FALSE, &model[0][0]);
 
     // Update render settings in shader
-    glUniform1i(m_enableShadingIndex, (GLint)m_enableShading);
-    /*if(scene!=nullptr)
-        scene->draw(VSFSProgram);*/
-    if (scene != nullptr)
+    glUniform1i(VSFSProgram->getUniform("enableShading"), (GLint)m_enableShading);
+
+
+    if(scene!=nullptr)
         scene->draw(VSFSProgram);
 
     // Render point cloud

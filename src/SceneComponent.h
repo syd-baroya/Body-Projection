@@ -37,6 +37,8 @@ public:
 
 	virtual void activateTexture(Program* prog);
 
+	void setOffset(int length_of_x_anims, int length_of_y_anims);
+
 	SimpleTexture2D* getTexture() { return(scene_texture); }
 
 	void pauseAll();
@@ -51,6 +53,8 @@ protected:
 
 	float effect_time = 0;
 
+	ivec2 offset = ivec2(0);
+	bool has_offset = false;
 	bool add_tones = false;
 	bool is_paused = false;
 

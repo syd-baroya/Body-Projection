@@ -26,6 +26,16 @@ void SceneComponent::update(double frametime)
 void SceneComponent::draw(Program* prog)
 {
 	glUniform1f(prog->getUniform("totaltime"), this->effect_time);
+	if (has_offset)
+	{
+		
+		float tileprogress = this->effect_time * (offset.x*offset.y);
+		int tx = (int)tileprogress % offset.x;
+		int ty = (int)tileprogress / offset.y;
+		vec4 texoff = vec4(offset.x, offset.y, tx, ty);
+		glUniform4fv(prog->getUniform("texoffset"), 1, &texoff.x);
+
+	}
 	if (add_tones)
 	{
 		glUniform1f(prog->getUniform("texblend"), 0);
@@ -45,6 +55,13 @@ void SceneComponent::activateTexture(Program* prog)
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, scene_texture->getTextureID());
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+}
+
+void SceneComponent::setOffset(int length_of_x_anims, int length_of_y_anims)
+{
+	offset.x = length_of_x_anims;
+	offset.y = length_of_y_anims;
+	has_offset = true;
 }
 
 void SceneComponent::pauseAll()

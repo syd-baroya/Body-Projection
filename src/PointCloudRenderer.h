@@ -84,12 +84,13 @@ namespace Visualization
         GLuint m_xyTableTextureObject = 0;
         GLuint m_depthTextureObject = 0;
 
+      /*  GLuint m_modelIndex = 0;
         GLuint m_viewIndex = 0;
         GLuint m_projectionIndex = 0;
         GLuint m_enableShadingIndex = 0;
         GLuint m_xyTableSamplerIndex = 0;
         GLuint m_depthSamplerIndex = 0;
-        GLuint m_sceneTextureIndex = 0;
+        GLuint m_sceneTextureIndex = 0;*/
         // Lock
         std::mutex m_mutex;
 

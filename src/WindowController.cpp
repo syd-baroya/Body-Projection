@@ -202,7 +202,10 @@ void WindowController::SetWindowPosition(int xPos, int yPos)
 
 void WindowController::InitializeScenes()
 {
-    scene_comps.emplace(SUN, new SceneComponent("../resources/chameleon.png"));
+    SceneComponent* sun_scene = new SceneComponent("../resources/fire_animation.png");
+    sun_scene->setOffset(4, 4);
+    scene_comps.emplace(SUN, sun_scene);
+
 }
 
 bool WindowController::InitializePointCloudRenderer(
