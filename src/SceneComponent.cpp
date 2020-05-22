@@ -4,14 +4,17 @@
 
 void SceneComponent::init()
 {
-	red_tone = normalize(vec3(frand(), frand(), frand()));
-	green_tone = normalize(vec3(frand(), frand(), frand()));
-	blue_tone = normalize(vec3(frand(), frand(), frand()));
+	if (add_tones)
+	{
+		red_tone = normalize(vec3(frand(), frand(), frand()));
+		green_tone = normalize(vec3(frand(), frand(), frand()));
+		blue_tone = normalize(vec3(frand(), frand(), frand()));
 
-	color_scaling = normalize(vec3(frand(), frand(), frand()));
-	red_tone *= color_scaling.x;
-	green_tone *= color_scaling.y;
-	blue_tone *= color_scaling.z;
+		color_scaling = normalize(vec3(frand(), frand(), frand()));
+		red_tone *= color_scaling.x;
+		green_tone *= color_scaling.y;
+		blue_tone *= color_scaling.z;
+	}
 }
 
 void SceneComponent::update(double frametime)
@@ -23,13 +26,16 @@ void SceneComponent::update(double frametime)
 void SceneComponent::draw(Program* prog)
 {
 	glUniform1f(prog->getUniform("totaltime"), this->effect_time);
-	glUniform1f(prog->getUniform("texblend"), 0);
+	if (add_tones)
+	{
+		glUniform1f(prog->getUniform("texblend"), 0);
 
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-	glUniform3fv(prog->getUniform("redmul"), 1, &red_tone.x);
-	glUniform3fv(prog->getUniform("greenmul"), 1, &green_tone.x);
-	glUniform3fv(prog->getUniform("bluemul"), 1, &blue_tone.x);
+		glUniform3fv(prog->getUniform("redmul"), 1, &red_tone.x);
+		glUniform3fv(prog->getUniform("greenmul"), 1, &green_tone.x);
+		glUniform3fv(prog->getUniform("bluemul"), 1, &blue_tone.x);
+	}
 	this->activateTexture(prog);
 }
 

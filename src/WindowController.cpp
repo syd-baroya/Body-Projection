@@ -200,6 +200,11 @@ void WindowController::SetWindowPosition(int xPos, int yPos)
     }
 }
 
+void WindowController::InitializeScenes()
+{
+    scene_comps.emplace(SUN, new SceneComponent("../resources/fire_animation.png"));
+}
+
 bool WindowController::InitializePointCloudRenderer(
     bool enableShading,
     const float* depthXyTableInterleaved,
@@ -218,6 +223,11 @@ bool WindowController::InitializePointCloudRenderer(
     }
 
     return true;
+}
+
+void WindowController::UpdateScene()
+{
+    scene_comps.at(active_scene)->update(m_deltaTime);
 }
 
 void WindowController::UpdatePointClouds(
@@ -283,7 +293,7 @@ void WindowController::RenderScene(ViewControl& viewControl, Viewport viewport)
     if (m_skeletonRenderMode == SkeletonRenderMode::SkeletonOverlay ||
         m_skeletonRenderMode == SkeletonRenderMode::SkeletonOverlayWithJointFrame)
     {
-        m_pointCloudRenderer.Render(viewport.width, viewport.height);
+        m_pointCloudRenderer.Render(scene_comps.at(active_scene),viewport.width, viewport.height);
 
         glClear(GL_DEPTH_BUFFER_BIT);
         //m_skeletonRenderer.Render();
@@ -291,7 +301,7 @@ void WindowController::RenderScene(ViewControl& viewControl, Viewport viewport)
     else
     {
         //m_skeletonRenderer.Render();
-        m_pointCloudRenderer.Render(viewport.width, viewport.height);
+        m_pointCloudRenderer.Render(scene_comps.at(active_scene), viewport.width, viewport.height);
     }
 
     // Render Camera Pivot Point when interacting with the view control.

@@ -210,6 +210,9 @@
     <ClInclude Include="App3DTypes.h">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="Enums.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ext">
@@ -287,6 +290,7 @@
     <None Include="..\resources\point_cloud.vert">
       <Filter>shader</Filter>
     </None>
+    <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\resources\shaders.txt">

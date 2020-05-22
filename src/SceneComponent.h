@@ -28,7 +28,7 @@ public:
 	SceneComponent(std::string tex_file) {
 		this->scene_texture = new SimpleTexture2D(tex_file);
 		this->scene_texture->initParams();
-
+		this->init();
 	}
 
 	virtual void init() override;

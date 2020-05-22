@@ -6,6 +6,7 @@
 #define WINDOW_CONTROLLER_H
 
 //#include <limits>
+#include "Enums.h"
 #include "ViewControl.h"
 #include "PointCloudRenderer.h"
 #include <vector>
@@ -48,13 +49,15 @@ namespace Visualization
         void Delete();
 
         void SetWindowPosition(int xPos, int yPos);
-
+        void InitializeScenes();
         // Initialize the point cloud renderer
         // If you want to enable the point cloud shading for better visualization, you need to pass in the DepthXY table
         bool InitializePointCloudRenderer(
             bool enableShading,
             const float* depthXyTableInterleaved,
             int width, int height);
+
+        void UpdateScene();
 
         void UpdatePointClouds(
             Visualization::PointCloudVertex* point3d,
@@ -132,6 +135,14 @@ namespace Visualization
         PointCloudRenderer m_pointCloudRenderer;
         //SkeletonRenderer m_skeletonRenderer;
         //FloorRenderer m_floorRenderer;
+
+        //object components
+        std::unordered_map< scenes, SceneComponent*, std::hash<int> > scene_comps;
+        //std::vector<AnimationComponent> anim_comps;
+
+        //active components
+        scenes active_scene = SUN;
+        //int active_anim = 0;
 
         // Render time information
         double m_lastFrame = 0.;

@@ -207,7 +207,7 @@ void WindowManager::Render()
         m_pointClouds.clear();
         m_pointCloudUpdated = false;
     }
-
+    m_window3d.UpdateScene();
     m_window3d.Render();
 }
 

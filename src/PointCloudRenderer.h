@@ -11,6 +11,7 @@
 #include "Utilities.h"
 #include "App3DTypes.h"
 #include <optional>
+#include "SceneComponent.h"
 
 
 namespace Visualization
@@ -41,7 +42,7 @@ namespace Visualization
         void SetShading(bool enableShading);
 
         void Render() override;
-        void Render(int width, int height);
+        void Render(SceneComponent* scene, int width, int height);
 
         void ChangePointCloudSize(float pointCloudSize);
 
@@ -76,6 +77,8 @@ namespace Visualization
         // OpenGL resources
         GLuint m_vertexArrayObject = 0;
         GLuint m_vertexBufferObject = 0;
+        GLuint billboard_vertex_buffer = 0;
+
 
         GLuint m_xyTableTextureObject = 0;
         GLuint m_depthTextureObject = 0;
@@ -85,7 +88,7 @@ namespace Visualization
         GLuint m_enableShadingIndex = 0;
         GLuint m_xyTableSamplerIndex = 0;
         GLuint m_depthSamplerIndex = 0;
-        GLuint m_bufferSize = 0;
+        GLuint m_sceneTextureIndex = 0;
         // Lock
         std::mutex m_mutex;
 
