@@ -30,6 +30,7 @@ namespace Visualization
         void InitializeSSBO();
 
         void addColor(glm::vec4 color, bool in_point_cloud);
+        void update(float frametime);
 
         void UpdatePointClouds(
             GLFWwindow* window,
@@ -53,14 +54,16 @@ namespace Visualization
         * based on the depth mode the that is chosen. It can be dynamically changed on CPU side
         * but must be explicitly changed in the compute shader
         */
+        float m_elapsedTime = 0.0f;
         int ssbo_index = 0;
         class ssbo_data
         {
         public:
             glm::vec4 colorInput[320 * 288];
             glm::vec4 colorOutput[320 * 288];
-            int colorIndex[320 * 288] = { 0 };
+            glm::vec2 pixelLife[320 * 288];
         };
+        int colorIndex[320 * 288] = { 0 };
         ssbo_data ssbo_CPUMEM;
         // Render settings
         const GLfloat m_defaultPointCloudSize = 0.5f;
@@ -77,6 +80,7 @@ namespace Visualization
         // OpenGL resources
         GLuint m_vertexArrayObject = 0;
         GLuint m_vertexBufferObject = 0;
+        GLuint m_vertexAnimation = 0;
         GLuint billboard_position_buffer = 0;
         GLuint billboard_texture_buffer = 0;
 
@@ -84,13 +88,6 @@ namespace Visualization
         GLuint m_xyTableTextureObject = 0;
         GLuint m_depthTextureObject = 0;
 
-      /*  GLuint m_modelIndex = 0;
-        GLuint m_viewIndex = 0;
-        GLuint m_projectionIndex = 0;
-        GLuint m_enableShadingIndex = 0;
-        GLuint m_xyTableSamplerIndex = 0;
-        GLuint m_depthSamplerIndex = 0;
-        GLuint m_sceneTextureIndex = 0;*/
         // Lock
         std::mutex m_mutex;
 

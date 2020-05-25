@@ -2,12 +2,14 @@
 
 layout(location = 0) in vec3 vertexPosition;
 layout(location = 1) in vec2 vertexTexCoords;
-layout(location = 2) in vec3 vertexOffset;
-layout(location = 3) in vec4 vertexColor;
-layout(location = 4) in ivec2 pixelLocation;
+layout(location = 2) in float animationLife;
+layout(location = 3) in vec3 vertexOffset;
+layout(location = 4) in vec4 vertexColor;
+layout(location = 5) in ivec2 pixelLocation;
 
 out vec4 fragmentColor;
 out vec2 fragTexCoords;
+out float fragAnimLife;
 
 uniform mat4 model;
 uniform mat4 view;
@@ -25,4 +27,6 @@ void main()
     fragmentColor = vertexColor;
 
     fragTexCoords = vertexTexCoords;
+
+    fragAnimLife = animationLife;
 }

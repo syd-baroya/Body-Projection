@@ -29,7 +29,7 @@ void SceneComponent::draw(Program* prog)
 	if (has_offset)
 	{
 		
-		float tileprogress = this->effect_time * (offset.x*offset.y);
+		float tileprogress = (this->effect_time / 4.0f) * (offset.x*offset.y);
 		int tx = (int)tileprogress % offset.x;
 		int ty = (int)tileprogress / offset.y;
 		vec4 texoff = vec4(offset.x, offset.y, tx, ty);

@@ -231,6 +231,7 @@ bool WindowController::InitializePointCloudRenderer(
 void WindowController::UpdateScene()
 {
     scene_comps.at(active_scene)->update(m_deltaTime);
+    m_pointCloudRenderer.update(m_deltaTime);
 }
 
 void WindowController::UpdatePointClouds(

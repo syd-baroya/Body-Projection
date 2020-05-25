@@ -20,10 +20,10 @@ PointCloudVertex testVertices[] =
     { vec3(0.5f,  0.5f, -3.5f), vec4(0.5f, 0.5f, 1.0f, 1.0f), ivec2(80, 0)}
 };
 static const GLfloat billboard_position_data[] = {
- -0.005f, -0.005f, 0.0f,
- 0.005f, -0.005f, 0.0f,
- -0.005f, 0.005f, 0.0f,
- 0.005f, 0.005f, 0.0f,
+ -0.01f, -0.01f, 0.0f,
+ 0.01f, -0.01f, 0.0f,
+ -0.01f, 0.01f, 0.0f,
+ 0.01f, 0.01f, 0.0f,
 };
 
 static const GLfloat billboard_texture_data[] = {
@@ -42,7 +42,12 @@ PointCloudRenderer::PointCloudRenderer()
     fragShaderPath += "point_cloud.frag";
     computeShaderPath += "compute.glsl";
 
+    for (int i = 0; i < 320 * 288; i++)
+    {
+        ssbo_CPUMEM.pixelLife[i].x = rand() % 50 + 5;
+        ssbo_CPUMEM.pixelLife[i].y = ssbo_CPUMEM.pixelLife[i].x;
 
+    }
 }
 
 PointCloudRenderer::~PointCloudRenderer()
@@ -70,6 +75,7 @@ void PointCloudRenderer::Create(GLFWwindow* window)
     glGenVertexArrays(1, &m_vertexArrayObject);
     glBindVertexArray(m_vertexArrayObject);
     glGenBuffers(1, &m_vertexBufferObject);
+    glGenBuffers(1, &m_vertexAnimation);
 
     glGenBuffers(1, &billboard_position_buffer);
     glBindBuffer(GL_ARRAY_BUFFER, billboard_position_buffer);
@@ -107,6 +113,10 @@ void PointCloudRenderer::Delete()
     m_initialized = false;
 
     glDeleteBuffers(1, &m_vertexBufferObject);
+    glDeleteBuffers(1, &m_vertexAnimation);
+    glDeleteBuffers(1, &billboard_position_buffer);
+    glDeleteBuffers(1, &billboard_texture_buffer);
+
 
     VSFSProgram->Delete();
 }
@@ -139,13 +149,18 @@ void PointCloudRenderer::InitializeSSBO()
 void PointCloudRenderer::addColor(glm::vec4 color, bool in_point_cloud)
 {
     if (in_point_cloud)
-        ssbo_CPUMEM.colorIndex[ssbo_index] = 1;
+        colorIndex[ssbo_index] = 1;
     else
-        ssbo_CPUMEM.colorIndex[ssbo_index] = 0;
+        colorIndex[ssbo_index] = 0;
 
     ssbo_CPUMEM.colorInput[ssbo_index] = glm::vec4(color.x, color.y, color.z, color.a);
     ssbo_CPUMEM.colorOutput[ssbo_index] = glm::vec4(0,0,0,1);
     ssbo_index++;
+}
+
+void PointCloudRenderer::update(float frametime)
+{
+    m_elapsedTime += frametime;
 }
 
 void PointCloudRenderer::UpdatePointClouds(
@@ -192,10 +207,21 @@ void PointCloudRenderer::UpdatePointClouds(
     ssBuffObject->get_SSBO_back<PointCloudRenderer::ssbo_data>(&ssbo_CPUMEM, sizeof(ssbo_CPUMEM));
 
     int point3dsIndex = 0;
+
+    std::vector<float> animation_lifetime;
     for (int i = 0; i < ssbo_index; i++)
     {
-        if (ssbo_CPUMEM.colorIndex[i]) {
-            point3ds[point3dsIndex].Color = glm::vec4(ssbo_CPUMEM.colorOutput[i].x, ssbo_CPUMEM.colorOutput[i].y, ssbo_CPUMEM.colorOutput[i].z, ssbo_CPUMEM.colorOutput[i].a);
+        if (colorIndex[i]) {
+            if (point3dsIndex % 10 == 0)
+            {
+                point3ds[point3dsIndex].Color = glm::vec4(ssbo_CPUMEM.colorOutput[i].x, ssbo_CPUMEM.colorOutput[i].y, ssbo_CPUMEM.colorOutput[i].z, ssbo_CPUMEM.colorOutput[i].a);
+                animation_lifetime.push_back(ssbo_CPUMEM.pixelLife[i].x);
+            }
+            else {
+                point3ds[point3dsIndex].Color = glm::vec4(0, 0, 0, 0);
+                animation_lifetime.push_back(-10);
+            }
+
             point3dsIndex++;
         }
 
@@ -229,6 +255,14 @@ void PointCloudRenderer::UpdatePointClouds(
         (void*)0 // array buffer offset
     );
 
+    glBindBuffer(GL_ARRAY_BUFFER, m_vertexAnimation);
+    glBufferData(GL_ARRAY_BUFFER, point3dsIndex * sizeof(float), animation_lifetime.data(), GL_STREAM_DRAW);
+
+    glEnableVertexAttribArray(2);
+    glVertexAttribIPointer(2, 1, GL_UNSIGNED_INT, 0, (void*)0);
+
+
+
     glBindBuffer(GL_ARRAY_BUFFER, m_vertexBufferObject);
 
     if (!useTestPointClouds)
@@ -240,19 +274,19 @@ void PointCloudRenderer::UpdatePointClouds(
         glBufferData(GL_ARRAY_BUFFER, sizeof(testVertices), testVertices, GL_STREAM_DRAW);
     }
 
-  
+    
 
     // Set the vertex attribute pointers
     // Vertex Positions
-    glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(PointCloudVertex), (void*)0);
-    // Vertex Colors
     glEnableVertexAttribArray(3);
-    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(PointCloudVertex), (void*)offsetof(PointCloudVertex, Color));
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(PointCloudVertex), (void*)0);
+    // Vertex Colors
+    glEnableVertexAttribArray(4);
+    glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(PointCloudVertex), (void*)offsetof(PointCloudVertex, Color));
     // Vertex Pixel Location
     // Notice: For GL_INT type, we need to use glVertexAttribIPointer instead of glVertexAttribPointer
-    glEnableVertexAttribArray(4);
-    glVertexAttribIPointer(4, 2, GL_INT, sizeof(PointCloudVertex), (void*)offsetof(PointCloudVertex, PixelLocation));
+    glEnableVertexAttribArray(5);
+    glVertexAttribIPointer(5, 2, GL_INT, sizeof(PointCloudVertex), (void*)offsetof(PointCloudVertex, PixelLocation));
 
     glBindVertexArray(0);
 
@@ -317,10 +351,11 @@ void PointCloudRenderer::Render(SceneComponent* scene, int width, int height)
     glBindVertexArray(m_vertexArrayObject);
     //glDrawArrays(GL_POINTS, 0, m_drawArraySize);
     glVertexAttribDivisor(0, 0); // particles vertices : always reuse the same 4 vertices -> 0
-    glVertexAttribDivisor(1, 0); // positions : one per quad (its center) -> 1
-    glVertexAttribDivisor(2, 1); // color : one per quad -> 1
-    glVertexAttribDivisor(3, 1); // pixel location : one per quad -> 1
-    glVertexAttribDivisor(4, 1); // pixel location : one per quad -> 1
+    glVertexAttribDivisor(1, 0); // particles texture coords : always reuse the same 2 coords -> 0
+    glVertexAttribDivisor(2, 1); // start animation : one per quad -> 1
+    glVertexAttribDivisor(3, 1); // positions : one per quad (its center) -> 1
+    glVertexAttribDivisor(4, 1); // color : one per quad -> 1
+    glVertexAttribDivisor(5, 1); // pixel location : one per quad -> 1
 
     glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, m_drawArraySize);
     glBindVertexArray(0);
