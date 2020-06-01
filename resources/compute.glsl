@@ -56,8 +56,7 @@ void main()
 
 		if( (up.rgb == vec3(0)) || (down.rgb == vec3(0)) || (left.rgb == vec3(0)) || (right.rgb == vec3(0)) ) 
 		{
-			outlineIndices[index] = int(index);
-
+			outlineIndices[atomicCounterIncrement(ac)] = int(index);
 //			if(pixelLife[index].x <= -20.0f)
 //				pixelLife[index].x = pixelLife[index].y;
 //			else

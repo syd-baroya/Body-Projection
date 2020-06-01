@@ -63,7 +63,7 @@ namespace Visualization
         {
         public:
             glm::vec4 colorInput[320 * 288];
-            int outlineIndices[(320 * 288)];
+            int outlineIndices[(320 * 288) / 2];
             //glm::vec2 pixelLife[320 * 288];
         };
         //int colorIndex[320 * 288] = { 0 };

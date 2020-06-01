@@ -214,13 +214,13 @@ void PointCloudRenderer::UpdatePointClouds(
 
 
         ssBuffObject->get_SSBO_back<PointCloudRenderer::ssbo_data>(&ssbo_CPUMEM, sizeof(ssbo_CPUMEM));
-        //std::sort(std::begin(ssbo_CPUMEM.outlineIndices), std::end(ssbo_CPUMEM.outlineIndices));
-        int randomIndex = rand() % 10;
-        for (int i = 0; i < 320*288; i++)
+        atomicCounterBuff->read_atomic();
+
+        for (int i = 0; i < 320*288 / 2; i++)
         {
             int outlineIndex = ssbo_CPUMEM.outlineIndices[i];
             if (outlineIndex < 0)
-                continue;
+                break;
             PointCloudVertex pointCloud;
             pointCloud.Animate = 0;
             pointCloud.Color = point3ds[outlineIndex].Color;
@@ -231,7 +231,6 @@ void PointCloudRenderer::UpdatePointClouds(
         }
     }
 
-    //atomicCounterBuff->read_atomic();
 
     glBindVertexArray(m_vertexArrayObject);
     // Create buffers and bind the geometry
