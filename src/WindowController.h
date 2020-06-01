@@ -66,7 +66,9 @@ namespace Visualization
             uint32_t width, uint32_t height,
             bool useTestPointClouds = false);
 
-        void addColor(glm::vec4 color, bool in_point_cloud);
+  //      void addColor(glm::vec4 color, bool in_point_cloud);
+
+		//bool pixelDying(int pixelIndex);
 
         void CleanJointsAndBones();
 
@@ -98,6 +100,8 @@ namespace Visualization
 
         void SetKeyCallback(KeyCallbackType callback, void* context);
 
+        bool drawOnlyPointCloudOutline() { return point_cloud_outline_only; }
+
         // OpenGL resources
         GLFWwindow* m_window = nullptr;
 
@@ -118,6 +122,7 @@ namespace Visualization
         void UpdateRenderersViewProjection(glm::mat4 view, glm::mat4 projection);
 
         bool m_initialized = false;
+        bool point_cloud_outline_only = true;
 
         // WindowController Settings
         Layout3d m_layout3d = Layout3d::OnlyMainView;

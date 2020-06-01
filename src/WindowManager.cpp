@@ -93,7 +93,6 @@ void WindowManager::UpdatePointClouds(k4a_image_t depthImage, std::vector<Color>
     int height = k4a_image_get_height_pixels(m_pointCloudImage);
 
     int16_t* pointCloudImageBuffer = (int16_t*)k4a_image_get_buffer(m_pointCloudImage);
-
     for (int h = 0; h < height; h++)
     {
         for (int w = 0; w < width; w++)
@@ -105,13 +104,12 @@ void WindowManager::UpdatePointClouds(k4a_image_t depthImage, std::vector<Color>
                 static_cast<float>(pointCloudImageBuffer[3 * pixelIndex + 2]) };
 
             // When the point cloud is invalid, the z-depth value is 0.
-            if (position.v[2] == 0)
+            if (!m_window3d.drawOnlyPointCloudOutline() && position.v[2] == 0)
             {
-                m_window3d.addColor(glm::vec4(0,0,0,0), false);
                 continue;
             }
 
-            glm::vec4 color = glm::vec4(0.f, 0.f, 0.f, 0.0f );
+            glm::vec4 color = glm::vec4(0.f, 0.f, 0.f, 1.0f );
             glm::ivec2 pixelLocation = glm::ivec2(w, h );
 
             if (pointCloudColors.size() > 0)
@@ -125,9 +123,9 @@ void WindowManager::UpdatePointClouds(k4a_image_t depthImage, std::vector<Color>
             pointCloud.Color = glm::vec4(color.x, color.y, color.z, color.a);
             pointCloud.PixelLocation.x = pixelLocation.x;
             pointCloud.PixelLocation.y = pixelLocation.y;
+            pointCloud.Animate = 0;
 
             m_pointClouds.push_back(pointCloud);
-            m_window3d.addColor(pointCloud.Color, true);
         }
     }
 

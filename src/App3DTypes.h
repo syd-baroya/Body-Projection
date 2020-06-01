@@ -11,6 +11,7 @@ namespace Visualization
     struct PointCloudVertex
     {
         glm::vec3 Position;         // The position of the point cloud vertex specified in meters
+        int Animate;
         glm::vec4 Color;
         glm::ivec2 PixelLocation;   // Pixel location of point cloud in the depth map (w, h)
     };

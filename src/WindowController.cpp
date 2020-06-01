@@ -241,13 +241,17 @@ void WindowController::UpdatePointClouds(
     uint32_t width, uint32_t height,
     bool useTestPointClouds)
 {
-    m_pointCloudRenderer.UpdatePointClouds(m_window, point3d, numPoints, depthFrame, width, height, useTestPointClouds);
+    m_pointCloudRenderer.UpdatePointClouds(m_window, point3d, numPoints, depthFrame, width, height, point_cloud_outline_only, useTestPointClouds);
 }
 
-void WindowController::addColor(glm::vec4 color, bool in_point_cloud) 
-{
-    m_pointCloudRenderer.addColor(color, in_point_cloud);
-}
+//void WindowController::addColor(glm::vec4 color, bool in_point_cloud) 
+//{
+//    m_pointCloudRenderer.addColor(color, in_point_cloud);
+//}
+//
+//bool WindowController::pixelDying(int pixelIndex) {
+//    return m_pointCloudRenderer.pixelDying(pixelIndex);
+//}
 
 void WindowController::CleanJointsAndBones()
 {

@@ -29,7 +29,8 @@ namespace Visualization
 
         void InitializeSSBO();
 
-        void addColor(glm::vec4 color, bool in_point_cloud);
+  //      void addColor(glm::vec4 color, bool in_point_cloud);
+		//bool pixelDying(int pixelIndex);
         void update(float frametime);
 
         void UpdatePointClouds(
@@ -37,7 +38,8 @@ namespace Visualization
             Visualization::PointCloudVertex* point3ds,
             uint32_t numPoints,
             const uint16_t* depthFrame,
-            uint32_t width, uint32_t height,
+            uint32_t width, uint32_t height, 
+            bool drawOnlyPointCloudOutline = false,
             bool useTestPointClouds = false);
 
         void SetShading(bool enableShading);
@@ -48,6 +50,7 @@ namespace Visualization
         void ChangePointCloudSize(float pointCloudSize);
 
     private:
+        std::vector<PointCloudVertex> pointCloudOutline;
 
         /*
         * make note in header class that we change the max point cloud size (aka resolution)
@@ -55,16 +58,18 @@ namespace Visualization
         * but must be explicitly changed in the compute shader
         */
         float m_elapsedTime = 0.0f;
-        int ssbo_index = 0;
+        //int ssbo_index = 0;
         class ssbo_data
         {
         public:
             glm::vec4 colorInput[320 * 288];
-            glm::vec4 colorOutput[320 * 288];
-            glm::vec2 pixelLife[320 * 288];
+            int outlineIndices[(320 * 288)];
+            //glm::vec2 pixelLife[320 * 288];
         };
-        int colorIndex[320 * 288] = { 0 };
+        //int colorIndex[320 * 288] = { 0 };
         ssbo_data ssbo_CPUMEM;
+
+
         // Render settings
         const GLfloat m_defaultPointCloudSize = 0.5f;
         std::optional<GLfloat> m_pointCloudSize;
@@ -81,6 +86,7 @@ namespace Visualization
         GLuint m_vertexArrayObject = 0;
         GLuint m_vertexBufferObject = 0;
         GLuint m_vertexAnimation = 0;
+        GLuint m_outlineBuffer = 0;
         GLuint billboard_position_buffer = 0;
         GLuint billboard_texture_buffer = 0;
 

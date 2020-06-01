@@ -7,26 +7,26 @@ uniform float totaltime;
 
 in vec4 fragmentColor;
 in vec2 fragTexCoords;
-in float fragAnimLife;
+flat in float fragAnim;
 
 void main()
 {
 
 
-    if(fragmentColor.r!=0 && fragmentColor.g!=0)// && fragmentColor.b!=0)
+    if(fragmentColor.rgb != vec3(0))
     {
         vec2 texcoord = vec2(fragTexCoords.x/texoffset.x, fragTexCoords.y/texoffset.y);
-         if(fragAnimLife<=0.0f)
+         if(fragAnim == 1)
          {
             texcoord.x +=texoffset.z / texoffset.x;
             texcoord.y +=texoffset.w / texoffset.y;
          }
 
         fragColor= texture(scene_tex, vec2(texcoord.x,texcoord.y));
-//        fragColor = vec4(fragmentColor.rgb, 1);
+        fragColor = vec4(fragmentColor.rgb, 1);
 
-        if(fragAnimLife>0.0f)
-            fragColor.a = 0.1f;
+//        if(fragAnim == 0)
+//            fragColor.a = 0.25f;
        
         if(fragColor.rgb == vec3(0))
             discard;
