@@ -215,19 +215,28 @@ void PointCloudRenderer::UpdatePointClouds(
 
         ssBuffObject->get_SSBO_back<PointCloudRenderer::ssbo_data>(&ssbo_CPUMEM, sizeof(ssbo_CPUMEM));
         atomicCounterBuff->read_atomic();
+        atomicCounterBuff->reset_atomic();
 
-        for (int i = 0; i < 320*288 / 2; i++)
+        int outlineIndex = 0;
+        int i = 0;
+        int randNumAnimating = rand() % 10;
+        std::vector<int> randPixIndices;
+        int maxIndex = 320*288;
+        for (int j = 0; j < randNumAnimating; j++)
+            randPixIndices.push_back(rand() % maxIndex);
+
+        while (outlineIndex >= 0)
         {
-            int outlineIndex = ssbo_CPUMEM.outlineIndices[i];
-            if (outlineIndex < 0)
-                break;
+            outlineIndex = ssbo_CPUMEM.outlineIndices[i];
             PointCloudVertex pointCloud;
-            pointCloud.Animate = 0;
+            if(randAnim)
+                pointCloud.Animate = 0;
             pointCloud.Color = point3ds[outlineIndex].Color;
             pointCloud.Position = point3ds[outlineIndex].Position;
             pointCloud.PixelLocation = point3ds[outlineIndex].PixelLocation;
             pointCloudOutline.push_back(pointCloud);
             ssbo_CPUMEM.outlineIndices[i] = -1;
+            i++;
         }
     }
 

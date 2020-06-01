@@ -47,11 +47,9 @@ void  AtomicCounterBuffer::read_atomic()
 	GLuint* userCounters;
 	bind();
 	// again we map the buffer to userCounters, but this time for read-only access
-	userCounters = mapBufferRange(0, sizeof(GLuint), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
+	userCounters = mapBufferRange(0, sizeof(GLuint), GL_MAP_READ_BIT);
 	// copy the values to other variables because...
 	std::cout << std::endl << *userCounters << std::endl;
-	// set the memory to zeros, resetting the values in the buffer
-	memset(userCounters, 0, sizeof(GLuint));
 	// ... as soon as we unmap the buffer
 	// the pointer userCounters becomes invalid.
 	unMapBuffer();
