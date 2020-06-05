@@ -192,9 +192,12 @@ void PointCloudRenderer::UpdatePointClouds(
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_width, m_height, GL_RED_INTEGER, GL_UNSIGNED_SHORT, depthFrame);
     glBindImageTexture(1, m_depthTextureObject, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R16UI);
 
+    std::vector<glm::mat4> transformations;
+    for (int i = 0; i < numPoints; i++)
+        transformations.push_back(point3ds[i].Transformations);
     if (drawOnlyPointCloudOutline)
     {
-        pointCloudOutline.clear();
+        //pointCloudOutline.clear();
         for (int i = 0; i < numPoints; i++)
             ssbo_CPUMEM.colorInput[i] = vec4(point3ds[i].Color.x, point3ds[i].Color.y, point3ds[i].Color.z, point3ds[i].Color.a);
 
@@ -219,35 +222,46 @@ void PointCloudRenderer::UpdatePointClouds(
 
         int outlineIndex = 0;
         int i = 0;
-        int randNumAnimating = rand() % 10;
+        /*int randNumAnimating = rand() % 10;
         std::vector<int> randPixIndices;
         if(ssbo_CPUMEM.last_index>0 && resetAnimators)
             for (int j = 0; j < randNumAnimating; j++)
-                randPixIndices.push_back(rand() % ssbo_CPUMEM.last_index);
+                randPixIndices.push_back(rand() % ssbo_CPUMEM.last_index);*/
 
+       
         while (outlineIndex >= 0)
         {
             outlineIndex = ssbo_CPUMEM.outlineIndices[i];
-            PointCloudVertex pointCloud;
 
-            pointCloud.Color = point3ds[outlineIndex].Color;
-            pointCloud.Position = point3ds[outlineIndex].Position;
-            pointCloud.PixelLocation = point3ds[outlineIndex].PixelLocation;
-            float scale = ( (rand() % 30) + 10)/ 10.0f;
-            pointCloud.Transformations = glm::translate(mat4(1), pointCloud.Position) * glm::rotate(glm::mat4(1), (float)glm::radians((rand() % 360) / 1.0f), glm::vec3(0, 0, 1)) * glm::scale(mat4(1), glm::vec3(scale));
-            if (std::find(randPixIndices.begin(), randPixIndices.end(), i) != randPixIndices.end() && resetAnimators)
+            if (resetAnimators)
             {
+                PointCloudVertex pointCloud;
+
+                pointCloud.Color = point3ds[outlineIndex].Color;
+                pointCloud.Position = point3ds[outlineIndex].Position;
+                pointCloud.PixelLocation = point3ds[outlineIndex].PixelLocation;
+                float scale = ((rand() % 390) + 10) / 100.0f;
+                pointCloud.Transformations = glm::translate(mat4(1), pointCloud.Position) * glm::rotate(glm::mat4(1), (float)glm::radians((rand() % 360) / 1.0f), glm::vec3(0, 0, 1)) * glm::scale(mat4(1), glm::vec3(scale));
                 pointCloud.Animate = 1;
                 animatingPixels.push_back(pointCloud);
+                transformations.push_back(pointCloud.Transformations);
             }
             else
             {
-                pointCloud.Animate = 0;
-                pointCloudOutline.push_back(pointCloud);
+                float scale = ((rand() % 390) + 10) / 100.0f;
+                point3ds[outlineIndex].Transformations = glm::translate(mat4(1), point3ds[outlineIndex].Position) * glm::rotate(glm::mat4(1), (float)glm::radians((rand() % 360) / 1.0f), glm::vec3(0, 0, 1)) * glm::scale(mat4(1), glm::vec3(scale));
+                point3ds[outlineIndex].Animate = 0;
+
             }
+                
+       
             ssbo_CPUMEM.outlineIndices[i] = -1;
             i++;
         }
+        if(!resetAnimators)
+            for(i=0; i<animatingPixels.size(); i++)
+                transformations.push_back(animatingPixels.at(i).Transformations);
+
         resetAnimators = false;
     }
 
@@ -279,29 +293,37 @@ void PointCloudRenderer::UpdatePointClouds(
 
     glBindBuffer(GL_ARRAY_BUFFER, m_vertexBufferObject);
 
-    std::vector<glm::mat4> transformations;
-    if (!drawOnlyPointCloudOutline)
-    {
+  /*  if (!drawOnlyPointCloudOutline)
+    {*/
         if (!useTestPointClouds)
         {
-            glBufferData(GL_ARRAY_BUFFER, numPoints * sizeof(PointCloudVertex), point3ds, GL_STREAM_DRAW);
+            if (animatingPixels.size() > 0)
+            {
+                glBufferData(GL_ARRAY_BUFFER, numPoints * animatingPixels.size() * sizeof(PointCloudVertex), NULL, GL_STREAM_DRAW);
+                glBufferSubData(GL_ARRAY_BUFFER, 0, numPoints * sizeof(PointCloudVertex), point3ds);
+                glBufferSubData(GL_ARRAY_BUFFER, numPoints * sizeof(PointCloudVertex), animatingPixels.size() * sizeof(PointCloudVertex), animatingPixels.data());
+            }
+            else
+                glBufferData(GL_ARRAY_BUFFER, numPoints * sizeof(PointCloudVertex), point3ds, GL_STREAM_DRAW);
+
         }
         else
         {
             glBufferData(GL_ARRAY_BUFFER, sizeof(testVertices), testVertices, GL_STREAM_DRAW);
         }
-    }
-    else {
-        allPixelsInOutline.clear();
-        allPixelsInOutline.reserve(pointCloudOutline.size() + animatingPixels.size()); // preallocate memory
-        allPixelsInOutline.insert(allPixelsInOutline.end(), pointCloudOutline.begin(), pointCloudOutline.end());
-        allPixelsInOutline.insert(allPixelsInOutline.end(), animatingPixels.begin(), animatingPixels.end());
-        glBufferData(GL_ARRAY_BUFFER, allPixelsInOutline.size() * sizeof(PointCloudVertex), allPixelsInOutline.data(), GL_STREAM_DRAW);
-        for (int i = 0; i < allPixelsInOutline.size(); i++)
-            transformations.push_back(allPixelsInOutline.at(i).Transformations);
-    }
-    
+   // }
+   // else {
+   //     allPixelsInOutline.clear();
+   //     allPixelsInOutline.reserve(numPoints + animatingPixels.size()); // preallocate memory
+   //     allPixelsInOutline.insert(allPixelsInOutline.end(), point3ds.begin(), point3ds.end());
+   //     allPixelsInOutline.insert(allPixelsInOutline.end(), animatingPixels.begin(), animatingPixels.end());
+   //     glBufferData(GL_ARRAY_BUFFER, allPixelsInOutline.size() * sizeof(PointCloudVertex), allPixelsInOutline.data(), GL_STREAM_DRAW);
+   ///*     for (int i = 0; i < allPixelsInOutline.size(); i++)
+   //         transformations.push_back(allPixelsInOutline.at(i).Transformations);*/
+   // }
 
+
+    
     // Set the vertex attribute pointers
     // Vertex Positions
     glEnableVertexAttribArray(2);
@@ -312,7 +334,7 @@ void PointCloudRenderer::UpdatePointClouds(
     // Vertex Colors
     glEnableVertexAttribArray(4);
     glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(PointCloudVertex), (void*)offsetof(PointCloudVertex, Color));
-    // Vertex transformations
+    //// Vertex transformations
     glBindBuffer(GL_ARRAY_BUFFER, m_vertexTrans);
     glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4)*transformations.size(), transformations.data(), GL_STATIC_DRAW);
 
@@ -333,7 +355,7 @@ void PointCloudRenderer::UpdatePointClouds(
     glBindVertexArray(0);
 
     m_drawArraySize = useTestPointClouds ? 8 : GLsizei(numPoints);
-    m_drawArraySize = drawOnlyPointCloudOutline ? allPixelsInOutline.size() : m_drawArraySize;
+    m_drawArraySize = drawOnlyPointCloudOutline ? (m_drawArraySize + animatingPixels.size()) : m_drawArraySize;
 }
 
 void PointCloudRenderer::SetShading(bool enableShading)
@@ -370,7 +392,8 @@ void PointCloudRenderer::Render(SceneComponent* scene, int width, int height)
     {
         pointSize = std::min(2.f * width / (float)m_width, 2.f * height / (float)m_height);
     }
-    //glPointSize(pointSize);
+    //glPointSize(pointSize); //used for drawing points ----> GL_POINTS ----> glDrawArrays(GL_POINTS, 0, m_drawArraySize);
+
     //glUseProgram(m_shaderProgram);
     VSFSProgram->bind();
 
@@ -391,7 +414,6 @@ void PointCloudRenderer::Render(SceneComponent* scene, int width, int height)
 
     // Render point cloud
     glBindVertexArray(m_vertexArrayObject);
-    //glDrawArrays(GL_POINTS, 0, m_drawArraySize);
     glVertexAttribDivisor(0, 0); // particles vertices : always reuse the same 4 vertices -> 0
     glVertexAttribDivisor(1, 0); // particles texture coords : always reuse the same 2 coords -> 0
     glVertexAttribDivisor(2, 1); // positions : one per quad (its center) -> 1

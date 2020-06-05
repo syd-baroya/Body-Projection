@@ -19,9 +19,9 @@ void SceneComponent::init()
 
 void SceneComponent::update(double frametime)
 {
-	this->effect_time += frametime;
 	if (this->effect_time >= 16.0f)
 		this->effect_time = 0.0f;
+	this->effect_time += frametime;
 
 }
 

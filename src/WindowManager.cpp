@@ -123,7 +123,8 @@ void WindowManager::UpdatePointClouds(k4a_image_t depthImage, std::vector<Color>
             pointCloud.Color = glm::vec4(color.x, color.y, color.z, color.a);
             pointCloud.PixelLocation.x = pixelLocation.x;
             pointCloud.PixelLocation.y = pixelLocation.y;
-            pointCloud.Animate = 0;
+            pointCloud.Animate = -1;
+            pointCloud.Transformations = glm::translate(mat4(1), pointCloud.Position);
           
             m_pointClouds.push_back(pointCloud);
         }

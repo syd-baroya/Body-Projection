@@ -23,7 +23,10 @@ layout(r16ui, binding = 1) restrict readonly uniform uimage2D depth;
 
 void main()
 {
-    gl_Position = projection * view * pixelTrans * vec4(vertexPosition, 1);
+    //if(animatePix==1)
+        gl_Position = projection * view * pixelTrans * vec4(vertexPosition, 1);
+    //else
+    //     gl_Position = projection * view * pixelTrans * vec4(1);
 
     fragmentColor = vertexColor;
 

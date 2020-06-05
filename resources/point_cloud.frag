@@ -12,24 +12,26 @@ flat in int fragAnim;
 void main()
 {
 
-
+ //fragColor = vec4(fragmentColor.rgb, 1);
     if(fragmentColor.rgb != vec3(0))
     {
-        vec2 texcoord = vec2(fragTexCoords.x/texoffset.x, fragTexCoords.y/texoffset.y);
-         if(fragAnim == 1)
+         if(fragAnim >= 0)
          {
-            texcoord.x +=texoffset.z / texoffset.x;
-            texcoord.y +=texoffset.w / texoffset.y;
+            vec2 texcoord = vec2(fragTexCoords.x/texoffset.x, fragTexCoords.y/texoffset.y);
+            if(fragAnim==1)
+            {
+                texcoord.x +=texoffset.z / texoffset.x;
+                texcoord.y +=texoffset.w / texoffset.y;
+            }
+            fragColor= texture(scene_tex, vec2(texcoord.x,texcoord.y));
+            if(fragColor.rgb == vec3(0))
+                discard;
          }
 
-        fragColor= texture(scene_tex, vec2(texcoord.x,texcoord.y));
-        //fragColor = vec4(fragmentColor.rgb, 1);
-
-        if(fragAnim == 0)
-            fragColor.a = 0.2f;
+        else
+            fragColor = vec4(1, 0.967, .549, 1);
        
-        if(fragColor.rgb == vec3(0))
-            discard;
+        
     }
     else
         discard;
