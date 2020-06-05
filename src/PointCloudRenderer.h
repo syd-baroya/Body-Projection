@@ -51,7 +51,7 @@ namespace Visualization
 
     private:
         std::vector<PointCloudVertex> pointCloudOutline;
-
+        std::vector<PointCloudVertex> allPixelsInOutline;
         /*
         * make note in header class that we change the max point cloud size (aka resolution)
         * based on the depth mode the that is chosen. It can be dynamically changed on CPU side
@@ -64,11 +64,13 @@ namespace Visualization
         public:
             glm::vec4 colorInput[320 * 288];
             int outlineIndices[(320 * 288) / 2];
-            //glm::vec2 pixelLife[320 * 288];
+            int last_index = 0;
         };
         //int colorIndex[320 * 288] = { 0 };
         ssbo_data ssbo_CPUMEM;
 
+        std::vector<PointCloudVertex> animatingPixels;
+        bool resetAnimators = true;
 
         // Render settings
         const GLfloat m_defaultPointCloudSize = 0.5f;
@@ -85,7 +87,7 @@ namespace Visualization
         // OpenGL resources
         GLuint m_vertexArrayObject = 0;
         GLuint m_vertexBufferObject = 0;
-        GLuint m_vertexAnimation = 0;
+        GLuint m_vertexTrans = 0;
         GLuint m_outlineBuffer = 0;
         GLuint billboard_position_buffer = 0;
         GLuint billboard_texture_buffer = 0;

@@ -21,7 +21,7 @@ layout (std430, binding=0) volatile buffer shader_data
 { 
   vec4 colorInput[  320 * 288 ];
   int outlineIndices[(320 * 288)/2];
-//  vec2 pixelLife[320 * 288];
+  uint last_index;
 };
 
 void main() 
@@ -56,7 +56,9 @@ void main()
 
 		if( (up.rgb == vec3(0)) || (down.rgb == vec3(0)) || (left.rgb == vec3(0)) || (right.rgb == vec3(0)) ) 
 		{
+			atomicAdd(last_index, 1);
 			outlineIndices[atomicCounterIncrement(ac)] = int(index);
+
 //			if(pixelLife[index].x <= -20.0f)
 //				pixelLife[index].x = pixelLife[index].y;
 //			else

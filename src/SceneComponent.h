@@ -45,6 +45,7 @@ public:
 	void unpauseAll();
 	void reset();
 	float getTotalEffectTime() { return(effect_time); }
+	int getTileProgress() { return tileprogress; }
 
 	vec3 red_tone;
 	vec3 green_tone;
@@ -57,7 +58,7 @@ protected:
 	bool has_offset = false;
 	bool add_tones = false;
 	bool is_paused = false;
-
+	int tileprogress = 0;
 
 	dvec3 color_scaling;
 

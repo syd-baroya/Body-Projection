@@ -9,15 +9,15 @@ using namespace Visualization;
 
 PointCloudVertex testVertices[] =
 {
-    {vec3(-0.5f, -0.5f, -2.5f), 0, vec4(1.0f, 0.0f, 0.0f, 1.0f), ivec2(10, 0)},
-    {vec3(0.5f, -0.5f, -2.5f), 0, vec4(0.0f, 1.0f, 0.0f, 1.0f), ivec2(20, 0)},
-    {vec3(-0.5f,  0.5f, -2.5f), 0, vec4(0.0f, 0.0f, 1.0f, 1.0f), ivec2(30, 0)},
-    { vec3(0.5f,  0.5f, -2.5f), 0, vec4(1.0f, 1.0f, 0.0f, 1.0f), ivec2(40, 0) },
+    {vec3(-0.5f, -0.5f, -2.5f), 0, vec4(1.0f, 0.0f, 0.0f, 1.0f), mat4(1), ivec2(10, 0)},
+    {vec3(0.5f, -0.5f, -2.5f), 0, vec4(0.0f, 1.0f, 0.0f, 1.0f), mat4(1), ivec2(20, 0)},
+    {vec3(-0.5f,  0.5f, -2.5f), 0, vec4(0.0f, 0.0f, 1.0f, 1.0f), mat4(1), ivec2(30, 0)},
+    { vec3(0.5f,  0.5f, -2.5f), 0, vec4(1.0f, 1.0f, 0.0f, 1.0f), mat4(1), ivec2(40, 0) },
 
-    { vec3(-0.5f, -0.5f, -3.5f), 0, vec4(0.0f, 1.0f, 1.0f, 1.0f), ivec2(50, 0)},
-    { vec3(0.5f, -0.5f, -3.5f), 0, vec4(1.0f, 0.0f, 1.0f, 1.0f), ivec2(60, 0)},
-    { vec3(-0.5f,  0.5f, -3.5f), 0, vec4(1.0f, 1.0f, 0.5f, 1.0f), ivec2(70, 0)},
-    { vec3(0.5f,  0.5f, -3.5f), 0, vec4(0.5f, 0.5f, 1.0f, 1.0f), ivec2(80, 0)}
+    { vec3(-0.5f, -0.5f, -3.5f), 0, vec4(0.0f, 1.0f, 1.0f, 1.0f), mat4(1), ivec2(50, 0)},
+    { vec3(0.5f, -0.5f, -3.5f), 0, vec4(1.0f, 0.0f, 1.0f, 1.0f), mat4(1), ivec2(60, 0)},
+    { vec3(-0.5f,  0.5f, -3.5f), 0, vec4(1.0f, 1.0f, 0.5f, 1.0f), mat4(1), ivec2(70, 0)},
+    { vec3(0.5f,  0.5f, -3.5f), 0, vec4(0.5f, 0.5f, 1.0f, 1.0f), mat4(1), ivec2(80, 0)}
 };
 static const GLfloat billboard_position_data[] = {
  -0.01f, -0.01f, 0.0f,
@@ -71,7 +71,7 @@ void PointCloudRenderer::Create(GLFWwindow* window)
     glGenVertexArrays(1, &m_vertexArrayObject);
     glBindVertexArray(m_vertexArrayObject);
     glGenBuffers(1, &m_vertexBufferObject);
-    //glGenBuffers(1, &m_vertexAnimation);
+    glGenBuffers(1, &m_vertexTrans);
     glGenBuffers(1, &m_outlineBuffer);
 
     glGenBuffers(1, &billboard_position_buffer);
@@ -110,7 +110,7 @@ void PointCloudRenderer::Delete()
     m_initialized = false;
 
     glDeleteBuffers(1, &m_vertexBufferObject);
-    //glDeleteBuffers(1, &m_vertexAnimation);
+    glDeleteBuffers(1, &m_vertexTrans);
     glDeleteBuffers(1, &m_outlineBuffer);
     glDeleteBuffers(1, &billboard_position_buffer);
     glDeleteBuffers(1, &billboard_texture_buffer);
@@ -221,23 +221,34 @@ void PointCloudRenderer::UpdatePointClouds(
         int i = 0;
         int randNumAnimating = rand() % 10;
         std::vector<int> randPixIndices;
-        int maxIndex = 320*288;
-        for (int j = 0; j < randNumAnimating; j++)
-            randPixIndices.push_back(rand() % maxIndex);
+        if(ssbo_CPUMEM.last_index>0 && resetAnimators)
+            for (int j = 0; j < randNumAnimating; j++)
+                randPixIndices.push_back(rand() % ssbo_CPUMEM.last_index);
 
         while (outlineIndex >= 0)
         {
             outlineIndex = ssbo_CPUMEM.outlineIndices[i];
             PointCloudVertex pointCloud;
-            if(randAnim)
-                pointCloud.Animate = 0;
+
             pointCloud.Color = point3ds[outlineIndex].Color;
             pointCloud.Position = point3ds[outlineIndex].Position;
             pointCloud.PixelLocation = point3ds[outlineIndex].PixelLocation;
-            pointCloudOutline.push_back(pointCloud);
+            float scale = ( (rand() % 30) + 10)/ 10.0f;
+            pointCloud.Transformations = glm::translate(mat4(1), pointCloud.Position) * glm::rotate(glm::mat4(1), (float)glm::radians((rand() % 360) / 1.0f), glm::vec3(0, 0, 1)) * glm::scale(mat4(1), glm::vec3(scale));
+            if (std::find(randPixIndices.begin(), randPixIndices.end(), i) != randPixIndices.end() && resetAnimators)
+            {
+                pointCloud.Animate = 1;
+                animatingPixels.push_back(pointCloud);
+            }
+            else
+            {
+                pointCloud.Animate = 0;
+                pointCloudOutline.push_back(pointCloud);
+            }
             ssbo_CPUMEM.outlineIndices[i] = -1;
             i++;
         }
+        resetAnimators = false;
     }
 
 
@@ -268,6 +279,7 @@ void PointCloudRenderer::UpdatePointClouds(
 
     glBindBuffer(GL_ARRAY_BUFFER, m_vertexBufferObject);
 
+    std::vector<glm::mat4> transformations;
     if (!drawOnlyPointCloudOutline)
     {
         if (!useTestPointClouds)
@@ -280,8 +292,13 @@ void PointCloudRenderer::UpdatePointClouds(
         }
     }
     else {
-        glBufferData(GL_ARRAY_BUFFER, pointCloudOutline.size() * sizeof(PointCloudVertex), pointCloudOutline.data(), GL_STREAM_DRAW);
-
+        allPixelsInOutline.clear();
+        allPixelsInOutline.reserve(pointCloudOutline.size() + animatingPixels.size()); // preallocate memory
+        allPixelsInOutline.insert(allPixelsInOutline.end(), pointCloudOutline.begin(), pointCloudOutline.end());
+        allPixelsInOutline.insert(allPixelsInOutline.end(), animatingPixels.begin(), animatingPixels.end());
+        glBufferData(GL_ARRAY_BUFFER, allPixelsInOutline.size() * sizeof(PointCloudVertex), allPixelsInOutline.data(), GL_STREAM_DRAW);
+        for (int i = 0; i < allPixelsInOutline.size(); i++)
+            transformations.push_back(allPixelsInOutline.at(i).Transformations);
     }
     
 
@@ -295,16 +312,28 @@ void PointCloudRenderer::UpdatePointClouds(
     // Vertex Colors
     glEnableVertexAttribArray(4);
     glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(PointCloudVertex), (void*)offsetof(PointCloudVertex, Color));
+    // Vertex transformations
+    glBindBuffer(GL_ARRAY_BUFFER, m_vertexTrans);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4)*transformations.size(), transformations.data(), GL_STATIC_DRAW);
+
+    glEnableVertexAttribArray(5);
+    glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 4*sizeof(glm::vec4), (void*)0);
+    glEnableVertexAttribArray(6);
+    glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(glm::vec4), (void*)(1 * sizeof(glm::vec4)));
+    glEnableVertexAttribArray(7);
+    glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(glm::vec4), (void*)(2 * sizeof(glm::vec4)));
+    glEnableVertexAttribArray(8);
+    glVertexAttribPointer(8, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(glm::vec4), (void*)(3 * sizeof(glm::vec4)));
 
     //// Vertex Pixel Location
     //// Notice: For GL_INT type, we need to use glVertexAttribIPointer instead of glVertexAttribPointer
-    //glEnableVertexAttribArray(5);
-    //glVertexAttribIPointer(5, 2, GL_INT, sizeof(PointCloudVertex), (void*)offsetof(PointCloudVertex, PixelLocation));
+    //glEnableVertexAttribArray(6);
+    //glVertexAttribIPointer(6, 2, GL_INT, sizeof(PointCloudVertex), (void*)offsetof(PointCloudVertex, PixelLocation));
 
     glBindVertexArray(0);
 
     m_drawArraySize = useTestPointClouds ? 8 : GLsizei(numPoints);
-    m_drawArraySize = drawOnlyPointCloudOutline ? pointCloudOutline.size() : m_drawArraySize;
+    m_drawArraySize = drawOnlyPointCloudOutline ? allPixelsInOutline.size() : m_drawArraySize;
 }
 
 void PointCloudRenderer::SetShading(bool enableShading)
@@ -342,7 +371,6 @@ void PointCloudRenderer::Render(SceneComponent* scene, int width, int height)
         pointSize = std::min(2.f * width / (float)m_width, 2.f * height / (float)m_height);
     }
     //glPointSize(pointSize);
-
     //glUseProgram(m_shaderProgram);
     VSFSProgram->bind();
 
@@ -351,8 +379,8 @@ void PointCloudRenderer::Render(SceneComponent* scene, int width, int height)
     glUniformMatrix4fv(VSFSProgram->getUniform("view"), 1, GL_FALSE, &m_view[0][0]);
     glUniformMatrix4fv(VSFSProgram->getUniform("projection"), 1, GL_FALSE, &m_projection[0][0]);
 
-    glm::mat4 model = glm::scale(glm::mat4(1), glm::vec3(1.0f, 1.0f, 1.0f));
-    glUniformMatrix4fv(VSFSProgram->getUniform("model"), 1, GL_FALSE, &model[0][0]);
+   /* glm::mat4 model = glm::scale(glm::mat4(1), glm::vec3(1.0f, 1.0f, 1.0f));
+    glUniformMatrix4fv(VSFSProgram->getUniform("model"), 1, GL_FALSE, &model[0][0]);*/
 
     // Update render settings in shader
     glUniform1i(VSFSProgram->getUniform("enableShading"), (GLint)m_enableShading);
@@ -369,13 +397,21 @@ void PointCloudRenderer::Render(SceneComponent* scene, int width, int height)
     glVertexAttribDivisor(2, 1); // positions : one per quad (its center) -> 1
     glVertexAttribDivisor(3, 1); // start animation : one per quad -> 1
     glVertexAttribDivisor(4, 1); // color : one per quad -> 1
-    //glVertexAttribDivisor(5, 1); // pixel location : one per quad -> 1
+    glVertexAttribDivisor(5, 1); // particle transformations : one per quad -> 1
+    glVertexAttribDivisor(6, 1); // particle transformations : one per quad -> 1
+    glVertexAttribDivisor(7, 1); // particle transformations : one per quad -> 1
+    glVertexAttribDivisor(8, 1); // particle transformations : one per quad -> 1
+    //glVertexAttribDivisor(9, 1); // pixel location : one per quad -> 1
 
     glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, m_drawArraySize);
     glBindVertexArray(0);
     
     VSFSProgram->unbind();
-
+    if (scene->getTileProgress() == 0)
+    {
+        resetAnimators = true;
+        animatingPixels.clear();
+    }
 }
 
 void PointCloudRenderer::ChangePointCloudSize(float pointCloudSize)

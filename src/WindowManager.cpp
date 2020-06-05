@@ -124,7 +124,7 @@ void WindowManager::UpdatePointClouds(k4a_image_t depthImage, std::vector<Color>
             pointCloud.PixelLocation.x = pixelLocation.x;
             pointCloud.PixelLocation.y = pixelLocation.y;
             pointCloud.Animate = 0;
-
+          
             m_pointClouds.push_back(pointCloud);
         }
     }

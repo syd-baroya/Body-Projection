@@ -7,7 +7,7 @@ uniform float totaltime;
 
 in vec4 fragmentColor;
 in vec2 fragTexCoords;
-flat in float fragAnim;
+flat in int fragAnim;
 
 void main()
 {
@@ -23,10 +23,10 @@ void main()
          }
 
         fragColor= texture(scene_tex, vec2(texcoord.x,texcoord.y));
-        fragColor = vec4(fragmentColor.rgb, 1);
+        //fragColor = vec4(fragmentColor.rgb, 1);
 
-//        if(fragAnim == 0)
-//            fragColor.a = 0.25f;
+        if(fragAnim == 0)
+            fragColor.a = 0.2f;
        
         if(fragColor.rgb == vec3(0))
             discard;

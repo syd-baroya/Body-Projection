@@ -20,6 +20,9 @@ void SceneComponent::init()
 void SceneComponent::update(double frametime)
 {
 	this->effect_time += frametime;
+	if (this->effect_time >= 16.0f)
+		this->effect_time = 0.0f;
+
 }
 
 
@@ -29,7 +32,7 @@ void SceneComponent::draw(Program* prog)
 	if (has_offset)
 	{
 		
-		float tileprogress = (this->effect_time / 4.0f) * (offset.x*offset.y);
+		tileprogress = (this->effect_time / 16.0f)* (offset.x*offset.y);
 		int tx = (int)tileprogress % offset.x;
 		int ty = (int)tileprogress / offset.y;
 		vec4 texoff = vec4(offset.x, offset.y, tx, ty);

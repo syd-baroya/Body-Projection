@@ -5,13 +5,14 @@ layout(location = 1) in vec2 vertexTexCoords;
 layout(location = 2) in vec3 vertexOffset;
 layout(location = 3) in int animatePix;
 layout(location = 4) in vec4 vertexColor;
+layout(location = 5) in mat4 pixelTrans;
 //layout(location = 5) in ivec2 pixelLocation;
 
 out vec4 fragmentColor;
 out vec2 fragTexCoords;
 flat out int fragAnim;
 
-uniform mat4 model;
+//uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 uniform bool enableShading;
@@ -22,7 +23,7 @@ layout(r16ui, binding = 1) restrict readonly uniform uimage2D depth;
 
 void main()
 {
-    gl_Position = projection * view * model * vec4(vertexPosition + vertexOffset, 1);
+    gl_Position = projection * view * pixelTrans * vec4(vertexPosition, 1);
 
     fragmentColor = vertexColor;
 
