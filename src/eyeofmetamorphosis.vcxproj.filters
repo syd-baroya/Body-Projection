@@ -291,6 +291,13 @@
       <Filter>shader</Filter>
     </None>
     <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\content\**\*.*" />
+    <None Include="..\resources\two_col_blend.vert">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="..\resources\two_col_blend.frag">
+      <Filter>shader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\resources\shaders.txt">

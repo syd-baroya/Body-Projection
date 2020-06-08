@@ -41,6 +41,8 @@ PointCloudRenderer::PointCloudRenderer()
     vertShaderPath += "point_cloud.vert";
     fragShaderPath += "point_cloud.frag";
     computeShaderPath += "compute.glsl";
+    blendVertPath += "two_col_blend.vert";
+    blendFragPath += "two_col_blend.frag";
 
     for (int i = 0; i < 320 * 288 / 2; i++)
         ssbo_CPUMEM.outlineIndices[i] = -1;
@@ -63,6 +65,7 @@ void PointCloudRenderer::Create(GLFWwindow* window)
     glEnable(GL_PROGRAM_POINT_SIZE);
 
     VSFSProgram = new Program(vertShaderPath, fragShaderPath);
+    blendProgram = new Program(blendVertPath, blendFragPath);
     computeProgram = new ComputeProgram(8, 18, 1, computeShaderPath);
     atomicCounterBuff = new AtomicCounterBuffer();
     ssBuffObject = new ShaderStorageBuffer();
@@ -98,6 +101,112 @@ void PointCloudRenderer::Create(GLFWwindow* window)
     TexLoc = glGetUniformLocation(VSFSProgram->getPID(), "scene_tex");
     glUniform1i(TexLoc, 0);
 
+    // Deferred Stuff
+    //init rectangle mesh (2 triangles) for the post processing
+    glGenVertexArrays(1, &VertexArrayIDBox);
+    glBindVertexArray(VertexArrayIDBox);
+
+    //generate vertex buffer to hand off to OGL
+    glGenBuffers(1, &VertexBufferIDBox);
+
+    //set the current state to focus on our vertex buffer
+    glBindBuffer(GL_ARRAY_BUFFER, VertexBufferIDBox);
+
+    GLfloat* rectangle_vertices = new GLfloat[18];
+    int verccount = 0;
+
+    rectangle_vertices[verccount++] = -1.0, rectangle_vertices[verccount++] = -1.0, rectangle_vertices[verccount++] = 0.0;
+    rectangle_vertices[verccount++] = 1.0, rectangle_vertices[verccount++] = -1.0, rectangle_vertices[verccount++] = 0.0;
+    rectangle_vertices[verccount++] = -1.0, rectangle_vertices[verccount++] = 1.0, rectangle_vertices[verccount++] = 0.0;
+    rectangle_vertices[verccount++] = 1.0, rectangle_vertices[verccount++] = -1.0, rectangle_vertices[verccount++] = 0.0;
+    rectangle_vertices[verccount++] = 1.0, rectangle_vertices[verccount++] = 1.0, rectangle_vertices[verccount++] = 0.0;
+    rectangle_vertices[verccount++] = -1.0, rectangle_vertices[verccount++] = 1.0, rectangle_vertices[verccount++] = 0.0;
+
+    //actually memcopy the data - only do this once
+    glBufferData(GL_ARRAY_BUFFER, 18 * sizeof(float), rectangle_vertices, GL_STATIC_DRAW);
+
+    //we need to set up the vertex array
+    glEnableVertexAttribArray(0);
+    //key function to get up how many elements to pull out at a time (3)
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+
+
+
+    //generate vertex buffer to hand off to OGL
+    glGenBuffers(1, &VertexBufferTex);
+
+    //set the current state to focus on our vertex buffer
+    glBindBuffer(GL_ARRAY_BUFFER, VertexBufferTex);
+
+    float t = 1. / 100.;
+
+    GLfloat* rectangle_texture_coords = new GLfloat[12];
+    int texccount = 0;
+
+    rectangle_texture_coords[texccount++] = 0, rectangle_texture_coords[texccount++] = 0;
+    rectangle_texture_coords[texccount++] = 1, rectangle_texture_coords[texccount++] = 0;
+    rectangle_texture_coords[texccount++] = 0, rectangle_texture_coords[texccount++] = 1;
+    rectangle_texture_coords[texccount++] = 1, rectangle_texture_coords[texccount++] = 0;
+    rectangle_texture_coords[texccount++] = 1, rectangle_texture_coords[texccount++] = 1;
+    rectangle_texture_coords[texccount++] = 0, rectangle_texture_coords[texccount++] = 1;
+
+    //actually memcopy the data - only do this once
+    glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(float), rectangle_texture_coords, GL_STATIC_DRAW);
+
+    //we need to set up the vertex array
+    glEnableVertexAttribArray(2);
+
+    //key function to get up how many elements to pull out at a time (3)
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
+
+
+    blendProgram->addAttribute("vertPos");
+    blendProgram->addAttribute("vertTex");
+
+    int width, height;
+    blendProgram->bind();
+    glfwGetFramebufferSize(window, &width, &height);
+
+    glGenFramebuffers(1, &fb);
+    glBindFramebuffer(GL_FRAMEBUFFER, fb);
+
+
+    // Generate Color Texture
+    glGenTextures(1, &FBOcol1);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, FBOcol1);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_BYTE, NULL);
+
+    // Generate Position Texture
+    glGenTextures(1, &FBOcol2);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, FBOcol2);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, FBOcol1, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, FBOcol2, 0);
+
+    glGenRenderbuffers(1, &depth_rb);
+    glBindRenderbuffer(GL_RENDERBUFFER, depth_rb);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
+
+    //-------------------------
+
+    //Attach depth buffer to FBO
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth_rb);
+
+    int Tex1Loc = glGetUniformLocation(blendProgram->getPID(), "color1");
+    int Tex2Loc = glGetUniformLocation(blendProgram->getPID(), "color2");
+    glUniform1i(Tex1Loc, 0);
+    glUniform1i(Tex2Loc, 1);
 }
 
 void PointCloudRenderer::Delete()
@@ -378,6 +487,12 @@ void PointCloudRenderer::Render(SceneComponent* scene, int width, int height)
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    glBindFramebuffer(GL_FRAMEBUFFER, fb);
+
+    GLenum buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
+
+    glDrawBuffers(2, buffers);
+
 
     float pointSize;
     if (m_pointCloudSize)
@@ -429,6 +544,14 @@ void PointCloudRenderer::Render(SceneComponent* scene, int width, int height)
     glBindVertexArray(0);
     
     VSFSProgram->unbind();
+
+    // Save output to framebuffer
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindTexture(GL_TEXTURE_2D, FBOcol1);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, FBOcol2);
+    glGenerateMipmap(GL_TEXTURE_2D);
+
     resetAnimators = false;
 
     if (scene->getTileProgress() == 0)
@@ -436,6 +559,23 @@ void PointCloudRenderer::Render(SceneComponent* scene, int width, int height)
         resetAnimators = true;
         animatingPixels.clear();
     }
+
+
+
+    glClearColor(0.0, 0.0, 0.0, 0.0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    blendProgram->bind();
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, FBOcol1);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, FBOcol2);
+
+    glBindVertexArray(VertexArrayIDBox);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    blendProgram->unbind();
+
 }
 
 void PointCloudRenderer::ChangePointCloudSize(float pointCloudSize)

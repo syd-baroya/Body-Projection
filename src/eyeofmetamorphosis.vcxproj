@@ -103,6 +103,8 @@
     <None Include="..\resources\shader_body.glsl" />
     <None Include="..\resources\shader_fragment.glsl" />
     <None Include="..\resources\shader_vertex.glsl" />
+    <None Include="..\resources\two_col_blend.frag" />
+    <None Include="..\resources\two_col_blend.vert" />
     <None Include="..\resources\vert.glsl" />
     <None Include="dnn_model_2_0.onnx" />
     <None Include="packages.config" />

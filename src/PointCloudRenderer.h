@@ -91,7 +91,13 @@ namespace Visualization
         GLuint m_outlineBuffer = 0;
         GLuint billboard_position_buffer = 0;
         GLuint billboard_texture_buffer = 0;
-
+        GLuint VertexArrayIDBox = 0;
+        GLuint VertexBufferIDBox = 0;
+        GLuint VertexBufferTex = 0;
+        GLuint fb = 0;
+        GLuint FBOcol1 = 0;
+        GLuint FBOcol2 = 0;
+        GLuint depth_rb = 0;
 
         GLuint m_xyTableTextureObject = 0;
         GLuint m_depthTextureObject = 0;
@@ -101,6 +107,10 @@ namespace Visualization
 
         ComputeProgram* computeProgram;
         std::string computeShaderPath = "../resources/";
+
+        Program* blendProgram;
+        std::string blendVertPath = "../resources/";
+        std::string blendFragPath = "../resources/";
 
         AtomicCounterBuffer* atomicCounterBuff;
         ShaderStorageBuffer* ssBuffObject;

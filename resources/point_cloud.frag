@@ -1,5 +1,7 @@
 #version 430
-out vec4 fragColor;
+out vec4 fragColor1;
+out vec4 fragColor2;
+
 layout(location = 0) uniform sampler2D scene_tex;
 
 uniform vec4 texoffset;
@@ -23,13 +25,13 @@ void main()
                 texcoord.x +=texoffset.z / texoffset.x;
                 texcoord.y +=texoffset.w / texoffset.y;
             }
-            fragColor= texture(scene_tex, vec2(texcoord.x,texcoord.y));
-            if(fragColor.rgb == vec3(0))
+            fragColor1= texture(scene_tex, vec2(texcoord.x,texcoord.y));
+            if(fragColor1.rgb == vec3(0))
                 discard;
          }
 
         else
-            fragColor = vec4(1, 0.967, .549, 1);
+            fragColor2 = vec4(1, 0.967, .549, 1);
        
         
     }
