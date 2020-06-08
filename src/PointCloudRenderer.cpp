@@ -193,8 +193,7 @@ void PointCloudRenderer::UpdatePointClouds(
     glBindImageTexture(1, m_depthTextureObject, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R16UI);
 
     std::vector<glm::mat4> transformations;
-    for (int i = 0; i < numPoints; i++)
-        transformations.push_back(point3ds[i].Transformations);
+
     if (drawOnlyPointCloudOutline)
     {
         //pointCloudOutline.clear();
@@ -229,7 +228,7 @@ void PointCloudRenderer::UpdatePointClouds(
                 randPixIndices.push_back(rand() % ssbo_CPUMEM.last_index);*/
 
        
-        while (outlineIndex >= 0)
+        while (outlineIndex >= 0 && numPoints>0)
         {
             outlineIndex = ssbo_CPUMEM.outlineIndices[i];
 
@@ -258,13 +257,14 @@ void PointCloudRenderer::UpdatePointClouds(
             ssbo_CPUMEM.outlineIndices[i] = -1;
             i++;
         }
-        if(!resetAnimators)
-            for(i=0; i<animatingPixels.size(); i++)
-                transformations.push_back(animatingPixels.at(i).Transformations);
 
-        resetAnimators = false;
     }
 
+    for (int i = 0; i < numPoints; i++)
+        transformations.push_back(point3ds[i].Transformations);
+    if (!resetAnimators)
+        for (int i = 0; i < animatingPixels.size(); i++)
+            transformations.push_back(animatingPixels.at(i).Transformations);
 
     glBindVertexArray(m_vertexArrayObject);
     // Create buffers and bind the geometry
@@ -429,6 +429,8 @@ void PointCloudRenderer::Render(SceneComponent* scene, int width, int height)
     glBindVertexArray(0);
     
     VSFSProgram->unbind();
+    resetAnimators = false;
+
     if (scene->getTileProgress() == 0)
     {
         resetAnimators = true;
