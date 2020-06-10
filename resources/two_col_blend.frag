@@ -10,6 +10,8 @@ layout(location = 1) uniform sampler2D color2;
 void main()
 
 {
+	vec4 t0 = texture2D(color1, fragTex);
+    vec4 t1 = texture2D(color2, fragTex);
+    color = t0 + t1;
 
-	color = texture(color1, fragTex) +  texture(color2, fragTex);
 }

@@ -14,9 +14,9 @@ flat in int fragAnim;
 void main()
 {
 
- //fragColor = vec4(fragmentColor.rgb, 1);
     if(fragmentColor.rgb != vec3(0))
     {
+       
          if(fragAnim >= 0)
          {
             vec2 texcoord = vec2(fragTexCoords.x/texoffset.x, fragTexCoords.y/texoffset.y);
@@ -26,15 +26,20 @@ void main()
                 texcoord.y +=texoffset.w / texoffset.y;
             }
             fragColor1= texture(scene_tex, vec2(texcoord.x,texcoord.y));
+            fragColor2 = vec4(0,0,0,0);
             if(fragColor1.rgb == vec3(0))
                 discard;
          }
 
         else
+        {
+            fragColor1 = vec4(0,0,0,0);
             fragColor2 = vec4(1, 0.967, .549, 1);
-       
+        }
         
     }
-    else
+    else{
         discard;
+    }
+
 }
