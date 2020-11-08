@@ -19,9 +19,9 @@ layout(rgba8, binding = 0) uniform image2D img;		//input/output image
 //local group of shaders
 layout (std430, binding=0) volatile buffer shader_data
 { 
-  vec4 colorInput[  320 * 288 ];
-  int outlineIndices[(320 * 288)/2];
-  uint last_index;
+  vec4 colorInput[(320 * 288)];
+//  int outlineIndices[(320 * 288)/2];
+//  uint last_index;
 };
 
 void main() 
@@ -36,7 +36,11 @@ void main()
 	if( colorInput[index].rgb != vec3(0))
 	{
 		vec4 up, down, left, right;
-		up = down = left = right = vec4(1);
+		up = vec4(1);
+		down = vec4(1);
+		left = vec4(1);
+		right = vec4(1);
+
 
 		//check if up is valid
 		if( index >= 320)
@@ -56,8 +60,9 @@ void main()
 
 		if( (up.rgb == vec3(0)) || (down.rgb == vec3(0)) || (left.rgb == vec3(0)) || (right.rgb == vec3(0)) ) 
 		{
-			atomicAdd(last_index, 1);
-			outlineIndices[atomicCounterIncrement(ac)] = int(index);
+			colorInput[index] = vec4(1);
+//			atomicAdd(last_index, 1);
+//			outlineIndices[atomicCounterIncrement(ac)] = int(index);
 
 //			if(pixelLife[index].x <= -20.0f)
 //				pixelLife[index].x = pixelLife[index].y;

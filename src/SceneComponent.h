@@ -12,7 +12,7 @@
 #include <glm/glm.hpp>
 #include "HelperFunctions.h"
 #include "Component.h"
-#include <glm\ext\matrix_transform.hpp>
+#include <glm\gtc\matrix_transform.hpp>
 #include <math.h>
 //#include "GeometryComponent.h"
 //#include "TrackedBodyEntity.h"

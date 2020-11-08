@@ -28,7 +28,8 @@ void KinectSystem::VisualizeResult(k4abt_frame_t bodyFrame, WindowManager& windo
 
     // Visualize the skeleton data
     //window3d.CleanJointsAndBones();
-    //uint32_t numBodies = k4abt_frame_get_num_bodies(bodyFrame);
+    uint32_t numBodies = k4abt_frame_get_num_bodies(bodyFrame);
+    std::cout << numBodies << std::endl;
     //for (uint32_t i = 0; i < numBodies; i++)
     //{
     //    k4abt_body_t body;
@@ -253,7 +254,7 @@ void KinectSystem::init()
 {
     deviceConfig.depth_mode = K4A_DEPTH_MODE_NFOV_2X2BINNED;
     deviceConfig.color_resolution = K4A_COLOR_RESOLUTION_OFF;
-    tracker_config.processing_mode = K4ABT_TRACKER_PROCESSING_MODE_CPU;
+    tracker_config.processing_mode = K4ABT_TRACKER_PROCESSING_MODE_GPU;
 
 }
 

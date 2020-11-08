@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.7)
 
 # Name of the project
-project(lab3)
+project(body-projection)
 
 # Use glob to get the list of all source files.
 file(GLOB_RECURSE SOURCES "src/*.cpp" "ext/glad/src/*.c")
@@ -67,8 +67,6 @@ else()
 # the user has installed GLM properly on their system
   message(STATUS "GLM environment variable `GLM_INCLUDE_DIR` not found, GLM must be installed with the system")
 endif()
-
-
 
 # OS specific options and libraries
 if(WIN32)

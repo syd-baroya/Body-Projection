@@ -11,7 +11,13 @@ void main()
 
 {
 	vec4 t0 = texture2D(color1, fragTex);
-    vec4 t1 = texture2D(color2, fragTex);
-    color = t0 + t1;
+    vec4 t1 = texture2D(color2, fragTex) ;
+    float blend_factor = 0.75f;
+    if(t0.rgb==vec3(0) && t1.rgb!=vec3(0))
+        blend_factor = 0.0f;
+    else if(t0.rgb!=vec3(0) && t1.rgb==vec3(0))
+        blend_factor = 1.0f;
+    color = t0 * blend_factor + t1* (1.0f - blend_factor);
+
 
 }

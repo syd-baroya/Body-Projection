@@ -63,8 +63,8 @@ namespace Visualization
         {
         public:
             glm::vec4 colorInput[320 * 288];
-            int outlineIndices[(320 * 288) / 2];
-            int last_index = 0;
+          /*  int outlineIndices[(320 * 288) / 2];
+            int last_index = 0;*/
         };
         //int colorIndex[320 * 288] = { 0 };
         ssbo_data ssbo_CPUMEM;
