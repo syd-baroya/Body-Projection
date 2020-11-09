@@ -216,13 +216,13 @@ std::map< k4abt_joint_id_t, long double> average_all_joint_angles(vector<new_tra
 		{
 
 			angleAverages[element.first] += element.second;
-			cout << endl<< "DEVICE " << i << ": " << "JOINT "<< g_jointNames.at(element.first) << "ANGLE " << element.second<<endl;
+			//cout << endl<< "DEVICE " << i << ": " << "JOINT "<< g_jointNames.at(element.first) << "ANGLE " << element.second<<endl;
 		}
 	}
 	for (pair< k4abt_joint_id_t, long double> element : angleAverages)
 	{
 		angleAverages[element.first] = element.second / trackedbody.size();
-		cout << endl<< "JOINT " << g_jointNames.at(element.first) << "ANGLE AVERAGES " << angleAverages[element.first] <<endl;
+		//cout << endl<< "JOINT " << g_jointNames.at(element.first) << "ANGLE AVERAGES " << angleAverages[element.first] <<endl;
 	}
 	return angleAverages;
 }
@@ -817,8 +817,9 @@ public:
 
 	bool Update_Kinect(float frametime)
 		{
-		
 		int trackedbodies = 0;
+		double start_time = glfwGetTime();
+
 #ifdef NOKINECT
 		get_record(&body, &body.trackedbody);
 		trackedbodies = body.trackedbody.size();
@@ -826,6 +827,9 @@ public:
 #ifndef NOKINECT
 		trackedbodies = body.Update(frametime);
 #endif
+
+		double end_time = glfwGetTime();
+		cout << (end_time - start_time) << endl;
 		if (body.getNumBodies() > 0)
 		{
 			for (int i = 0; i < body.getDeviceCount(); i++) {
@@ -838,7 +842,7 @@ public:
 			vec3 master_positions[K4ABT_JOINT_COUNT];
 			copy(begin(body.trackedbody.at(0).joint_positions), end(body.trackedbody.at(0).joint_positions), begin(master_positions));
 
-			std::cout << "Length of array = " << (sizeof(master_positions) / sizeof(*master_positions)) << std::endl;
+			//std::cout << "Length of array = " << (sizeof(master_positions) / sizeof(*master_positions)) << std::endl;
 
 			for (pair< k4abt_joint_id_t, long double> element : avg_angles)
 			{
@@ -872,6 +876,7 @@ public:
 		generate_body_vertices(&body.trackedbody.at(0), &temp_posb, app_posb);
 
 		app_posb = temp_posb;
+
 
 		glBindBuffer(GL_ARRAY_BUFFER, VBbody);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vec3) * temp_posb.size(), temp_posb.data());
@@ -1182,7 +1187,7 @@ public:
 		static bool first = true;
 		if (first)
 		{
-			ifstream f("anim.txt");
+			ifstream f("../src/anim.txt");
 			if (f.is_open() == false)return;
 			first = false;
 			f >> deviceCount;
@@ -2483,6 +2488,8 @@ int main(int argc, char **argv)
 		glfwSwapBuffers(windowManager->getHandle());
 		// Poll for and process events.
 		glfwPollEvents();
+		//double iterationTime = get_last_elapsed_time();
+		//cout << (iterationTime - frametime) << endl;
 		}
 
 	// Quit program.

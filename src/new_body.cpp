@@ -47,6 +47,9 @@ void new_body_::InitializeDefaultSensor()
 				deviceConfig.wired_sync_mode = K4A_WIRED_SYNC_MODE_SUBORDINATE;
 				deviceConfig.subordinate_delay_off_master_usec = 10;
 			}
+			else {
+				deviceConfig.wired_sync_mode = K4A_WIRED_SYNC_MODE_STANDALONE;
+			}
 		}
 
 		if (master_index != deviceIndex || !add_master_at_end) {
