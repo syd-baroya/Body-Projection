@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\Christian Eckhardt\Documents\Thesis\Body-Projection\multiDeviBuild\CMakeFiles\ea34714bca5fcb77ec3ec549779df509\INSTALL_force.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{146BB50F-DEF8-32B0-8B86-966C96FD4EFE}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

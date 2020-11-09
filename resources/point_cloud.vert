@@ -2,10 +2,10 @@
 
 layout(location = 0) in vec3 vertexPosition;
 layout(location = 1) in vec2 vertexTexCoords;
-layout(location = 2) in vec3 vertexOffset;
-layout(location = 3) in int animatePix;
-layout(location = 4) in vec4 vertexColor;
-//layout(location = 5) in mat4 pixelTrans;
+layout(location = 2) in vec4 vertexColor;
+layout(location = 3) in vec3 vertexOffset;
+layout(location = 4) in int animatePix;
+layout(location = 5) in mat4 pixelTrans;
 //layout(location = 5) in ivec2 pixelLocation;
 
 out vec4 fragmentColor;

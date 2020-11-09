@@ -119,7 +119,7 @@ void WindowManager::UpdatePointClouds(k4a_image_t depthImage, std::vector<Color>
 
             glm::vec3 positionInMeter = ConvertMillimeterToMeter(position);
             Visualization::PointCloudVertex pointCloud;
-            pointCloud.Position = glm::vec3(positionInMeter.x, positionInMeter.y, positionInMeter.z);
+            pointCloud.Position = glm::vec3(-positionInMeter.x, positionInMeter.y, positionInMeter.z);
             pointCloud.Color = glm::vec4(color.x, color.y, color.z, color.a);
             pointCloud.PixelLocation.x = pixelLocation.x;
             pointCloud.PixelLocation.y = pixelLocation.y;

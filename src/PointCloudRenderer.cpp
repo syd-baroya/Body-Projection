@@ -376,20 +376,19 @@ void PointCloudRenderer::UpdatePointClouds(
 
     }
 
-    //for (int i = 0; i < numPoints; i++) {
-    //    if (ssbo_CPUMEM.colorInput[i] == vec4(1))
-    //    {
-    //        float scale = ((rand() % 190) + 10) / 100.0f;
-    //        transformations.push_back(glm::translate(mat4(1), point3ds[i].Position) * glm::rotate(glm::mat4(1), (float)glm::radians((rand() % 360) / 1.0f), glm::vec3(0, 0, 1)) * glm::scale(mat4(1), glm::vec3(scale)));
-    //        //if (resetAnimators)
-    //        //    point3ds[i].Animate = 1;
-    //        //else
-    //        //    point3ds[i].Animate = 0;
+    for (int i = 0; i < numPoints; i++) {
+        if (ssbo_CPUMEM.colorInput[i] == vec4(1))
+        {
+            float scale = ((rand() % 190) + 10) / 100.0f;
+            point3ds[i].Transformations = glm::translate(mat4(1), point3ds[i].Position) * glm::rotate(glm::mat4(1), (float)glm::radians((rand() % 360) / 1.0f), glm::vec3(0, 0, 1)) * glm::scale(mat4(1), glm::vec3(scale));
+            //if (resetAnimators)
+            //    point3ds[i].Animate = 1;
+            //else
+            //    point3ds[i].Animate = 0;
 
-    //    }
-    //    else
-    //        transformations.push_back(point3ds[i].Transformations);
-    //}
+        }
+      
+    }
     //for (int i = 0; i < animatingPixels.size(); i++)
     //    transformations.push_back(animatingPixels.at(i).Transformations);
 
@@ -417,6 +416,12 @@ void PointCloudRenderer::UpdatePointClouds(
         (void*)0 // array buffer offset
     );
 
+    // Vertex Colors
+
+    glBindBuffer(GL_ARRAY_BUFFER, m_outlineBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vec4)* numPoints, ssbo_CPUMEM.colorInput, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (void*)0);
 
     glBindBuffer(GL_ARRAY_BUFFER, m_vertexBufferObject);
 
@@ -436,30 +441,25 @@ void PointCloudRenderer::UpdatePointClouds(
     
     // Set the vertex attribute pointers
     // Vertex Positions
-    glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(PointCloudVertex), (void*)0);
-    //animate
     glEnableVertexAttribArray(3);
-    glVertexAttribIPointer(3, 1, GL_INT, sizeof(PointCloudVertex), (void*)offsetof(PointCloudVertex, Animate));
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(PointCloudVertex), (void*)0);
+    //animate
+    glEnableVertexAttribArray(4);
+    glVertexAttribIPointer(4, 1, GL_INT, sizeof(PointCloudVertex), (void*)offsetof(PointCloudVertex, Animate));
     
     //// Vertex transformations
     //glBindBuffer(GL_ARRAY_BUFFER, m_vertexTrans);
     //glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4)*transformations.size(), transformations.data(), GL_STATIC_DRAW);
 
-    //glEnableVertexAttribArray(4);
-    //glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 4*sizeof(glm::vec4), (void*)0);
-    //glEnableVertexAttribArray(5);
-    //glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(glm::vec4), (void*)(1 * sizeof(glm::vec4)));
-    //glEnableVertexAttribArray(6);
-    //glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(glm::vec4), (void*)(2 * sizeof(glm::vec4)));
-    //glEnableVertexAttribArray(7);
-    //glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(glm::vec4), (void*)(3 * sizeof(glm::vec4)));
-    // Vertex Colors
-
-    glBindBuffer(GL_ARRAY_BUFFER, m_outlineBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vec4)* numPoints, ssbo_CPUMEM.colorInput, GL_STATIC_DRAW);
-    glEnableVertexAttribArray(4);
-    glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (void*)0);
+    glEnableVertexAttribArray(5);
+    glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(PointCloudVertex), (void*)(offsetof(PointCloudVertex, Transformations)));
+    glEnableVertexAttribArray(6);
+    glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(PointCloudVertex), (void*)(offsetof(PointCloudVertex, Transformations)+sizeof(glm::vec4)));
+    glEnableVertexAttribArray(7);
+    glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, sizeof(PointCloudVertex), (void*)(offsetof(PointCloudVertex, Transformations) + 2 * sizeof(glm::vec4)));
+    glEnableVertexAttribArray(8);
+    glVertexAttribPointer(8, 4, GL_FLOAT, GL_FALSE, sizeof(PointCloudVertex), (void*)(offsetof(PointCloudVertex, Transformations) + 3 * sizeof(glm::vec4)));
+   
     //// Vertex Pixel Location
     //// Notice: For GL_INT type, we need to use glVertexAttribIPointer instead of glVertexAttribPointer
     //glEnableVertexAttribArray(6);
@@ -538,10 +538,10 @@ void PointCloudRenderer::Render(SceneComponent* scene, int width, int height)
     glVertexAttribDivisor(2, 1); // positions : one per quad (its center) -> 1
     glVertexAttribDivisor(3, 1); // start animation : one per quad -> 1
     glVertexAttribDivisor(4, 1); // color : one per quad -> 1
-    //glVertexAttribDivisor(5, 1); // particle transformations : one per quad -> 1
-    //glVertexAttribDivisor(6, 1); // particle transformations : one per quad -> 1
-    //glVertexAttribDivisor(7, 1); // particle transformations : one per quad -> 1
-    //glVertexAttribDivisor(8, 1); // particle transformations : one per quad -> 1
+    glVertexAttribDivisor(5, 1); // particle transformations : one per quad -> 1
+    glVertexAttribDivisor(6, 1); // particle transformations : one per quad -> 1
+    glVertexAttribDivisor(7, 1); // particle transformations : one per quad -> 1
+    glVertexAttribDivisor(8, 1); // particle transformations : one per quad -> 1
     //glVertexAttribDivisor(9, 1); // pixel location : one per quad -> 1
 
     //glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, m_drawArraySize);

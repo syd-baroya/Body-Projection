@@ -37,8 +37,8 @@ void main()
         else
         {
             fragColor1 = vec4(0,0,0,0);
-            fragColor2 = fragColor;
-//            fragColor1 = vec4(1, 0.967, .549, 1);
+//            fragColor2 = fragColor;
+            fragColor2 = vec4(1, 0.967, .549, 1);
 //
         }
         

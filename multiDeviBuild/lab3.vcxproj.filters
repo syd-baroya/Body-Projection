@@ -1,0 +1,97 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\Christian Eckhardt\Documents\Thesis\Body-Projection\ext\glad\src\glad.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Christian Eckhardt\Documents\Thesis\Body-Projection\src\GLSL.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Christian Eckhardt\Documents\Thesis\Body-Projection\src\MatrixStack.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Christian Eckhardt\Documents\Thesis\Body-Projection\src\Program.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Christian Eckhardt\Documents\Thesis\Body-Projection\src\Shape.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Christian Eckhardt\Documents\Thesis\Body-Projection\src\WindowManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Christian Eckhardt\Documents\Thesis\Body-Projection\src\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Christian Eckhardt\Documents\Thesis\Body-Projection\src\new_body.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Christian Eckhardt\Documents\Thesis\Body-Projection\src\temp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\Users\Christian Eckhardt\Documents\Thesis\Body-Projection\ext\glad\include\KHR\khrplatform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Christian Eckhardt\Documents\Thesis\Body-Projection\ext\glad\include\glad\glad.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Christian Eckhardt\Documents\Thesis\Body-Projection\src\GLSL.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Christian Eckhardt\Documents\Thesis\Body-Projection\src\MatrixStack.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Christian Eckhardt\Documents\Thesis\Body-Projection\src\Program.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Christian Eckhardt\Documents\Thesis\Body-Projection\src\Shape.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Christian Eckhardt\Documents\Thesis\Body-Projection\src\WindowManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Christian Eckhardt\Documents\Thesis\Body-Projection\src\helper_includes\BodyTrackingHelpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Christian Eckhardt\Documents\Thesis\Body-Projection\src\helper_includes\Utilities.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Christian Eckhardt\Documents\Thesis\Body-Projection\src\new_body.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Christian Eckhardt\Documents\Thesis\Body-Projection\src\stb_image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Christian Eckhardt\Documents\Thesis\Body-Projection\src\stb_image_write.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Christian Eckhardt\Documents\Thesis\Body-Projection\src\tiny_obj_loader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\Christian Eckhardt\Documents\Thesis\Body-Projection\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="C:\Users\Christian Eckhardt\Documents\Thesis\Body-Projection\resources\but_fragment.glsl" />
+    <None Include="C:\Users\Christian Eckhardt\Documents\Thesis\Body-Projection\resources\but_vertex.glsl" />
+    <None Include="C:\Users\Christian Eckhardt\Documents\Thesis\Body-Projection\resources\compute.glsl" />
+    <None Include="C:\Users\Christian Eckhardt\Documents\Thesis\Body-Projection\resources\frag.glsl" />
+    <None Include="C:\Users\Christian Eckhardt\Documents\Thesis\Body-Projection\resources\fragscreen.glsl" />
+    <None Include="C:\Users\Christian Eckhardt\Documents\Thesis\Body-Projection\resources\shader_body.glsl" />
+    <None Include="C:\Users\Christian Eckhardt\Documents\Thesis\Body-Projection\resources\shader_fragment.glsl" />
+    <None Include="C:\Users\Christian Eckhardt\Documents\Thesis\Body-Projection\resources\shader_vertex.glsl" />
+    <None Include="C:\Users\Christian Eckhardt\Documents\Thesis\Body-Projection\resources\vert.glsl" />
+    <None Include="packages.config" />
+    <None Include="dnn_model_2_0.onnx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{27F5B493-74E9-34BD-A9E4-886C8344D7CE}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{8D4CBF42-86D3-3737-9576-2DAF710F81B9}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
