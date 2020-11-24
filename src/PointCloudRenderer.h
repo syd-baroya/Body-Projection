@@ -34,22 +34,27 @@ namespace Visualization
         void update(float frametime);
 
         void UpdatePointClouds(
-            GLFWwindow* window,
-            Visualization::PointCloudVertex* point3ds,
-            uint32_t numPoints,
-            const uint16_t* depthFrame,
+            GLFWwindow* window, 
+            PointCloudVertex* point3ds, 
+            uint32_t numPoints, 
+            const uint16_t* depthFrame, 
             uint32_t width, uint32_t height, 
+            float maxDepthZ, float minDepthZ,
             bool drawOnlyPointCloudOutline = false,
             bool useTestPointClouds = false);
 
         void SetShading(bool enableShading);
 
         void Render() override;
-        void Render(SceneComponent* scene, int width, int height);
+        void Render(int width, int height);
 
         void ChangePointCloudSize(float pointCloudSize);
 
+        GLuint getPointCloudMask();
+
     private:
+        std::ofstream myfile;
+
         std::vector<PointCloudVertex> pointCloudOutline;
         std::vector<PointCloudVertex> allPixelsInOutline;
         /*

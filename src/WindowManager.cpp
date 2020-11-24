@@ -104,7 +104,7 @@ void WindowManager::UpdatePointClouds(k4a_image_t depthImage, std::vector<Color>
                 static_cast<float>(pointCloudImageBuffer[3 * pixelIndex + 2]) };
 
             // When the point cloud is invalid, the z-depth value is 0.
-            if (!m_window3d.drawOnlyPointCloudOutline() && position.v[2] == 0)
+            if ((!m_window3d.drawOnlyPointCloudOutline() && position.v[2] == 0 )|| (pointCloudColors[pixelIndex].r==0 && pointCloudColors[pixelIndex].g == 0 && pointCloudColors[pixelIndex].b == 0))
             {
                 continue;
             }
@@ -124,9 +124,14 @@ void WindowManager::UpdatePointClouds(k4a_image_t depthImage, std::vector<Color>
             pointCloud.PixelLocation.x = pixelLocation.x;
             pointCloud.PixelLocation.y = pixelLocation.y;
             pointCloud.Animate = -1;
-            pointCloud.Transformations = glm::translate(mat4(1), pointCloud.Position)*glm::scale(mat4(1), vec3(0.2));
-          
+            pointCloud.Transformations = glm::translate(mat4(1), pointCloud.Position);// *glm::scale(mat4(1), vec3(0.2));
+            
             m_pointClouds.push_back(pointCloud);
+
+            if (positionInMeter.z > maxDepthZ)
+                maxDepthZ = positionInMeter.z;
+            if (positionInMeter.z < minDepthZ)
+                minDepthZ = positionInMeter.z;
         }
     }
 
@@ -203,8 +208,12 @@ void WindowManager::Render()
 {
     if (m_pointCloudUpdated || m_pointClouds.size() != 0)
     {
-        m_window3d.UpdatePointClouds(m_pointClouds.data(), (uint32_t)m_pointClouds.size(), m_depthBuffer.data(), m_depthWidth, m_depthHeight);
+        m_window3d.UpdatePointClouds(m_pointClouds.data(), (uint32_t)m_pointClouds.size(), m_depthBuffer.data(), m_depthWidth, m_depthHeight, maxDepthZ, minDepthZ);
         m_pointClouds.clear();
+
+        maxDepthZ = 0.f;
+        minDepthZ = 500.f;
+
         m_pointCloudUpdated = false;
     }
     m_window3d.UpdateScene();

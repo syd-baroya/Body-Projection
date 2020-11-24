@@ -35,6 +35,7 @@ static const GLfloat billboard_texture_data[] = {
 
 PointCloudRenderer::PointCloudRenderer()
 {
+    myfile.open("computeShaderTime.txt");
     m_view = mat4(1);
     m_projection = mat4(1);
 
@@ -221,7 +222,7 @@ void PointCloudRenderer::Delete()
     }
 
     m_initialized = false;
-
+    myfile.close();
     glDeleteBuffers(1, &m_vertexBufferObject);
     glDeleteBuffers(1, &m_vertexTrans);
     glDeleteBuffers(1, &m_outlineBuffer);
@@ -287,7 +288,8 @@ void PointCloudRenderer::UpdatePointClouds(
     PointCloudVertex* point3ds,
     uint32_t numPoints,
     const uint16_t* depthFrame,
-    uint32_t width, uint32_t height, 
+    uint32_t width, uint32_t height,
+    float maxDepthZ, float minDepthZ,
     bool drawOnlyPointCloudOutline,
     bool useTestPointClouds)
 {
@@ -319,6 +321,7 @@ void PointCloudRenderer::UpdatePointClouds(
 
         ssBuffObject->load_SSBO<PointCloudRenderer::ssbo_data>(&ssbo_CPUMEM, 0, sizeof(ssbo_CPUMEM));
 
+        double start_time = glfwGetTime();
         computeProgram->startUpload();
 
         ssBuffObject->bindBufferBase(0);
@@ -331,6 +334,9 @@ void PointCloudRenderer::UpdatePointClouds(
         ssBuffObject->unbindBufferBase(0);
         computeProgram->unbind();
 
+        double end_time = glfwGetTime();
+
+        myfile << (end_time - start_time) << std::endl;;
 
         ssBuffObject->get_SSBO_back<PointCloudRenderer::ssbo_data>(&ssbo_CPUMEM, sizeof(ssbo_CPUMEM));
         atomicCounterBuff->read_atomic();
@@ -376,17 +382,20 @@ void PointCloudRenderer::UpdatePointClouds(
 
     }
 
+    float maxScale = 0.4f;
+    float minScale = 0.1f;
     for (int i = 0; i < numPoints; i++) {
+
+        float scale = ((point3ds[i].Position.z - minDepthZ) / (maxDepthZ - minDepthZ)) * (minScale - maxScale) + maxScale;
         if (ssbo_CPUMEM.colorInput[i] == vec4(1))
         {
-            float scale = ((rand() % 190) + 10) / 100.0f;
-            point3ds[i].Transformations = glm::translate(mat4(1), point3ds[i].Position) * glm::rotate(glm::mat4(1), (float)glm::radians((rand() % 360) / 1.0f), glm::vec3(0, 0, 1)) * glm::scale(mat4(1), glm::vec3(scale));
-            //if (resetAnimators)
-            //    point3ds[i].Animate = 1;
-            //else
-            //    point3ds[i].Animate = 0;
+            scale *= 0.6f;
+            point3ds[i].Transformations *= glm::rotate(glm::mat4(1), (float)glm::radians((rand() % 360) / 1.0f), glm::vec3(0, 0, 1)) * glm::scale(mat4(1), glm::vec3(scale));
 
         }
+        else
+            point3ds[i].Transformations *= glm::scale(mat4(1), glm::vec3(scale));
+
       
     }
     //for (int i = 0; i < animatingPixels.size(); i++)
@@ -481,17 +490,22 @@ void PointCloudRenderer::Render()
     std::array<int, 4> data; // x, y, width, height
 
     glGetIntegerv(GL_VIEWPORT, data.data());
-    Render(nullptr, data[2], data[3]);
+    Render(data[2], data[3]);
 }
 
-void PointCloudRenderer::Render(SceneComponent* scene, int width, int height)
+void PointCloudRenderer::Render(int width, int height)
 {
 
 
+    //if highlighting outline
+    //glBindFramebuffer(GL_FRAMEBUFFER, fb);
+    //GLenum buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
+    //glDrawBuffers(2, buffers);
 
+    //else
     glBindFramebuffer(GL_FRAMEBUFFER, fb);
-    GLenum buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
-    glDrawBuffers(2, buffers);
+    GLenum buffers[] = { GL_COLOR_ATTACHMENT0 };
+    glDrawBuffers(1, buffers);
 
 
     glEnable(GL_DEPTH_TEST);
@@ -528,8 +542,8 @@ void PointCloudRenderer::Render(SceneComponent* scene, int width, int height)
     glUniform1i(VSFSProgram->getUniform("enableShading"), (GLint)m_enableShading);
 
 
-    if(scene!=nullptr)
-        scene->draw(VSFSProgram);
+    //if(scene!=nullptr)
+    //    scene->draw(VSFSProgram);
 
     // Render point cloud
     glBindVertexArray(m_vertexArrayObject);
@@ -556,22 +570,28 @@ void PointCloudRenderer::Render(SceneComponent* scene, int width, int height)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glBindTexture(GL_TEXTURE_2D, FBOcol1);
     glGenerateMipmap(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, FBOcol2);
-    glGenerateMipmap(GL_TEXTURE_2D);
 
-    glClearColor(0.0, 0.0, 0.0, 0.0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    blendProgram->bind();
+    //uncomment if highlighting outline
 
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, FBOcol1);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, FBOcol2);
+    //glBindTexture(GL_TEXTURE_2D, FBOcol2);
+    //glGenerateMipmap(GL_TEXTURE_2D);
 
-    glBindVertexArray(VertexArrayIDBox);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
-    blendProgram->unbind();
+
+
+    //glClearColor(0.0, 0.0, 0.0, 0.0);
+    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    //blendProgram->bind();
+
+    //glActiveTexture(GL_TEXTURE0);
+    //glBindTexture(GL_TEXTURE_2D, FBOcol1);
+    //glActiveTexture(GL_TEXTURE1);
+    //glBindTexture(GL_TEXTURE_2D, FBOcol2);
+
+    //glBindVertexArray(VertexArrayIDBox);
+    //glDrawArrays(GL_TRIANGLES, 0, 6);
+    //blendProgram->unbind();
 
 
     //resetAnimators = false;
@@ -590,5 +610,10 @@ void PointCloudRenderer::ChangePointCloudSize(float pointCloudSize)
     std::lock_guard<std::mutex> lock(m_mutex);
 
     m_pointCloudSize = pointCloudSize;
+}
+
+GLuint Visualization::PointCloudRenderer::getPointCloudMask()
+{
+    return this->FBOcol1;
 }
 

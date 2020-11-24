@@ -187,62 +187,144 @@ void KinectSystem::VisualizeResult(k4abt_frame_t bodyFrame, WindowManager& windo
 
 void KinectSystem::processFromDevice(WindowManager& window3d) {
     
-    k4a_capture_t sensorCapture = nullptr;
-    k4a_wait_result_t getCaptureResult = k4a_device_get_capture(device, &sensorCapture, 0); // timeout_in_ms is set to 0
+    for (uint32_t deviceIndex = 0; deviceIndex < this->device_count; deviceIndex++) {
+        k4a_capture_t sensorCapture = nullptr;
+        k4a_wait_result_t getCaptureResult = k4a_device_get_capture(this->devices.at(deviceIndex), &sensorCapture, 0); // timeout_in_ms is set to 0
 
-    if (getCaptureResult == K4A_WAIT_RESULT_SUCCEEDED)
-    {
-        // timeout_in_ms is set to 0. Return immediately no matter whether the sensorCapture is successfully added
-        // to the queue or not.
-        k4a_wait_result_t queueCaptureResult = k4abt_tracker_enqueue_capture(tracker, sensorCapture, 0);
-
-        // Release the sensor capture once it is no longer needed.
-        k4a_capture_release(sensorCapture);
-
-        if (queueCaptureResult == K4A_WAIT_RESULT_FAILED)
+        if (getCaptureResult == K4A_WAIT_RESULT_SUCCEEDED)
         {
-            std::cout << "Error! Add capture to tracker process queue failed!" << std::endl;
+            // timeout_in_ms is set to 0. Return immediately no matter whether the sensorCapture is successfully added
+            // to the queue or not.
+            k4a_wait_result_t queueCaptureResult = k4abt_tracker_enqueue_capture(this->trackers.at(deviceIndex), sensorCapture, 0);
+
+            // Release the sensor capture once it is no longer needed.
+            k4a_capture_release(sensorCapture);
+
+            if (queueCaptureResult == K4A_WAIT_RESULT_FAILED)
+            {
+                std::cout << "Error! Add capture to tracker process queue failed!" << std::endl;
+                exit(1);
+            }
+        }
+        else if (getCaptureResult != K4A_WAIT_RESULT_TIMEOUT)
+        {
+            std::cout << "Get depth capture returned error: " << getCaptureResult << std::endl;
             exit(1);
         }
-    }
-    else if (getCaptureResult != K4A_WAIT_RESULT_TIMEOUT)
-    {
-        std::cout << "Get depth capture returned error: " << getCaptureResult << std::endl;
-        exit(1);
-    }
 
-    // Pop Result from Body Tracker
-    k4abt_frame_t bodyFrame = nullptr;
-    k4a_wait_result_t popFrameResult = k4abt_tracker_pop_result(tracker, &bodyFrame, 0); // timeout_in_ms is set to 0
-    if (popFrameResult == K4A_WAIT_RESULT_SUCCEEDED)
-    {
-        /************* Successfully get a body tracking result, process the result here ***************/
-        VisualizeResult(bodyFrame, window3d, depthWidth, depthHeight);
-        //Release the bodyFrame
-        k4abt_frame_release(bodyFrame);
+        // Pop Result from Body Tracker
+        k4abt_frame_t bodyFrame = nullptr;
+        k4a_wait_result_t popFrameResult = k4abt_tracker_pop_result(this->trackers.at(deviceIndex), &bodyFrame, 0); // timeout_in_ms is set to 0
+        if (popFrameResult == K4A_WAIT_RESULT_SUCCEEDED)
+        {
+            /************* Successfully get a body tracking result, process the result here ***************/
+            VisualizeResult(bodyFrame, window3d, this->depthWidths.at(deviceIndex), this->depthHeights.at(deviceIndex));
+            //Release the bodyFrame
+            k4abt_frame_release(bodyFrame);
+        }
     }
-
 }
 
 void KinectSystem::initDevice(WindowManager& window3d)
 {
-    VERIFY(k4a_device_open(0, &device), "Open K4A Device failed!");
+    //VERIFY(k4a_device_open(0, &device), "Open K4A Device failed!");
 
-    // Start camera. Make sure depth camera is enabled.
+    //// Start camera. Make sure depth camera is enabled.
 
-    VERIFY(k4a_device_start_cameras(device, &deviceConfig), "Start K4A cameras failed!");
+    //VERIFY(k4a_device_start_cameras(device, &deviceConfig), "Start K4A cameras failed!");
 
-    // Get calibration information
+    //// Get calibration information
 
-    VERIFY(k4a_device_get_calibration(device, deviceConfig.depth_mode, deviceConfig.color_resolution, &sensorCalibration),
-        "Get depth camera calibration failed!");
-    depthWidth = sensorCalibration.depth_camera_calibration.resolution_width;
-    depthHeight = sensorCalibration.depth_camera_calibration.resolution_height;
+    //VERIFY(k4a_device_get_calibration(device, deviceConfig.depth_mode, deviceConfig.color_resolution, &sensorCalibration),
+    //    "Get depth camera calibration failed!");
+    //depthWidth = sensorCalibration.depth_camera_calibration.resolution_width;
+    //depthHeight = sensorCalibration.depth_camera_calibration.resolution_height;
 
-    // Create Body Tracker
+    //// Create Body Tracker
 
-    VERIFY(k4abt_tracker_create(&sensorCalibration, tracker_config, &tracker), "Body tracker initialization failed!");
+    //VERIFY(k4abt_tracker_create(&sensorCalibration, tracker_config, &tracker), "Body tracker initialization failed!");
 
+    this->device_count = k4a_device_get_installed_count();
+    bool add_master_at_end = false;
+    uint8_t master_index = 0;
+    k4a_device_t master_device = NULL;
+    k4a_device_configuration_t master_deviceConfig;
+    k4abt_tracker_t master_tracker = NULL;
+    for (uint8_t deviceIndex = 0; deviceIndex < this->device_count; deviceIndex++) {
+
+        k4a_device_t new_device = NULL;
+        k4a_device_configuration_t deviceConfig = this->deviceConfig;
+        k4abt_tracker_t new_tracker = NULL;
+
+
+        VERIFY(k4a_device_open(deviceIndex, &new_device), "Open K4A Device failed!");
+
+        bool sync_in_jack_connected = nullptr;
+        bool sync_out_jack_connected = nullptr;
+
+        k4a_result_t get_connector_status_result = k4a_device_get_sync_jack(new_device, &sync_in_jack_connected, &sync_out_jack_connected);
+        if (get_connector_status_result == K4A_RESULT_SUCCEEDED)
+        {
+            if (sync_out_jack_connected && !sync_in_jack_connected) {
+                if (this->device_count != 1) {
+                    deviceConfig.wired_sync_mode = K4A_WIRED_SYNC_MODE_MASTER;
+                    deviceConfig.color_resolution = K4A_COLOR_RESOLUTION_720P;
+                    if (deviceIndex != 0) {
+                        add_master_at_end = true;
+                        master_index = deviceIndex;
+                        master_device = new_device;
+                        master_deviceConfig = deviceConfig;
+                        master_tracker = new_tracker;
+                    }
+                }
+                else {
+                    deviceConfig.wired_sync_mode = K4A_WIRED_SYNC_MODE_STANDALONE;
+                }
+            }
+            else if (sync_out_jack_connected && sync_in_jack_connected) {
+                deviceConfig.wired_sync_mode = K4A_WIRED_SYNC_MODE_SUBORDINATE;
+                deviceConfig.subordinate_delay_off_master_usec = 10;
+            }
+            else if (!sync_out_jack_connected && sync_in_jack_connected) {
+                deviceConfig.wired_sync_mode = K4A_WIRED_SYNC_MODE_SUBORDINATE;
+                deviceConfig.subordinate_delay_off_master_usec = 10;
+            }
+        }
+
+        if (master_index != deviceIndex || !add_master_at_end) {
+            // Start camera. Make sure depth camera is enabled.
+            VERIFY(k4a_device_start_cameras(new_device, &deviceConfig), "Start K4A cameras failed!");
+            k4a_calibration_t sensorCalibration;
+
+            VERIFY(k4a_device_get_calibration(new_device, deviceConfig.depth_mode, deviceConfig.color_resolution, &sensorCalibration),
+                "Get depth camera calibration failed!");
+
+            VERIFY(k4abt_tracker_create(&sensorCalibration, this->tracker_config, &new_tracker), "Body tracker initialization failed!");
+
+            k4abt_tracker_set_temporal_smoothing(new_tracker, 0.5f);
+
+            this->devices.push_back(new_device);
+            this->trackers.push_back(new_tracker);
+            this->depthWidths.push_back(sensorCalibration.depth_camera_calibration.resolution_width);
+            this->depthHeights.push_back(sensorCalibration.depth_camera_calibration.resolution_height);
+        }
+    }
+    if (add_master_at_end) {
+        // Start camera. Make sure depth camera is enabled.
+        VERIFY(k4a_device_start_cameras(master_device, &master_deviceConfig), "Start K4A cameras failed!");
+        k4a_calibration_t sensorCalibration;
+
+        VERIFY(k4a_device_get_calibration(master_device, master_deviceConfig.depth_mode, master_deviceConfig.color_resolution, &sensorCalibration),
+            "Get depth camera calibration failed!");
+
+        VERIFY(k4abt_tracker_create(&sensorCalibration, this->tracker_config, &master_tracker), "Body tracker initialization failed!");
+        k4abt_tracker_set_temporal_smoothing(master_tracker, 0.5f);
+
+        this->devices.insert(this->devices.begin(), master_device);
+        this->trackers.insert(this->trackers.begin(), master_tracker);
+        this->depthWidths.insert(this->depthWidths.begin(), sensorCalibration.depth_camera_calibration.resolution_width);
+        this->depthHeights.insert(this->depthHeights.begin(), sensorCalibration.depth_camera_calibration.resolution_height);
+    }
 
     window3d.Create("3D Visualization", sensorCalibration);
     //window3d.SetCloseCallback(CloseCallback);
@@ -261,9 +343,15 @@ void KinectSystem::init()
 void KinectSystem::shutdown() {
     std::cout << "Finished body tracking processing!" << std::endl;
 
-    k4abt_tracker_shutdown(tracker);
+   /* k4abt_tracker_shutdown(tracker);
     k4abt_tracker_destroy(tracker);
 
     k4a_device_stop_cameras(device);
-    k4a_device_close(device);
+    k4a_device_close(device);*/
+    for (int deviceIndex = this->device_count - 1; deviceIndex >= 0; deviceIndex--) {
+        k4abt_tracker_shutdown(this->trackers.at(deviceIndex));
+        k4abt_tracker_destroy(this->trackers.at(deviceIndex));
+        k4a_device_stop_cameras(this->devices.at(deviceIndex));
+        k4a_device_close(this->devices.at(deviceIndex));
+    }
 }

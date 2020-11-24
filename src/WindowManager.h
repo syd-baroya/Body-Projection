@@ -77,6 +77,8 @@ private:
     bool m_pointCloudUpdated = false;
     std::vector<uint16_t> m_depthBuffer;
     std::vector<Visualization::PointCloudVertex> m_pointClouds;
+    float maxDepthZ = 0.f;
+    float minDepthZ = 500.f;
 
     struct XY
     {

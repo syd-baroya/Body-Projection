@@ -36,6 +36,13 @@ private:
 	k4abt_tracker_configuration_t tracker_config = K4ABT_TRACKER_CONFIG_DEFAULT;
 	int depthWidth;
 	int depthHeight;
+	int device_count = 0;
+	std::vector<k4a_device_t> devices;
+	std::vector<k4abt_tracker_t> trackers;
+	std::vector<int> depthWidths;
+	std::vector<int> depthHeights;
+
+
 };
 
 #endif

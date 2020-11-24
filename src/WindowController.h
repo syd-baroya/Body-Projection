@@ -59,11 +59,12 @@ namespace Visualization
 
         void UpdateScene();
 
-        void UpdatePointClouds(
-            Visualization::PointCloudVertex* point3d,
-            uint32_t numPoints,
+		void UpdatePointClouds(
+            PointCloudVertex* point3d,
+            uint32_t numPoints, 
             const uint16_t* depthFrame,
-            uint32_t width, uint32_t height,
+            uint32_t width, uint32_t height, 
+            float maxDepthZ, float minDepthZ,
             bool useTestPointClouds = false);
 
   //      void addColor(glm::vec4 color, bool in_point_cloud);

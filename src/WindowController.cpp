@@ -239,9 +239,10 @@ void WindowController::UpdatePointClouds(
     uint32_t numPoints,
     const uint16_t* depthFrame,
     uint32_t width, uint32_t height,
+    float maxDepthZ, float minDepthZ,
     bool useTestPointClouds)
 {
-    m_pointCloudRenderer.UpdatePointClouds(m_window, point3d, numPoints, depthFrame, width, height, point_cloud_outline_only, useTestPointClouds);
+    m_pointCloudRenderer.UpdatePointClouds(m_window, point3d, numPoints, depthFrame, width, height, maxDepthZ, minDepthZ, point_cloud_outline_only, useTestPointClouds);
 }
 
 //void WindowController::addColor(glm::vec4 color, bool in_point_cloud) 
@@ -301,7 +302,7 @@ void WindowController::RenderScene(ViewControl& viewControl, Viewport viewport)
     if (m_skeletonRenderMode == SkeletonRenderMode::SkeletonOverlay ||
         m_skeletonRenderMode == SkeletonRenderMode::SkeletonOverlayWithJointFrame)
     {
-        m_pointCloudRenderer.Render(scene_comps.at(active_scene),viewport.width, viewport.height);
+        m_pointCloudRenderer.Render(viewport.width, viewport.height);
 
         glClear(GL_DEPTH_BUFFER_BIT);
         //m_skeletonRenderer.Render();
@@ -309,7 +310,7 @@ void WindowController::RenderScene(ViewControl& viewControl, Viewport viewport)
     else
     {
         //m_skeletonRenderer.Render();
-        m_pointCloudRenderer.Render(scene_comps.at(active_scene), viewport.width, viewport.height);
+        m_pointCloudRenderer.Render(viewport.width, viewport.height);
     }
 
     // Render Camera Pivot Point when interacting with the view control.
