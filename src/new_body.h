@@ -188,6 +188,7 @@ class new_body_
 		uint32_t getDeviceCount();
 		void setDeviceCount(uint32_t device_count);
 		size_t getNumBodies();
+
 		new_body_()
 		{
 			num_bodies = 0;

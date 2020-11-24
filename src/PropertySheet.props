@@ -1,8 +1,17 @@
-<?xml version="1.0" encoding="utf-8"?> 
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
-  <ItemDefinitionGroup />
+  <PropertyGroup>
+    <IncludePath>C:\Users\sbaroya\source\repos\Body-Projection\ext\glad\include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\sbaroya\source\repos\Body-Projection\packages\glm;C:\Users\sbaroya\source\repos\Body-Projection\packages\glfw-3.3.1\include;C:\Users\sbaroya\source\repos\Body-Projection\ext\glad\include;C:\Users\sbaroya\source\repos\Body-Projection\src\helper_includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>C:\Users\sbaroya\source\repos\Body-Projection\packages\glfw-3.3.1.bin.WIN64\lib-vc2019;C:\Users\sbaroya\source\repos\Body-Projection\packages\Microsoft.Azure.Kinect.Sensor.1.3.0\lib\native\amd64\release;C:\Users\sbaroya\source\repos\Body-Projection\packages\Microsoft.Azure.Kinect.BodyTracking.Dependencies.cuDNN.0.9.1\lib\native\amd64\release;C:\Users\sbaroya\source\repos\Body-Projection\packages\Microsoft.Azure.Kinect.BodyTracking.Dependencies.0.9.1\lib\native\amd64\release;C:\Users\sbaroya\source\repos\Body-Projection\packages\Microsoft.Azure.Kinect.BodyTracking.0.9.5\lib\native\amd64\release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
   <ItemGroup />
 </Project>

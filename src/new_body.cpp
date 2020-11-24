@@ -220,14 +220,14 @@ bool new_body_::ProcessBody(float frametime, uint64_t nTime, int nBodyCount, new
 			{
 				trackedbody.at(deviceIndex).jointTracked[j] = false;
 				trackedbody.at(deviceIndex).time_till_last_joint_tracked[j] += frametime;
-				cout << "lost track on joint: " << j << ", on device: " << deviceIndex << endl;
+				//cout << "lost track on joint: " << j << ", on device: " << deviceIndex << endl;
 			}
 			else
 			{
 
 				trackedbody.at(deviceIndex).jointTracked[j] = true;
 				trackedbody.at(deviceIndex).time_till_last_joint_tracked[j] = 0;
-				trackedbody.at(deviceIndex).joint_positions[j].x = joints[j].position.xyz.x*MillimeterToMeter;
+				trackedbody.at(deviceIndex).joint_positions[j].x = -joints[j].position.xyz.x*MillimeterToMeter;
 				trackedbody.at(deviceIndex).joint_positions[j].y = -joints[j].position.xyz.y*MillimeterToMeter;
 				trackedbody.at(deviceIndex).joint_positions[j].z = -joints[j].position.xyz.z*MillimeterToMeter;
 			}
