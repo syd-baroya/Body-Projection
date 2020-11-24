@@ -105,7 +105,7 @@ long double calc_angle(vec3 v1, vec3 v2)
 	long double f = acos(numerator/denominator);
 	//convert radians to degrees
 
-	return f*180.0/PI;
+	return f;
 	}
 
 
@@ -231,17 +231,32 @@ long double calculate_joint_angles(vec3 a, vec3 b, vec3 c)
 std::map< k4abt_joint_id_t, long double> average_all_joint_angles(vector<new_trackedbody_> trackedbody)
 {
 	std::map< k4abt_joint_id_t, long double> angleAverages;
+	std::map< k4abt_joint_id_t, long double> X = 0;
+	std::map< k4abt_joint_id_t, long double> Y = 0;
 	for (int i = 0; i < trackedbody.size(); i++) 
 	{
 		for (pair<k4abt_joint_id_t, long double> element : trackedbody.at(i).jointAngleMap)
 		{
-
-			angleAverages[element.first] += element.second;
+			X[element.first] = cos(element.second);
+			Y[element.first] = sin(element.second);
+			//angleAverages[element.first] += element.second;
 		}
 	}
-	for (pair< k4abt_joint_id_t, long double> element : angleAverages)
+
+
+	for (pair< k4abt_joint_id_t, long double> element : X)
 	{
-		angleAverages[element.first] = element.second / trackedbody.size();
+		long double avg_x = X[element.first] /= trackedbody.size();
+		long double avg_y = Y[element.first] /= trackedbody.size();
+		if(avg_x >0 && avg_y >0)
+			angleAverages[element.first] = atan(avg_y/avg_x);
+		if (avg_x > 0 && avg_y < 0)
+			angleAverages[element.first] = 2*PI - atan(avg_y / avg_x);
+		if (avg_x < 0 && avg_y > 0)
+			angleAverages[element.first] = PI - atan(avg_y / avg_x);
+		if (avg_x < 0 && avg_y < 0)
+			angleAverages[element.first] = PI + atan(avg_y / avg_x);
+		angleAverages[element.first] * (180 / PI);
 	}
 	return angleAverages;
 }
@@ -1210,7 +1225,7 @@ public:
 		static bool first = true;
 		if (first)
 		{
-			ifstream f("anim.txt");
+			ifstream f("../src/anim.txt");
 			if (f.is_open() == false)return;
 			first = false;
 			f >> deviceCount;
